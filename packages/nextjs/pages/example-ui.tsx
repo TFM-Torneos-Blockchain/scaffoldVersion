@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import { MetaHeader } from "~~/components/MetaHeader";
-// import { ContractData } from "~~/components/example-ui/ContractData";
+import { ContractData } from "~~/components/example-ui/ContractData";
 import { ContractInteraction } from "~~/components/example-ui/ContractInteraction";
 
 // Here the contractData and contractInteraction are imported to create the web interface.
@@ -27,7 +27,7 @@ const ExampleUI: NextPage = () => {
       </MetaHeader>
       <div className="grid lg:grid-cols-2 flex-grow" data-theme="exampleUi">
         <ContractInteraction />
-        {/* <ContractData /> */}
+        <ContractData />
       </div>
     </>
   );

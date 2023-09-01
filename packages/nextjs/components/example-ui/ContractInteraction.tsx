@@ -4,56 +4,51 @@ import { DiamondIcon } from "./assets/DiamondIcon";
 import { HareIcon } from "./assets/HareIcon";
 import { useContractWrite } from "wagmi";
 import { ArrowSmallRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { useScaffoldContractWrite, useScaffoldContractRead, useScaffoldContract } from "~~/hooks/scaffold-eth";
 import { parseUnits } from 'viem';
 
 export const ContractInteraction = () => {
   const [visible, setVisible] = useState(true);
-  const [new_tokenAddress, setNew_tokenAddress] = useState("");
-  const [new_approveTo, setNew_approveTo] = useState("");
-  const [new_toDeFiBridge, setNew_toDeFiBridge] = useState("");
   const [new_amount, setNew_amount] = useState("");
 
-  const ERC20abi = [
-    {
-      "constant": false,
-      "inputs": [
-          {
-              "name": "_spender",
-              "type": "address"
-          },
-          {
-              "name": "_value",
-              "type": "uint256"
-          }
-      ],
-      "name": "approve",
-      "outputs": [
-          {
-              "name": "",
-              "type": "bool"
-          }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-  },
-  ];
+  const [new_cometAddress, setNew_cometAddress] = useState("");
+
+  const { data: CompoundProtocol } = useScaffoldContract({ contractName: "CompoundProtocol" });
+  const { data: TournamentContract } = useScaffoldContract({ contractName: "TournamentContract" });
+  const { data: CompoundDaiMumbai } = useScaffoldContract({ contractName: "CompoundDaiMumbai" });
+
   const {
-    isLoading: isLoadingApprove,
     isSuccess,
     writeAsync: approve,
-  } = useContractWrite({
-    address: new_tokenAddress,
-    abi: ERC20abi,
+  } = useScaffoldContractWrite({
+    contractName: "CompoundDaiMumbai",
     functionName: "approve",
-    args: [new_approveTo, parseUnits(new_amount,18)],
+    args: [TournamentContract?.address, parseUnits(new_amount,18)],
   });
 
   const { writeAsync: enroll, isLoading } = useScaffoldContractWrite({
     contractName: "TournamentContract",
     functionName: "enroll",
-    args: [new_tokenAddress, new_toDeFiBridge, parseUnits(new_amount,18)],
+    args: [CompoundDaiMumbai?.address, CompoundProtocol?.address, parseUnits(new_amount,18)],
+    onBlockConfirmation: txnReceipt => {
+      console.log("📦 Transaction blockHash", txnReceipt.blockHash);
+    },
+  });
+
+
+  const { data: tokensToSupply } = useScaffoldContractRead({
+    contractName: "CompoundProtocol",
+    functionName: "getERC20TokenBalance",
+    args: [CompoundDaiMumbai?.address],
+  })
+
+  const { isLoading: isLoadingApprove,writeAsync: compApprove } = useScaffoldContractWrite({
+    contractName: "CompoundProtocol",
+    functionName: "approveAndSupply",
+    args: [
+      tokensToSupply,
+      CompoundDaiMumbai?.address,
+      new_cometAddress],
     onBlockConfirmation: txnReceipt => {
       console.log("📦 Transaction blockHash", txnReceipt.blockHash);
     },
@@ -65,6 +60,7 @@ export const ContractInteraction = () => {
       await enroll();
     }
   };
+
 
   return (
     <div className="flex bg-base-300 relative pb-10">
@@ -105,31 +101,7 @@ export const ContractInteraction = () => {
             <div className="mb-3">
               <input
                 type="text"
-                placeholder="ERC20 address"
-                className="input font-bai-jamjuree w-full px-5 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-white"
-                onChange={e => setNew_tokenAddress(e.target.value)}
-              />
-            </div>
-            <div className="mb-3">
-              <input
-                type="text"
-                placeholder="Approve tokens to our tournament manager"
-                className="input font-bai-jamjuree w-full px-5 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-white"
-                onChange={e => setNew_approveTo(e.target.value)}
-              />
-            </div>
-            <div className="mb-3">
-              <input
-                type="text"
-                placeholder="Address of DeFiBridge"
-                className="input font-bai-jamjuree w-full px-5 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-white"
-                onChange={e => setNew_toDeFiBridge(e.target.value)}
-              />
-            </div>
-            <div>
-              <input
-                type="text"
-                placeholder="Write the amount of tokens to approve"
+                placeholder="Amount of tokens to approve"
                 className="input font-bai-jamjuree w-full px-5 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-white"
                 onChange={e => setNew_amount(e.target.value)}
               />
@@ -152,12 +124,44 @@ export const ContractInteraction = () => {
               </div>
             </div>
           </div>
+        </div>
+
+          <div className="flex flex-col mt-6 px-7 py-8 bg-base-200 opacity-80 rounded-2xl shadow-lg border-2 border-primary">
+          <span className="text-4xl sm:text-6xl text-black">Supply ERC20 to comp Protocol</span>
+
+          <div className="mt-8">
+            <div className="mb-3">
+              <input
+                type="text"
+                placeholder="Comet address"
+                className="input font-bai-jamjuree w-full px-5 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-white"
+                onChange={e => setNew_cometAddress(e.target.value)}
+              />
+            </div>
+            <div className="flex rounded-full border border-primary p-1 flex-shrink-0">
+              <div className="flex rounded-full border-2 border-primary p-1">
+                <button
+                  className="btn btn-primary rounded-full capitalize font-normal font-white w-24 flex items-center gap-1 hover:gap-2 transition-all tracking-widest"
+                  onClick={() => compApprove()}
+                  disabled={isLoadingApprove}
+                >
+                  {isLoading ? (
+                    <span className="loading loading-spinner loading-sm"></span>
+                  ) : (
+                    <>
+                      Supply to Compound <ArrowSmallRightIcon className="w-3 h-3 mt-0.5" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+          </div>
 
           <div className="mt-4 flex gap-2 items-start">
             <span className="text-sm leading-tight">Price :</span>
             <div className="badge badge-warning">0.01 ETH + Gas</div>
           </div>
-        </div>
       </div>
     </div>
   );
