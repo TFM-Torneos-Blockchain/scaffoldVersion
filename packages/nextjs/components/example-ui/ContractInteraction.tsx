@@ -2,10 +2,9 @@ import { useState } from "react";
 import { CopyIcon } from "./assets/CopyIcon";
 import { DiamondIcon } from "./assets/DiamondIcon";
 import { HareIcon } from "./assets/HareIcon";
-import { useContractWrite } from "wagmi";
+import { parseUnits } from "viem";
 import { ArrowSmallRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useScaffoldContractWrite, useScaffoldContractRead, useScaffoldContract } from "~~/hooks/scaffold-eth";
-import { parseUnits } from 'viem';
+import { useScaffoldContract, useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 
 export const ContractInteraction = () => {
   const [visible, setVisible] = useState(true);
@@ -17,49 +16,40 @@ export const ContractInteraction = () => {
   const { data: TournamentContract } = useScaffoldContract({ contractName: "TournamentContract" });
   const { data: CompoundDaiMumbai } = useScaffoldContract({ contractName: "CompoundDaiMumbai" });
 
-  const {
-    isSuccess,
-    writeAsync: approve,
-  } = useScaffoldContractWrite({
+  const { isLoading:loadingapprove, isSuccess, writeAsync: approve } = useScaffoldContractWrite({
     contractName: "CompoundDaiMumbai",
     functionName: "approve",
-    args: [TournamentContract?.address, parseUnits(new_amount,18)],
+    args: [TournamentContract?.address, parseUnits(new_amount, 18)],
+    onBlockConfirmation: txnReceipt => {
+      console.log("📦 approve Transaction blockHash", txnReceipt.blockHash);
+      console.log("Amount for Approval:", parseUnits(new_amount, 18).toString());
+      enroll();
+    },
   });
 
   const { writeAsync: enroll, isLoading } = useScaffoldContractWrite({
     contractName: "TournamentContract",
     functionName: "enroll",
-    args: [CompoundDaiMumbai?.address, CompoundProtocol?.address, parseUnits(new_amount,18)],
+    args: [CompoundDaiMumbai?.address, CompoundProtocol?.address, parseUnits(new_amount, 18)],
     onBlockConfirmation: txnReceipt => {
-      console.log("📦 Transaction blockHash", txnReceipt.blockHash);
+      console.log("📦 transferTo DeFi Transaction blockHash", txnReceipt.blockHash);
     },
   });
-
 
   const { data: tokensToSupply } = useScaffoldContractRead({
     contractName: "CompoundProtocol",
     functionName: "getERC20TokenBalance",
     args: [CompoundDaiMumbai?.address],
-  })
+  });
 
-  const { isLoading: isLoadingApprove,writeAsync: compApprove } = useScaffoldContractWrite({
+  const { isLoading: isLoadingApprove, writeAsync: compApprove } = useScaffoldContractWrite({
     contractName: "CompoundProtocol",
     functionName: "approveAndSupply",
-    args: [
-      tokensToSupply,
-      CompoundDaiMumbai?.address,
-      new_cometAddress],
+    args: [tokensToSupply, CompoundDaiMumbai?.address, new_cometAddress],
     onBlockConfirmation: txnReceipt => {
       console.log("📦 Transaction blockHash", txnReceipt.blockHash);
     },
   });
-
-  const handleFunctions = async () => {
-    await approve();
-    if (isSuccess) {
-      await enroll();
-    }
-  };
 
 
   return (
@@ -110,10 +100,10 @@ export const ContractInteraction = () => {
               <div className="flex rounded-full border-2 border-primary p-1">
                 <button
                   className="btn btn-primary rounded-full capitalize font-normal font-white w-24 flex items-center gap-1 hover:gap-2 transition-all tracking-widest"
-                  onClick={() => handleFunctions()}
-                  disabled={isLoading}
+                  onClick={() => approve()}
+                  disabled={isLoadingApprove}
                 >
-                  {isLoading ? (
+                  {isLoadingApprove ? (
                     <span className="loading loading-spinner loading-sm"></span>
                   ) : (
                     <>
@@ -126,7 +116,7 @@ export const ContractInteraction = () => {
           </div>
         </div>
 
-          <div className="flex flex-col mt-6 px-7 py-8 bg-base-200 opacity-80 rounded-2xl shadow-lg border-2 border-primary">
+        <div className="flex flex-col mt-6 px-7 py-8 bg-base-200 opacity-80 rounded-2xl shadow-lg border-2 border-primary">
           <span className="text-4xl sm:text-6xl text-black">Supply ERC20 to comp Protocol</span>
 
           <div className="mt-8">
@@ -156,12 +146,12 @@ export const ContractInteraction = () => {
               </div>
             </div>
           </div>
-          </div>
+        </div>
 
-          <div className="mt-4 flex gap-2 items-start">
-            <span className="text-sm leading-tight">Price :</span>
-            <div className="badge badge-warning">0.01 ETH + Gas</div>
-          </div>
+        <div className="mt-4 flex gap-2 items-start">
+          <span className="text-sm leading-tight">Price :</span>
+          <div className="badge badge-warning">0.01 ETH + Gas</div>
+        </div>
       </div>
     </div>
   );

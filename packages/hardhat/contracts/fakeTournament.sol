@@ -21,16 +21,13 @@ contract TournamentContract2 {
         emit Enroll(msg.sender, _tokenAddress, _amount);
     }
 
-    // Function to send tokens to ProtocolContract
-    // function sendTokensToProtocol(
-    //     address _tokenAddress,
-    //     uint256 _amount,
-    //     address _to
-    // ) external {
-    //     // Transfer the tokens from this smart contract to the ProtocolContract
-    //     ERC20(_tokenAddress).transfer(_to, _amount);
-    // }
+    function start () external {
 
+    }
+
+    function end () external {
+
+    }
     // Function to check the total collected tokens
     function getTotalCollectedTokens(
         address _tokenAddress

@@ -2,6 +2,7 @@ import { type } from "os";
 import { useEffect, useRef, useState } from "react";
 import Marquee from "react-fast-marquee";
 import { useAccount } from "wagmi";
+import { formatEther } from "viem";
 import {
   useAnimationConfig,
   useScaffoldContract,
@@ -66,18 +67,19 @@ export const ContractData = () => {
     receiptData: true
   });
 
-let events = myGreetingChangeEvents?.[0] ;
-console.log(events.args.value/BigInt(1000000000000000000));
-  //   if (myGreetingChangeEvents.length > 0) {
-//     const event = events[0];
-//     const token = event.args.token;
-//     const value = event.args.value;
-  
-//     console.log("Token:", token);
-//     console.log("Value:", value);
-//   } else {
-//     console.log("No events found.");
-//   
+  let formattedValue;
+  const firstEvent = myGreetingChangeEvents?.[0];
+  if (firstEvent) {
+    const { value } = firstEvent.args;
+    if (value !== undefined) {
+      formattedValue = formatEther(value).toString();
+      console.log("Formatted Value:", formattedValue);
+    } else {
+      console.log("Value is undefined.");
+    }
+  } else {
+    console.log("No events found.");
+  }
 
 
   const { data: CompoundProtocol } = useScaffoldContract({ contractName: "CompoundProtocol" });
@@ -124,7 +126,7 @@ console.log(events.args.value/BigInt(1000000000000000000));
           <div className="bg-secondary border border-primary rounded-xl flex">
             <div className="p-2 py-1 border-r border-primary flex items-end">Total supplied tokens</div>
             <div className="text-4xl text-right min-w-[3rem] px-2 py-1 flex justify-end font-bai-jamjuree">
-              {(events.args.value/BigInt(1000000000000000000))?.toString() || "0"}
+              {formattedValue|| "0"}
             </div>
           </div>
         </div>
