@@ -3,15 +3,8 @@ pragma solidity ^0.8;
 
 import "./interfaces/InterfaceComet.sol";
 import "./interfaces/Erc20.sol";
-import "./fakeTournament.sol";
+import "./TB.sol";
 
-contract TargetContract {
-    uint256 public state;
-    
-    function end(uint256 _value) public {
-        state = _value;
-    }
-}
 
 contract CompoundProtocol {
 	// Add events for logging
@@ -23,10 +16,10 @@ contract CompoundProtocol {
 	event Supply(address indexed token, uint256 value);
 
 	// maybe should also have the defi address as parameter??
-	function start(uint _amount_of_tokens, address _0xERC20Address) external {
+	function start(uint _amount_of_tokens, address[] calldata _0xERC20Addresses) external {
 		startDeFiBridge(
 			_amount_of_tokens,
-			_0xERC20Address,
+			_0xERC20Addresses,
 			0xF09F0369aB0a875254fB565E52226c88f10Bc839
 		);
 	}
@@ -34,28 +27,29 @@ contract CompoundProtocol {
 	// supply uses contract holded tokens
 	function startDeFiBridge(
 		uint256 _amount,
-		address _0xERC20Address,
+		address[] calldata _0xERC20Addresses,
 		address _0xCometAddress
 	) private {
 		// Approve the Compound protocol contract to spend tokens
-		ERC20(_0xERC20Address).approve(_0xCometAddress, _amount);
+		ERC20(_0xERC20Addresses[0]).approve(_0xCometAddress, _amount);
 
 		// Emit event for approval
-		emit Approval(_0xERC20Address, address(this), _amount);
+		emit Approval(_0xERC20Addresses[0], address(this), _amount);
 
 		Comet comet = Comet(_0xCometAddress);
 
 		// Supply tokens to Compound
-		comet.supply(_0xERC20Address, _amount);
+		comet.supply(_0xERC20Addresses[0], _amount);
 
 		// Emit event for supply
-		emit Supply(_0xERC20Address, _amount);
+		emit Supply(_0xERC20Addresses[0], _amount);
 	}
 
-	function end(uint _amount_of_tokens, address _0xERC20Address) external {
+	function end(uint _amount_of_tokens, address _0xERC20Addresses) external {
+		// todo onlyAdmins
 		withdraw(
 			0xF09F0369aB0a875254fB565E52226c88f10Bc839,
-			_0xERC20Address,
+			_0xERC20Addresses,
 			_amount_of_tokens
 		);
 		claimReward(
@@ -71,11 +65,11 @@ contract CompoundProtocol {
 
 	function withdraw(
 		address _0xCometAddress,
-		address _0xERC20Address,
+		address _0xERC20Addresses,
 		uint256 _amount
 	) private {
 		Comet comet = Comet(_0xCometAddress);
-		comet.withdraw(_0xERC20Address, _amount);
+		comet.withdraw(_0xERC20Addresses, _amount);
 	}
 
 	function claimReward(
@@ -124,8 +118,8 @@ contract CompoundProtocol {
 
 	// Function to get the balance of an ERC20 token
 	function getERC20TokenBalance(
-		address _0xERC20Address
+		address _0xERC20Addresses
 	) public view returns (uint256) {
-		return ERC20(_0xERC20Address).balanceOf(address(this));
+		return ERC20(_0xERC20Addresses).balanceOf(address(this));
 	}
 }
