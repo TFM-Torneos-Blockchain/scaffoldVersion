@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import { MetaHeader } from "~~/components/MetaHeader";
-import { ContractData } from "~~/components/example-ui/ContractData";
-import { ContractInteraction } from "~~/components/example-ui/ContractInteraction";
+import { ContractData } from "~~/components/tournamentEnroll-ui/ContractData";
+import { ContractInteraction } from "~~/components/tournamentEnroll-ui/ContractInteraction";
 
 // Here the contractData and contractInteraction are imported to create the web interface.
 
@@ -14,18 +14,18 @@ import { ContractInteraction } from "~~/components/example-ui/ContractInteractio
 
 // useScaffoldContractWrite: Use this hook to send a transaction to your smart contract to write data or perform an action.
 
-const ExampleUI: NextPage = () => {
+const TournamentEnrollUI: NextPage = () => {
   return (
     <>
       <MetaHeader
-        title="Example UI | Scaffold-ETH 2"
-        description="Example UI created with 🏗 Scaffold-ETH 2, showcasing some of its features."
+        title="Tournaments | Scaffold-ETH 2"
+        description="This page will display all disponible."
       >
         {/* We are importing the font this way to lighten the size of SE2. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree&display=swap" rel="stylesheet" />
       </MetaHeader>
-      <div className="grid lg:grid-cols-2 flex-grow" data-theme="exampleUi">
+      <div className="grid lg:grid-cols-2 flex-grow" data-theme="tournamentEnrollUi">
         <ContractInteraction />
         <ContractData />
       </div>
@@ -33,4 +33,4 @@ const ExampleUI: NextPage = () => {
   );
 };
 
-export default ExampleUI;
+export default TournamentEnrollUI;

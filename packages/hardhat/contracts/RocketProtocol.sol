@@ -36,17 +36,22 @@ contract RocketProtocol {
         return rocketTokenRETH.balanceOf(address(this));
     } 
 
-    function startETH(uint _amount_of_tokens) external payable {
-        require(msg.value == _amount_of_tokens);
-        startDeFiBridge(_amount_of_tokens);
+    function startETH(uint256 _amount_of_tokens) external payable {
+        uint256 pass = _amount_of_tokens * 1 ether ;
+        require (pass == msg.value, "The amount of sended tokens is different from the amount to stack") ;
+        (bool success, ) = address(this).call{value: pass}(
+            abi.encodeWithSignature("deposit(uint256)", _amount_of_tokens)
+        );
     }
     // Change-State functions
-    function deposit(uint _amount_of_tokens) internal payable {
+    function deposit(uint256 _amount_of_tokens) internal payable {
         // Check deposit amount
         require(msg.value > 0.01 ether, "Invalid deposit amount, minimum deposit it's 0.01 ETH");
+        uint256 pass = _amount_of_tokens * 1 ether ;
+        require (pass == msg.value, "The amount of sended tokens is different from the amount to stack") ;
         // Forward deposit to RP & get amount of rETH minted
         uint256 rethBalance1 = rocketTokenRETH.balanceOf(address(this));
-        rocketDepositPool.deposit{value: _amount_of_tokens}();
+        rocketDepositPool.deposit{value: msg.value}();
         uint256 rethBalance2 = rocketTokenRETH.balanceOf(address(this));
         require(rethBalance2 > rethBalance1, "No rETH was minted");
         uint256 rethMinted = rethBalance2 - rethBalance1;

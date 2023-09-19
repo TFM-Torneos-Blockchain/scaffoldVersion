@@ -47,20 +47,29 @@ const Home: NextPage = () => {
               <SparklesIcon className="h-8 w-8 fill-secondary" />
               <p>
                 Experiment with{" "}
-                <Link href="/example-ui" passHref className="link">
-                  Example UI
+                <Link href="/tournamentEnroll-ui" passHref className="link">
+                  TournamentEnrol UI
                 </Link>{" "}
                 to build your own UI.
               </p>
             </div>
             <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
+              <SparklesIcon className="h-8 w-8 fill-secondary" />
               <p>
                 Explore your local transactions with the{" "}
                 <Link href="/blockexplorer" passHref className="link">
                   Block Explorer
                 </Link>{" "}
                 tab.
+              </p>
+            </div>
+            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
+              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
+              <p>
+                Execute the functionalities reserved for administrators with the{" "}
+                <Link href="/admin-ui" passHref className="link">
+                  Admin UI
+                </Link>{" "}
               </p>
             </div>
           </div>

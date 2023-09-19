@@ -206,19 +206,19 @@ contract TournamentContract {
 			// Call another function here
 			abort();
 		} else {
-			require(
-				msg.value ==
-					tournamentToStart.enrollment_amount *
-						tournamentToStart.participants.length
-			);
+			// require(
+			// 	msg.value ==
+			// 		tournamentToStart.enrollment_amount *
+			// 			tournamentToStart.participants.length
+			// );
 			(bool success, ) = tournamentToStart
 				.DeFiBridge_address
 				.call{
 				value: tournamentToStart.participants.length *
-					tournamentToStart.enrollment_amount*1e18
+					tournamentToStart.enrollment_amount * 1 ether
 			}(
 				abi.encodeWithSignature(
-					"deposit(uint)",
+					"startETH(uint256)",
 					tournamentToStart.participants.length *
 						tournamentToStart.enrollment_amount
 				)
