@@ -3,10 +3,10 @@ pragma solidity ^0.8;
 
 import "./interfaces/InterfaceComet.sol";
 import "./interfaces/Erc20.sol";
-import "./TB.sol";
+import "./RoleControl.sol";
 
 
-contract CompoundProtocol {
+contract CompoundProtocol is RoleControl{
 	// Add events for logging
 	event Approval(
 		address indexed token,
@@ -16,7 +16,7 @@ contract CompoundProtocol {
 	event Supply(address indexed token, uint256 value);
 
 	// maybe should also have the defi address as parameter??
-	function start(uint _amount_of_tokens, address[] calldata _0xERC20Addresses) external {
+	function start(uint _amount_of_tokens, address[] calldata _0xERC20Addresses) external onlyAdmin{
 		startDeFiBridge(
 			_amount_of_tokens,
 			_0xERC20Addresses,
@@ -29,7 +29,7 @@ contract CompoundProtocol {
 		uint256 _amount,
 		address[] calldata _0xERC20Addresses,
 		address _0xCometAddress
-	) private {
+	) private  onlyAdmin{
 		// Approve the Compound protocol contract to spend tokens
 		ERC20(_0xERC20Addresses[0]).approve(_0xCometAddress, _amount);
 
@@ -45,7 +45,7 @@ contract CompoundProtocol {
 		emit Supply(_0xERC20Addresses[0], _amount);
 	}
 
-	function end(uint _amount_of_tokens, address _0xERC20Addresses) external {
+	function end(uint _amount_of_tokens, address _0xERC20Addresses) external onlyAdmin{
 		// todo onlyAdmins
 		withdraw(
 			0xF09F0369aB0a875254fB565E52226c88f10Bc839,

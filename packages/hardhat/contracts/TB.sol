@@ -4,8 +4,9 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/Erc20.sol";
 import "./interfaces/DeFiBridge.sol";
+import "./RoleControl.sol";
 
-contract TournamentContract {
+contract TournamentContract is RoleControl {
 	//------------------------------------------Storage-------------------------------------------------------------
 	// Struct tournament
 	struct Tournament {
@@ -25,17 +26,10 @@ contract TournamentContract {
 	}
 
 	// Tournament tournament;
-	// Mapping admins
-	mapping(address => bool) public admins;
 	// Array tournaments
 	Tournament[] public tournaments;
 	// ID IDcounter para el ID del torneo
 	uint16 IDcounter;
-
-	//----------------------------------------------Constructor--------------------------------------------------
-	constructor() {
-		admins[msg.sender] = true;
-	}
 
 	//--------------------------------------------Events------------------------------------------------------
 	event AdminAdded(address indexed admin);
@@ -46,23 +40,14 @@ contract TournamentContract {
 		uint256 num_participants,
 		uint256 collected_amount
 	);
-	//------------------------------------------Functions-----------------------------------------------------
-	modifier onlyAdmin() {
-		require(admins[msg.sender], "Restricted to admins");
-		_;
-	}
 
-	function addAdmin(address _newAdmin) external onlyAdmin {
-		require(!admins[_newAdmin], "This account is already an Admin");
-		admins[_newAdmin] = true;
-		emit AdminAdded(_newAdmin);
-	}
+	//------------------------------------------Functions-----------------------------------------------------
 
 	function createTournament(
 		uint16 _max_participants,
 		uint8 _min_participants,
 		uint8 _enrollment_amount,
-		address[] calldata accepted_tokens,
+		address[] calldata _accepted_tokens,
 		uint8 _enrollment_time,
 		uint8 _tournament_duration,
 		address _DeFiBridge_address,
@@ -77,7 +62,9 @@ contract TournamentContract {
 		newTournament.max_participants = _max_participants;
 
 		newTournament.enrollment_amount = _enrollment_amount;
-		newTournament.accepted_tokens = accepted_tokens;
+		for (uint8 i = 0; i < _accepted_tokens.length; i++) {
+			newTournament.accepted_tokens.push(_accepted_tokens[i]);
+		}
 
 		newTournament.init_date = block.timestamp + _enrollment_time * 1 days;
 		newTournament.end_date =
@@ -100,32 +87,34 @@ contract TournamentContract {
 			enrolling.num_participants <= enrolling.max_participants,
 			"Tournament full"
 		);
-		if (enrolling.accepted_tokens.length > 1) {
-			for (uint8 i = 0; i == enrolling.accepted_tokens.length; i++) {
-				require(
-					ERC20(enrolling.accepted_tokens[i]).balanceOf(msg.sender) >=
-						enrolling.enrollment_amount * 1 ether,
-					"Insufficient balance"
-				);
-				ERC20(enrolling.accepted_tokens[i]).transferFrom(
-					msg.sender,
-					address(this),
-					enrolling.enrollment_amount * 1 ether
-				);
-			}
-		} else {
+		// if (enrolling.accepted_tokens.length > 1) {
+		for (uint8 i = 0; i < enrolling.accepted_tokens.length; i++) {
 			require(
-				ERC20(enrolling.accepted_tokens[0]).balanceOf(msg.sender) >=
+				ERC20(enrolling.accepted_tokens[i]).balanceOf(msg.sender) >=
 					enrolling.enrollment_amount * 1 ether,
 				"Insufficient balance"
 			);
-			ERC20(enrolling.accepted_tokens[0]).transferFrom(
+			ERC20(enrolling.accepted_tokens[i]).transferFrom(
 				msg.sender,
 				address(this),
 				enrolling.enrollment_amount * 1 ether
 			);
 		}
+		// } else {
+		// 	require(
+		// 		ERC20(enrolling.accepted_tokens[0]).balanceOf(msg.sender) >=
+		// 			enrolling.enrollment_amount * 1 ether,
+		// 		"Insufficient balance"
+		// 	);
+		// 	ERC20(enrolling.accepted_tokens[0]).transferFrom(
+		// 		msg.sender,
+		// 		address(this),
+		// 		enrolling.enrollment_amount * 1 ether
+		// 	);
+		// }
+		// enrolling.enrollment_amount = enrolling.participants[msg.sender];
 		enrolling.participants[msg.sender] = enrolling.enrollment_amount;
+
 		uint collected_amount = enrolling.num_participants *
 			enrolling.enrollment_amount;
 		enrolling.num_participants++;
@@ -147,7 +136,10 @@ contract TournamentContract {
 			msg.value == enrolling.enrollment_amount * 1 ether,
 			"Insufficient balance"
 		);
+
+		// enrolling.enrollment_amount = enrolling.participants[msg.sender];
 		enrolling.participants[msg.sender] = enrolling.enrollment_amount;
+
 		uint collected_amount = enrolling.num_participants *
 			enrolling.enrollment_amount;
 		enrolling.num_participants++;
@@ -168,10 +160,10 @@ contract TournamentContract {
 		) {
 			tournamentToStart.aborted = true;
 		} else {
-			if (tournamentToStart.accepted_tokens.length > 1) {
+			// if (tournamentToStart.accepted_tokens.length > 1) {
 				for (
 					uint8 i = 0;
-					i == tournamentToStart.accepted_tokens.length;
+					i < tournamentToStart.accepted_tokens.length;
 					i++
 				) {
 					ERC20(tournamentToStart.accepted_tokens[i]).transfer(
@@ -181,14 +173,14 @@ contract TournamentContract {
 							1 ether
 					);
 				}
-			} else {
-				ERC20(tournamentToStart.accepted_tokens[0]).transfer(
-					tournamentToStart.DeFiBridge_address,
-					tournamentToStart.enrollment_amount *
-						tournamentToStart.num_participants *
-						1 ether
-				);
-			}
+			// } else {
+			// 	ERC20(tournamentToStart.accepted_tokens[0]).transfer(
+			// 		tournamentToStart.DeFiBridge_address,
+			// 		tournamentToStart.enrollment_amount *
+			// 			tournamentToStart.num_participants *
+			// 			1 ether
+			// 	);
+			// }
 			DEFIBRIDGE(tournamentToStart.DeFiBridge_address).start(
 				tournamentToStart.num_participants *
 					tournamentToStart.enrollment_amount,
@@ -226,8 +218,8 @@ contract TournamentContract {
 	function abortERC20(uint16 idTournament) external onlyAdmin {
 		Tournament storage abortedTournament = tournaments[idTournament];
 		require(abortedTournament.aborted == true);
-		require(block.timestamp > abortedTournament.end_date);
-		if (abortedTournament.accepted_tokens.length > 1) {
+		// require(block.timestamp > abortedTournament.end_date);
+		// if (abortedTournament.accepted_tokens.length > 1) {
 			for (
 				uint8 i = 0;
 				i < abortedTournament.accepted_tokens.length;
@@ -238,12 +230,12 @@ contract TournamentContract {
 					abortedTournament.enrollment_amount * 1 ether
 				);
 			}
-		} else {
-			ERC20(abortedTournament.accepted_tokens[0]).transfer(
-				address(msg.sender),
-				abortedTournament.enrollment_amount * 1 ether
-			);
-		}
+		// } else {
+		// 	ERC20(abortedTournament.accepted_tokens[0]).transfer(
+		// 		address(msg.sender),
+		// 		abortedTournament.enrollment_amount * 1 ether
+		// 	);
+		// }
 		abortedTournament.participants[msg.sender] = 0;
 	}
 
@@ -259,4 +251,22 @@ contract TournamentContract {
 	}
 
 	function endTournament(uint256 idTournament) public onlyAdmin {}
+
+	// Getter function for participants of a tournament
+	function getParticipants(
+		uint16 tournamentId,
+		address participantAddress
+	) public view returns (uint16) {
+		require(tournamentId < tournaments.length, "Invalid tournament ID");
+		return tournaments[tournamentId].participants[participantAddress];
+	}
+
+	// Getter function for accepted tokens of a tournament
+	function getAcceptedTokens(
+		uint16 tournamentId
+	) public view returns (address[] memory) {
+		require(tournamentId < tournaments.length, "Invalid tournament ID");
+		return tournaments[tournamentId].accepted_tokens;
+	}
+
 }

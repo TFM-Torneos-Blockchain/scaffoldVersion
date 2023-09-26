@@ -4,8 +4,9 @@ pragma solidity >0.5.0 <0.9.0;
 import "./interfaces/IRocketStorage.sol";
 import "./interfaces/IRocketDepositPool.sol";
 import "./interfaces/IRocketTokenRETH.sol";
+import "./RoleControl.sol";
 
-contract RocketProtocol {
+contract RocketProtocol is RoleControl {
     // Storage
     address private constant ROCKET_DEPOSIT_POOL =
         0xa9A6A14A3643690D0286574976F45abBDAD8f505; // Goerli Testnet
@@ -44,7 +45,7 @@ contract RocketProtocol {
         );
     }
     // Change-State functions
-    function deposit(uint256 _amount_of_tokens) internal payable {
+    function deposit(uint256 _amount_of_tokens) public payable {
         // Check deposit amount
         require(msg.value > 0.01 ether, "Invalid deposit amount, minimum deposit it's 0.01 ETH");
         uint256 pass = _amount_of_tokens * 1 ether ;

@@ -3,7 +3,7 @@ import { CopyIcon } from "./assets/CopyIcon";
 import { DiamondIcon } from "./assets/DiamondIcon";
 import { HareIcon } from "./assets/HareIcon";
 import { ArrowSmallRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useScaffoldContract, useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 
 export const NewTournament = () => {
   const [max_participants, set_max_participants] = useState(0);
@@ -11,9 +11,10 @@ export const NewTournament = () => {
   const [enrollment_amount, set_enrollment_amount] = useState(0);
   const [accepted_tokens, set_accepted_tokens] = useState<string[]>([]);
 
-  const [init_date, set_init_date] = useState("");
-  const [end_date, set_end_date] = useState("");
+  const [init_date, set_init_date] = useState(0);
+  const [end_date, set_end_date] = useState(0);
   const [DeFiBridge_address, set_DeFiBridge_address] = useState("");
+  const [DeFiProtocol_address, set_DeFiProtocol_address] = useState("");
 
 
 
@@ -28,7 +29,8 @@ export const NewTournament = () => {
          accepted_tokens,
          init_date,
          end_date,
-         DeFiBridge_address],
+         DeFiBridge_address,
+         DeFiProtocol_address],
       onBlockConfirmation: txnReceipt => {
         console.log("📦 approve Transaction blockHash", txnReceipt.blockHash);
       },
@@ -82,7 +84,7 @@ export const NewTournament = () => {
                 type="text"
                 placeholder="The date of the start of the tournament"
                 className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
-                onChange={e => set_init_date(e.target.value)}
+                onChange={e => set_init_date(parseInt(e.target.value))}
               />
             </div>
             <div className="mb-3">
@@ -90,7 +92,15 @@ export const NewTournament = () => {
                 type="text"
                 placeholder="The date of the end of the tournament"
                 className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
-                onChange={e => set_end_date(e.target.value)}
+                onChange={e => set_end_date(parseInt(e.target.value))}
+              />
+            </div>
+            <div className="mb-3">
+              <input
+                type="text"
+                placeholder="DeFi Bridge Address"
+                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
+                onChange={e => set_DeFiBridge_address(e.target.value)}
               />
             </div>
             <div className="mb-3">
@@ -98,7 +108,7 @@ export const NewTournament = () => {
                 type="text"
                 placeholder="DeFi Protocol Address"
                 className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
-                onChange={e => set_DeFiBridge_address(e.target.value)}
+                onChange={e => set_DeFiProtocol_address(e.target.value)}
               />
             </div>
             <button
