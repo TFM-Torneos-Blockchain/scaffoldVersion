@@ -15,7 +15,7 @@ contract RocketProtocol is RoleControl {
     address private constant ROCKET_TOKEN_RETH =
         0x178E141a0E3b34152f73Ff610437A7bf9B83267A; // Goerli Testnet
 
-    mapping(address => uint256) balances;
+    mapping(address => uint256) public balances;
 
     IRocketDepositPool public rocketDepositPool;
     IRocketStorage public rocketStorage;
@@ -61,7 +61,7 @@ contract RocketProtocol is RoleControl {
     }
 
     // After 24 hours it's possible to transfer the tokens
-    function withdraw() external {
+    function withdraw() external onlyAdmin{
         // Transfer rETH to caller
         uint256 balance = balances[msg.sender];
         balances[msg.sender] = 0;
@@ -78,7 +78,7 @@ contract RocketProtocol is RoleControl {
         rocketTokenRETH.transferFrom(msg.sender,address(this), rethBalance);
     }
 
-    function claimReward() public {
+    function claimReward() public onlyAdmin{
         // Burn rETH for ETH
         rocketTokenRETH.burn(balanceOfRethofContract());
         // Transfer ETH to the sender 
