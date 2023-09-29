@@ -90,8 +90,8 @@ export const ContractUI = ({ contractName, className = "" }: ContractUIProps) =>
               </div>
               <div className="p-5 divide-y divide-base-300">
                 <ContractWriteMethods
-                  deployedContractData={deployedContractData}
                   onChange={triggerRefreshDisplayVariables}
+                  deployedContractData={deployedContractData}
                 />
               </div>
             </div>

@@ -84,7 +84,7 @@ contract TournamentContract is RoleControl {
 	function enrollWithERC20(uint16 idTournament) external {
 		Tournament storage enrolling = tournaments[idTournament];
 		require(
-			enrolling.num_participants <= enrolling.max_participants,
+			enrolling.num_participants < enrolling.max_participants,
 			"Tournament full"
 		);
 		// if (enrolling.accepted_tokens.length > 1) {
@@ -129,7 +129,7 @@ contract TournamentContract is RoleControl {
 	function enrollWithETH(uint16 idTournament) external payable {
 		Tournament storage enrolling = tournaments[idTournament];
 		require(
-			enrolling.num_participants <= enrolling.max_participants,
+			enrolling.num_participants < enrolling.max_participants,
 			"Tournament full"
 		);
 		require(
