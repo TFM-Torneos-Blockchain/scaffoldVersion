@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CopyIcon } from "./assets/CopyIcon";
 import { DiamondIcon } from "./assets/DiamondIcon";
 import { HareIcon } from "./assets/HareIcon";
@@ -16,38 +16,25 @@ export const NewTournament = () => {
   const [DeFiBridge_address, set_DeFiBridge_address] = useState("");
   const [DeFiProtocol_address, set_DeFiProtocol_address] = useState("");
 
-  const {
-    isLoading: loadingapprove,
-    isSuccess,
-    writeAsync: approve,
-  } = useScaffoldContractWrite({
+  const { isLoading:loadingapprove, isSuccess, writeAsync: approve } = useScaffoldContractWrite({
     contractName: "TournamentContract",
     functionName: "createTournament",
     args: [
-      max_participants,
-      min_participants,
-      enrollment_amount,
-      accepted_tokens,
-      init_date,
-      end_date,
-      DeFiBridge_address,
-      DeFiProtocol_address,
-    ],
+       max_participants,
+       min_participants,
+       enrollment_amount,
+       accepted_tokens,
+       init_date,
+       end_date,
+       DeFiBridge_address,
+       DeFiProtocol_address],
     onBlockConfirmation: txnReceipt => {
       console.log("📦 approve Transaction blockHash", txnReceipt.blockHash);
     },
   });
 
-  // Function to handle the input and set accepted_tokens
-  const handleInput = (input: string) => {
-    if (input.trim() === "[]") {
-      // If the input is empty or only contains whitespace, set it to an empty array
-      set_accepted_tokens([]);
-    } else {
-      // Otherwise, split the input by commas
-      set_accepted_tokens(input.split(","));
-    }
-  };
+
+
   const handleFormSubmit = () => {
     approve();
   };
@@ -91,7 +78,7 @@ export const NewTournament = () => {
                 type="text"
                 placeholder="Accepted Tokens (address[])"
                 className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
-                onChange={e => handleInput(e.target.value)}
+                onChange={e => set_accepted_tokens(e.target.value.split(','))}
               />
             </div>
             <div className="mb-3">

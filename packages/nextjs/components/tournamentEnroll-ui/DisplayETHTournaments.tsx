@@ -5,13 +5,8 @@ import { useContractRead } from "wagmi";
 import { useEffect, useState } from 'react';
 import { parseEther } from "viem";
 
-export const DisplayETHTournaments = ({
-  onChange
-}: {
-  onChange: () => void;
-}) => {
+export const DisplayETHTournaments = ({ deployedContractData }: { deployedContractData: Contract<ContractName> }) => {
 
-  const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo("TournamentContract");
 
   // State to store the fetched data
   const [tournamentData, setTournamentData] = useState<any>({

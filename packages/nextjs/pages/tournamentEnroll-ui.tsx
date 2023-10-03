@@ -5,6 +5,7 @@ import { getTargetNetwork } from "~~/utils/scaffold-eth";
 import { ContractName } from "~~/utils/scaffold-eth/contract";
 import {DisplayETHTournaments} from "../components/tournamentEnroll-ui/DisplayETHTournaments"
 import {DisplayERC20Tournaments} from "../components/tournamentEnroll-ui/DisplayERC20Tournaments"
+import { DisplayETH2Tournaments } from "~~/components/tournamentEnroll-ui/DisplayETH2Tournaments";
 
 type ContractUIProps = {
   contractName: ContractName;
@@ -14,9 +15,10 @@ type ContractUIProps = {
 /**
  * UI component to interface with deployed contracts.
  **/
-export const ContractUI = ({ contractName, className = "" }: ContractUIProps) => {
+const ContractUI = () => {
   const [refreshDisplayVariables, triggerRefreshDisplayVariables] = useReducer(value => !value, false);
   const configuredNetwork = getTargetNetwork();
+  const contractName = "TournamentContract";
 
   const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo(contractName);
   const networkColor = useNetworkColor();
@@ -38,7 +40,7 @@ export const ContractUI = ({ contractName, className = "" }: ContractUIProps) =>
   }
 
   return (
-    <div className={`grid grid-cols-1 lg:grid-cols-6 px-6 lg:px-10 lg:gap-12 w-full max-w-7xl my-0 ${className}`}>
+    <div className={`grid grid-cols-1 lg:grid-cols-6 px-6 lg:px-10 lg:gap-12 w-full max-w-7xl my-0`}>
       <div className="col-span-5 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
         {/* <div className="col-span-1 flex flex-col">
           <div className="bg-base-100 border-base-300 border shadow-md shadow-secondary rounded-3xl px-6 lg:px-8 mb-6 space-y-1 py-4">
@@ -75,7 +77,7 @@ export const ContractUI = ({ contractName, className = "" }: ContractUIProps) =>
                 </div>
               </div>
               <div className="p-5 divide-y divide-base-300">
-                <DisplayETHTournaments deployedContractData={deployedContractData} />
+                <DisplayETH2Tournaments deployedContractData={deployedContractData} />
               </div>
             </div>
           </div>
@@ -87,10 +89,10 @@ export const ContractUI = ({ contractName, className = "" }: ContractUIProps) =>
                 </div>
               </div>
               <div className="p-5 divide-y divide-base-300">
-                <DisplayERC20Tournaments
+                {/* <DisplayERC20Tournaments
                   onChange={triggerRefreshDisplayVariables}
                   deployedContractData={deployedContractData}
-                />
+                /> */}
               </div>
             </div>
           </div>
@@ -99,3 +101,5 @@ export const ContractUI = ({ contractName, className = "" }: ContractUIProps) =>
     </div>
   );
 };
+
+export default ContractUI

@@ -5,7 +5,7 @@ import { useContractRead } from "wagmi";
 import { useEffect, useState } from 'react';
 import { parseEther } from "viem";
 
-export const DisplayETHTournaments = ({
+export const DisplayERC20Tournaments = ({
   onChange
 }: {
   onChange: () => void;
