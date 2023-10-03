@@ -10,3 +10,4 @@ interface DEFIBRIDGE {
 	function start(uint _amount_of_tokens, address[] calldata _0xERC20Addresses) external;
 	function startETH(uint _amount_of_tokens) external payable;
 }
+

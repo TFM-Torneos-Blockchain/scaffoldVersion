@@ -69,7 +69,7 @@ contract TournamentContract is RoleControl {
 		newTournament.init_date = block.timestamp + _enrollment_time * 1 days;
 		newTournament.end_date =
 			block.timestamp +
-			_enrollment_time +
+			newTournament.init_date +
 			_tournament_duration *
 			1 days;
 
@@ -87,7 +87,7 @@ contract TournamentContract is RoleControl {
 			enrolling.num_participants < enrolling.max_participants,
 			"Tournament full"
 		);
-		// if (enrolling.accepted_tokens.length > 1) {
+
 		for (uint8 i = 0; i < enrolling.accepted_tokens.length; i++) {
 			require(
 				ERC20(enrolling.accepted_tokens[i]).balanceOf(msg.sender) >=
@@ -100,24 +100,13 @@ contract TournamentContract is RoleControl {
 				enrolling.enrollment_amount * 1 ether
 			);
 		}
-		// } else {
-		// 	require(
-		// 		ERC20(enrolling.accepted_tokens[0]).balanceOf(msg.sender) >=
-		// 			enrolling.enrollment_amount * 1 ether,
-		// 		"Insufficient balance"
-		// 	);
-		// 	ERC20(enrolling.accepted_tokens[0]).transferFrom(
-		// 		msg.sender,
-		// 		address(this),
-		// 		enrolling.enrollment_amount * 1 ether
-		// 	);
-		// }
-		// enrolling.enrollment_amount = enrolling.participants[msg.sender];
+
 		enrolling.participants[msg.sender] = enrolling.enrollment_amount;
+
+		enrolling.num_participants++;
 
 		uint collected_amount = enrolling.num_participants *
 			enrolling.enrollment_amount;
-		enrolling.num_participants++;
 		emit Enroll(
 			enrolling.ID,
 			msg.sender,
@@ -159,34 +148,21 @@ contract TournamentContract is RoleControl {
 			tournamentToStart.min_participants
 		) {
 			tournamentToStart.aborted = true;
-		} else {
-			// if (tournamentToStart.accepted_tokens.length > 1) {
-				for (
-					uint8 i = 0;
-					i < tournamentToStart.accepted_tokens.length;
-					i++
-				) {
-					ERC20(tournamentToStart.accepted_tokens[i]).transfer(
-						tournamentToStart.DeFiBridge_address,
-						tournamentToStart.enrollment_amount *
-							tournamentToStart.num_participants *
-							1 ether
-					);
-				}
-			// } else {
-			// 	ERC20(tournamentToStart.accepted_tokens[0]).transfer(
-			// 		tournamentToStart.DeFiBridge_address,
-			// 		tournamentToStart.enrollment_amount *
-			// 			tournamentToStart.num_participants *
-			// 			1 ether
-			// 	);
-			// }
-			DEFIBRIDGE(tournamentToStart.DeFiBridge_address).start(
-				tournamentToStart.num_participants *
-					tournamentToStart.enrollment_amount,
-				tournamentToStart.accepted_tokens
+			return;
+		}
+		for (uint8 i = 0; i < tournamentToStart.accepted_tokens.length; i++) {
+			ERC20(tournamentToStart.accepted_tokens[i]).transfer(
+				tournamentToStart.DeFiBridge_address,
+				tournamentToStart.enrollment_amount *
+					tournamentToStart.num_participants *
+					1 ether
 			);
 		}
+		DEFIBRIDGE(tournamentToStart.DeFiBridge_address).start(
+			tournamentToStart.num_participants *
+				tournamentToStart.enrollment_amount,
+			tournamentToStart.accepted_tokens
+		);
 	}
 
 	function startETHTournament(
@@ -215,21 +191,17 @@ contract TournamentContract is RoleControl {
 		}
 	}
 
-	function abortERC20(uint16 idTournament) external onlyAdmin {
+	function abortERC20(uint16 idTournament) external {
 		Tournament storage abortedTournament = tournaments[idTournament];
 		require(abortedTournament.aborted == true);
-		// require(block.timestamp > abortedTournament.end_date);
+		// require(block.timestamp > abortedTournament.end_date); TODO falta require
 		// if (abortedTournament.accepted_tokens.length > 1) {
-			for (
-				uint8 i = 0;
-				i < abortedTournament.accepted_tokens.length;
-				i++
-			) {
-				ERC20(abortedTournament.accepted_tokens[i]).transfer(
-					address(msg.sender),
-					abortedTournament.enrollment_amount * 1 ether
-				);
-			}
+		for (uint8 i = 0; i < abortedTournament.accepted_tokens.length; i++) {
+			ERC20(abortedTournament.accepted_tokens[i]).transfer(
+				address(msg.sender),
+				abortedTournament.enrollment_amount * 1 ether
+			);
+		}
 		// } else {
 		// 	ERC20(abortedTournament.accepted_tokens[0]).transfer(
 		// 		address(msg.sender),
@@ -239,7 +211,7 @@ contract TournamentContract is RoleControl {
 		abortedTournament.participants[msg.sender] = 0;
 	}
 
-	function abortETH(uint16 idTournament) external payable onlyAdmin {
+	function abortETH(uint16 idTournament) external payable {
 		Tournament storage abortedTournament = tournaments[idTournament];
 		require(abortedTournament.aborted == true);
 		require(block.timestamp > abortedTournament.end_date);
@@ -269,4 +241,39 @@ contract TournamentContract is RoleControl {
 		return tournaments[tournamentId].accepted_tokens;
 	}
 
+	// Getter function for retrieve the Positions of the structs for ERC20 and ETH tournaments
+	function getIDSArray()
+		public
+		view
+		returns (uint[] memory ETHArray, uint[] memory ERC20Array)
+	{
+		uint[] memory tempETHArray = new uint[](tournaments.length);
+		uint[] memory tempERC20Array = new uint[](tournaments.length);
+		uint ethArrayCount = 0;
+		uint erc20ArrayCount = 0;
+
+		for (uint16 i = 0; i < tournaments.length; i++) {
+			if (tournaments[i].accepted_tokens.length == 0) {
+				tempETHArray[ethArrayCount] = tournaments[i].ID;
+				ethArrayCount++;
+			} else {
+				tempERC20Array[erc20ArrayCount] = tournaments[i].ID;
+				erc20ArrayCount++;
+			}
+		}
+
+		// Resize the arrays to their actual size
+		ETHArray = new uint[](ethArrayCount);
+		ERC20Array = new uint[](erc20ArrayCount);
+
+		for (uint i = 0; i < ethArrayCount; i++) {
+			ETHArray[i] = tempETHArray[i];
+		}
+
+		for (uint i = 0; i < erc20ArrayCount; i++) {
+			ERC20Array[i] = tempERC20Array[i];
+		}
+
+		return (ETHArray, ERC20Array);
+	}
 }
