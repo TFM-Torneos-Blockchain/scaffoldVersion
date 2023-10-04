@@ -22,9 +22,9 @@ export const DisplayETH2Tournaments = ({ deployedContractData }: { deployedContr
 
   return (
     <>
-      {functionsToDisplay.map(fn => (
-        <GetTournaments contractAddress={deployedContractData.address} abiFunction={fn} key={fn.name} />
-      ))}
+      
+        <GetTournaments contract={deployedContractData} />
+    
     </>
   );
 };
