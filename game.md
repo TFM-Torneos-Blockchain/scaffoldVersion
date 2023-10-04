@@ -12,8 +12,8 @@ bytes32 results_hash;
 function play(uint IDtour, result[] calldata _results) {
     // require msg.sender inside tournament
     require(hash(_results) == results_hash);
-    // TODO calculate player score (result[] new_result)
-    _results.push(result(msg.sender, score))
+    // TODO calculate player score (result new_result (msg.sender,score))
+    _results.push(new_result)
     updated_results_hash = hash (_results) 
     results_hash = updated_results_hash
     emit (new_result)
