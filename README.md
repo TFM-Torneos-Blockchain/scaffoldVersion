@@ -1,78 +1,89 @@
-# 🏗 Scaffold-ETH 2
+# Blockchain Tournaments FMP Project
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+Welcome to the Blockchain Tournaments FMP (Final Master's Project) Project! This project is a culmination of the BlockChain Technologies Master's Degree at the UPC Tech School.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+## Overview
+The Blockchain Tournaments FMP Project is a decentralized application (DApp) built using Solidity, Ethereum, and web technologies. It's designed to create and manage blockchain-based tournaments where participants can enroll by paying an entry fee. These tournaments accept various ERC20 tokens, which are then invested in different DeFi (Decentralized Finance) protocols to generate interest. The interest generated serves as the prize pool for tournament winners.
 
-⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, and Typescript.
+## Features
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+- **Tournament Creation**: Users can create new tournaments by specifying parameters like maximum and minimum participants, entry fee, acceptable ERC20 tokens, and more.
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/1171422a-0ce4-4203-bcd4-d2d1941d198b)
+- **Tournament Enrollment**: Participants can enroll in tournaments by paying the specified entry fee and meeting the tournament's criteria.
 
-## Requirements
+- **DeFi Investment**: The project integrates with DeFi protocols to invest the funds collected from participants. This investment generates interest, which forms the tournament's prize pool.
 
-Before you begin, you need to install the following tools:
+- **Frontend Interface**: The project includes a user-friendly frontend web application where users can view, enroll in, and monitor tournaments.
 
-- [Node (v18 LTS)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+## How It Works
 
-## Quickstart
+- **Tournament Creation**: Users create new tournaments by specifying tournament parameters.
 
-To get started with Scaffold-ETH 2, follow the steps below:
+- **Tournament Enrollment**: Participants pay the entry fee and meet the tournament's requirements to enroll.
 
-1. Clone this repo & install dependencies
+- **DeFi Investment**: Collected fees are invested in DeFi protocols to generate interest.
 
-```
-git clone https://github.com/scaffold-eth/scaffold-eth-2.git
-cd scaffold-eth-2
-yarn install
-```
+- **Tournament Progress**: Users can track the progress of tournaments and see the increasing prize pool.
 
-2. Run a local network in the first terminal:
+- **Tournament Completion**: Tournaments are completed, and winners are determined based on predefined rules.
 
-```
-yarn chain
-```
+- **Claiming Rewards**: Winners can claim their rewards from the prize pool.
 
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `hardhat.config.ts`.
+## Project Structure
 
-3. On a second terminal, deploy the test contract:
+The project consists of the following components:
 
-```
-yarn deploy
+- **Smart Contracts**: Ethereum smart contracts written in Solidity to manage tournaments, investments, and user interactions.
+
+- **Frontend**: A web-based user interface built using web technologies like React.js to interact with the smart contracts and provide a user-friendly experience.
+
+## Getting Started
+
+To get started with the Blockchain Tournaments FMP Project, follow these steps:
+
+1. **Clone the Repository**: Clone this GitHub repository to your local machine.
+
+``` shell
+git clone https://github.com/your-username/blockchain-tournaments-fmp.git
 ```
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
+2. **Install Dependencies**: Navigate to the project directory and install the necessary dependencies for both the smart contracts and frontend.
 
-4. On a third terminal, start your NextJS app:
-
+```shell
+cd blockchain-tournaments-fmp
+npm install
 ```
-yarn start
+
+3. **Compile and Deploy**: Compile the smart contracts and deploy them to your preferred Ethereum testnet or network.
+
+4. **Start the Frontend**: Run the frontend application to interact with the smart contracts.
+
+```shell
+npm start
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the contract component or the example ui in the frontend. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+5. **Explore**: Open your web browser and visit http://localhost:3000 to explore and interact with the DApp.
 
-Run smart contract test with `yarn hardhat:test`
+## Project Flow Diagram
+<br>
 
-- Edit your smart contract `YourContract.sol` in `packages/hardhat/contracts`
-- Edit your frontend in `packages/nextjs/pages`
-- Edit your deployment scripts in `packages/hardhat/deploy`
+![alt text](./AppFlowSchema.drawio.png "Title")
 
-## Documentation
+<br>
 
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
+![alt text](./GameFlowSchema.drawio.png "Title")
 
-To know more about its features, check out our [website](https://scaffoldeth.io).
+### Contributors
 
-## Contributing to Scaffold-ETH 2
+This project welcomes contributions from the open-source community. If you'd like to contribute, please fork the repository, make your changes, and submit a pull request.
 
-We welcome contributions to Scaffold-ETH 2!
+### License
 
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+The Blockchain Tournaments FMP Project is open-source software licensed under the MIT License.
+
+Thank you for your interest in the Blockchain Tournaments FMP Project. We hope you find it both educational and useful for your blockchain journey!
+
+
+
+
+

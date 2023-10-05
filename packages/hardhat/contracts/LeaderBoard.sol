@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-
 import "./RoleControl.sol";
 
 contract LeaderBoard is RoleControl {
@@ -11,7 +10,7 @@ contract LeaderBoard is RoleControl {
 	// 	uint score;
 	// }
 
-	mapping(uint => bytes32) results_hash; // id_tournament => hash of results
+	mapping(uint => bytes32) results_hash; // id_tournament => sponge hash of results e.j: in iteration 2 will be results_hash=(hash(hash(result1),result2))
 
 	event ResultCreated(
 		uint indexed tournamentId,
@@ -19,28 +18,27 @@ contract LeaderBoard is RoleControl {
 		uint score
 	);
 
-
 	// TODO fer en backend passar a bytes Result[]
 	// Results are the concatenation of the bytes of (address, score) for each player
-	function setResult(uint _IDtournament, bytes calldata _results, address _player, uint _new_score) external {
+	function setResult(
+		uint _IDtournament,
+		address _player,
+		uint _new_score
+	) external {
 
-		// Hash the concatenated data
-		bytes32 memory hashResult = keccak256(_results);
-
-		require(hashResult == results_hash[_IDtournament]);
-
-		bytes memory updated_results = abi.encodePacked(
-			_results,
-			_player,
-			_new_score
+		// Sponge Hash with previous results_hash and new result (bytes(addressPlayer, scorePlayer))
+		results_hash[_IDtournament] = keccak256(
+			abi.encodePacked(results_hash[_IDtournament], _player, _new_score)
 		);
-		results_hash[_IDtournament] = keccak256(updated_results);
 
 		emit ResultCreated(_IDtournament, _player, score_number);
 	}
 
-	function getWinners(
+	function setLeaderBoardMerkleTree(
 		uint _IDtournament,
-		address[] calldata _participants
-	) public onlyAdmin {}
+		bytes[] calldata _results_bytes,
+		uint16[] calldata _positions
+	) public {
+
+	}
 }
