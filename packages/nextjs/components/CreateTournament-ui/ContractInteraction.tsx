@@ -15,6 +15,7 @@ export const NewTournament = () => {
   const [end_date, set_end_date] = useState(0);
   const [DeFiBridge_address, set_DeFiBridge_address] = useState("");
   const [DeFiProtocol_address, set_DeFiProtocol_address] = useState("");
+  
 
   const { isLoading:loadingapprove, isSuccess, writeAsync: approve } = useScaffoldContractWrite({
     contractName: "TournamentContract",
@@ -41,19 +42,17 @@ export const NewTournament = () => {
 
   return (
     <div className="flex justify-center bg-base-300 relative pb-10">
-      <DiamondIcon className="absolute top-24" />
-      <CopyIcon className="absolute bottom-0 left-36" />
-      <HareIcon className="absolute right-0 bottom-24" />
+
       <div className="flex flex-col w-full mx-5 sm:mx-8 2xl:mx-20">
         <div className="flex flex-col items-center mt-6 px-7 py-8 bg-base-200 opacity-80 rounded-2xl shadow-lg border-2 border-primary">
-          <span className="text-4xl sm:text-6xl text-black">Enter Tournament Variables</span>
+          <span className="text-4xl sm:text-6xl text-white">Enter Tournament Variables</span>
 
-          <div className="mt-8">
+          <div className="mt-8 ">
             <div className="mb-3">
               <input
                 type="text"
                 placeholder="Maximum participants"
-                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
+                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
                 onChange={e => set_max_participants(parseInt(e.target.value))}
               />
             </div>
@@ -61,7 +60,7 @@ export const NewTournament = () => {
               <input
                 type="text"
                 placeholder="Minimum participants"
-                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
+                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
                 onChange={e => set_min_participants(parseInt(e.target.value))}
               />
             </div>
@@ -69,7 +68,7 @@ export const NewTournament = () => {
               <input
                 type="text"
                 placeholder="Required Enrollment Tokens"
-                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
+                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
                 onChange={e => set_enrollment_amount(parseInt(e.target.value))}
               />
             </div>
@@ -77,7 +76,7 @@ export const NewTournament = () => {
               <input
                 type="text"
                 placeholder="Accepted Tokens (address[])"
-                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
+                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
                 onChange={e => set_accepted_tokens(e.target.value.split(','))}
               />
             </div>
@@ -85,7 +84,7 @@ export const NewTournament = () => {
               <input
                 type="text"
                 placeholder="The date of the start of the tournament"
-                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
+                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
                 onChange={e => set_init_date(parseInt(e.target.value))}
               />
             </div>
@@ -93,7 +92,7 @@ export const NewTournament = () => {
               <input
                 type="text"
                 placeholder="The date of the end of the tournament"
-                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
+                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
                 onChange={e => set_end_date(parseInt(e.target.value))}
               />
             </div>
@@ -101,7 +100,7 @@ export const NewTournament = () => {
               <input
                 type="text"
                 placeholder="DeFi Bridge Address"
-                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
+                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
                 onChange={e => set_DeFiBridge_address(e.target.value)}
               />
             </div>
@@ -109,7 +108,7 @@ export const NewTournament = () => {
               <input
                 type="text"
                 placeholder="DeFi Protocol Address"
-                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-[url('/assets/gradient-bg.png')] bg-[length:100%_100%] border border-primary text-lg sm:text-2xl placeholder-gray-600"
+                className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
                 onChange={e => set_DeFiProtocol_address(e.target.value)}
               />
             </div>
