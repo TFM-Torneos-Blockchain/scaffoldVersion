@@ -4,7 +4,7 @@ import { ethers } from "hardhat";
 import { TournamentContract, RoleControl, RocketProtocol } from "../typechain-types";
 import type { Signer } from "ethers";
 
-describe("TournamentContract", function () {
+describe("Tournament Management", function () {
   let tournamentContract: TournamentContract;
   let adminContract: RoleControl;
   let rocketContract: RocketProtocol;
