@@ -17,13 +17,17 @@ contract TournamentContract is RoleControl {
 		uint16 num_participants;
 		uint16 enrollment_amount;
 		address[] accepted_tokens;
-		uint256 reward_amount; // IDEA
+		uint256 total_reward_amount; 
+        uint256[] position_winners; // [8,2,5]
+        mapping(address => uint256) positions_enroll; // Guardado durante el setLeaderBoard
 		uint256 init_date;
 		uint256 end_date;
 		address DeFiBridge_address;
 		address DeFiProtocol_address;
 		bool aborted;
 	}
+    mapping(uint256 => bytes32) results_hash;
+    mapping(uint256 => bytes32) merkle_root;
 
 	// Tournament tournament;
 	// Array tournaments
@@ -216,7 +220,90 @@ contract TournamentContract is RoleControl {
 		abortedTournament.participants[msg.sender] = 0;
 	}
 
-	function endTournament(uint256 idTournament) public onlyAdmin {}
+	//llamar desde front--> llamar a la función de transfer del defi bridge para devolver el dinero + premio - coste de los admin - beneficio empresa
+    function endETHTournament(uint256 idTournament) public onlyAdmin { 
+        // 1- Recuperar dinero del defi bridge y conocer
+       uint rewardReceived = 1 ether;
+        // 2- Calculo de restar fees al premio
+            // restar al reward las fees pagadas por los admin
+            uint256 total_gas = tournaments[idTournament].gasTotalAdmin + tx.gas;
+            uint256 costeAdmin = tx.gasprice * total_gas;
+            rewardReceived -= costeAdmin;
+            // Sumamos al balance los gastos de los admin y la tarifa
+            contractBalance += costeAdmin + 0.1 * rewardReceived;
+            // porcentaje del premio que va a los participantes
+            uint256 premio = rewardReceived * 0.9;
+            tournaments[idTournament].total_reward_amount = premio;
+            
+        // 3- transferir dinero + premio - coste de los admin - beneficio empresa
+       
+    }
+    
+
+    function getRewardAndVerify(uint256 _IDtourn, bytes _merkleLeaf, bytes[] calldata _merkleProof) public view returns(uint256) {
+       bytes data = _merkleLeaf;
+       for (uint256 i = 0; i < _merkleProof.length; i++) 
+       {
+        if (proof[i].left) {
+            data = keccak256(abi.encodePacked(_merkleProof[i].data,data));
+        }
+        else { data = keccak256(abi.encodePacked(data,_merkleProof[i].data))}
+       };
+       require(data == merkle_root(_IDtourn));
+
+       // 3. Devolver valor del reward
+       uint256 position = positions_enroll(msg.sender);
+       uint256 numWinners = position_winners.length;
+       int256 user_winer_position = -1;
+       uint256 amount = 0;
+       uint256 premio = tournaments[_IDtourn].total_reward_amount;
+        for (uint256 i = 0; i < numWinners; i++) 
+        {
+            if (position == position_winners[i]) {
+                user_winer_position = i;
+                break;
+            }
+        };
+       
+        if (user_winer_position >= 0) {
+            if (numWinners == 2) {
+                amount = user_winer_position == 0 ? premio*0.7 : premio * 0.3;
+            }
+            else if(numWinners == 3){
+                amount = user_winer_position == 0 ? premio*0.6 : user_winer_position == 1 ? premio*0.3 : premio*0.1;
+            }
+            else if (numWinners == 4){
+                amount = user_winer_position == 0 ? premio*0.5 : user_winer_position == 1 ?  premio*0.25 : user_winer_position == 2 ? premio*0.15 : premio *0.10;
+            }
+            else if (numWinners == 6){
+                amount = user_winer_position == 0 
+                ? premio*0.45 : user_winer_position == 1 
+                ? premio*0.25 : user_winer_position == 2 
+                ? premio*0.14 : user_winer_position == 3
+                ? premio*0.10 : user_winer_position == 4
+                ? premio*0.03 : premio * 0.03;
+            }
+            else {
+                amount = user_winer_position == 0 
+                ? premio*0.44 : user_winer_position == 1 
+                ? premio*0.22 : user_winer_position == 2 
+                ? premio*0.12 : user_winer_position == 3
+                ? premio*0.08 : user_winer_position == 4
+                ? premio*0.05 : user_winer_position == 5 
+                ? premio*0.05 : user_winer_position == 6 
+                ? premio*0.02 : premio*0.02;
+            }
+        }
+        return amount;
+    }
+  
+
+    function claimETHReward(uint256 _IDtourn, bytes _merkleLeaf, bytes[] calldata _merkleProof) public {
+        uint256 value = getRewardAndVerify( _IDtourn,  _merkleLeaf,  _merkleProof);
+        require(value > 0);
+        (bool sent, bytes memory data) = msg.sender.call{value: value}("");
+        require(sent,"Failed to send Ether");
+    }
 
 	// Getter function for participants of a tournament
 	function getParticipants(
