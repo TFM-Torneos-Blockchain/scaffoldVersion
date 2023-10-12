@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import { Bars3Icon, BugAntIcon, MagnifyingGlassIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
+import { useAccount } from "wagmi";
+
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
   const router = useRouter();
@@ -27,6 +29,8 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
  * Site header
  */
 export const Header = () => {
+  const { address } = useAccount();
+  const isConditionMet = address === "0x63fe745Be25e753F6Bd6cD7298f18FD4f07d85d7";
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const burgerMenuRef = useRef<HTMLDivElement>(null);
   useOutsideClick(
@@ -46,9 +50,9 @@ export const Header = () => {
         </NavLink>
       </li>
       <li>
-        <NavLink href="/example-ui">
+        <NavLink href="/tournamentEnroll-ui">
           <SparklesIcon className="h-4 w-4" />
-          Example UI
+          TournamentEnroll UI
         </NavLink>
       </li>
       <li>
@@ -57,6 +61,17 @@ export const Header = () => {
           Block Explorer
         </NavLink>
       </li>
+      <ul>
+        {/* Conditionally render the link */}
+        {isConditionMet && (
+          <li>
+            <NavLink href="/create-tournament">
+              <SparklesIcon className="h-4 w-4" />
+              Admin UI
+            </NavLink>
+          </li>
+        )}
+      </ul>
     </>
   );
 

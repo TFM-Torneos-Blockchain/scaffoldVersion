@@ -60,7 +60,7 @@ module.exports = {
         },
       },
       {
-        exampleUi: {
+        TournamentEnrollUi: {
           primary: "#000000",
           "primary-content": "#ffffff",
           secondary: "#FF6644",

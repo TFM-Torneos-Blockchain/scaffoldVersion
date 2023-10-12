@@ -2,114 +2,278 @@
 
 pragma solidity ^0.8.0;
 
-contract TournamentContract {
+import "./interfaces/Erc20.sol";
+import "./interfaces/DeFiBridge.sol";
+import "./RoleControl.sol";
+
+contract TournamentContract is RoleControl {
 	//------------------------------------------Storage-------------------------------------------------------------
 	// Struct tournament
 	struct Tournament {
-		uint256 ID; // como obtener ID único --> ¿keccak de algo? ¿random number oracle? ¿counter?
-		uint256 max_participants;
-		uint256 min_participants;
-        address[] participants;
-		// uint256 num_participants;
-		uint256 enrollment_amount;
-		// Campos necesarios para algún protocolo DeFi en concreto: pools
-		//uint256 max_tokens;??
-		//uint256 min_tokens;??
-		address[] accepted_tokens; // DeFi pools o stake de varios tokens
-
-        // IDEA i think i won't add this mapping... why would we want this information??
-        // We could just have an array with all the participants, so we could have the .length which will 
-        // help us avoiding to have the num_participants and collected_amount variables
-		// mapping(address => mapping(address => uint256)) deposits; // participant => address ERC20 token => amount token
-		// uint256 collected_amount;
-
-		uint256 reward_amount; // IDEA  
+		uint16 ID;
+		uint8 min_participants;
+		uint16 max_participants;
+		mapping(address => uint16) participants;
+		uint16 num_participants;
+		uint16 enrollment_amount;
+		address[] accepted_tokens;
+		uint256 reward_amount; // IDEA
 		uint256 init_date;
 		uint256 end_date;
-		address DeFiBridge_address; // estan los triggers de los protocolos DeFi
-		address DefiProtocol_address; //
+		address DeFiBridge_address;
+		address DeFiProtocol_address;
+		bool aborted;
 	}
-	Tournament tournament;
-	// Mapping admins
-	mapping(address => bool) public admins;
+
+	// Tournament tournament;
 	// Array tournaments
 	Tournament[] public tournaments;
-	// ID counter para el ID del torneo
-	uint256 counter;
-
-	// DUDA --> array tournaments VS mapping de ID->Struct ¿Lo mas barato?
-	//----------------------------------------------Constructor--------------------------------------------------
-	constructor() {
-		admins[msg.sender] = true;
-	}
+	// ID IDcounter para el ID del torneo
+	uint16 IDcounter;
 
 	//--------------------------------------------Events------------------------------------------------------
 	event AdminAdded(address indexed admin);
-	event TournamentCreated(uint256 indexed tournamentID);
-    event Enroll(uint indexed tournament_id, address indexed user, uint num_participants, uint collected_amount);
+	event TournamentCreated(uint16 indexed tournamentID);
+	event Enroll(
+		uint16 indexed tournament_id,
+		address indexed user,
+		uint256 num_participants,
+		uint256 collected_amount
+	);
+
 	//------------------------------------------Functions-----------------------------------------------------
-	modifier onlyAdmin() {
-		require(admins[msg.sender], "Restricted to admins");
-		_;
-	}
 
-	// Read-only functions
-
-	// Change-state functions
-	// addAdmin -> añade un admin al mapping de admins del storage
-	function addAdmin(address _newAdmin) external onlyAdmin {
-		require(!admins[_newAdmin], "This account is already an Admin");
-		admins[_newAdmin] = true;
-		emit AdminAdded(_newAdmin);
-	}
-
-	// createTournament --> añade un torneo al array tournament o mapping tournament (falta por discutir que utilizar en storage)
 	function createTournament(
-		uint256 _max_participants,
-		uint256 _min_participants,
-		uint256 _enrollment_amount,
-		address[] calldata accepted_tokens,
-		uint256 _init_date,
-		uint256 _end_date,
-		address _DeFiBridge_address
+		uint16 _max_participants,
+		uint8 _min_participants,
+		uint8 _enrollment_amount,
+		address[] calldata _accepted_tokens,
+		uint8 _enrollment_time,
+		uint8 _tournament_duration,
+		address _DeFiBridge_address,
+		address _DeFiProtocol_address
 	) external onlyAdmin {
-        tournaments.push();
-        Tournament storage newTournament = tournaments[counter];
-		newTournament.ID = counter;
-		newTournament.max_participants = _max_participants;
-		newTournament.min_participants = _min_participants;
-		newTournament.enrollment_amount = _enrollment_amount;
-		newTournament.accepted_tokens = accepted_tokens;
-		newTournament.init_date = _init_date;
-		newTournament.end_date = _end_date;
-		newTournament.DeFiBridge_address = _DeFiBridge_address;
+		tournaments.push();
+		Tournament storage newTournament = tournaments[IDcounter];
 
-		// Initialize to 0 the deposits mapping for this tournament
-        // newTournament.deposits[address(0x0)][address(0x0)] = 0;
-        
-		counter++;
+		newTournament.ID = IDcounter;
+
+		newTournament.min_participants = _min_participants;
+		newTournament.max_participants = _max_participants;
+
+		newTournament.enrollment_amount = _enrollment_amount;
+		for (uint8 i = 0; i < _accepted_tokens.length; i++) {
+			newTournament.accepted_tokens.push(_accepted_tokens[i]);
+		}
+
+		newTournament.init_date = block.timestamp + _enrollment_time * 1 days;
+		newTournament.end_date =
+			block.timestamp +
+			newTournament.init_date +
+			_tournament_duration *
+			1 days;
+
+		newTournament.DeFiBridge_address = _DeFiBridge_address;
+		newTournament.DeFiProtocol_address = _DeFiProtocol_address;
+
+		IDcounter++;
 
 		emit TournamentCreated(newTournament.ID);
 	}
 
-	// enroll--> apuntarse al torneo: reunir todo el dinero en el contrato VS ir mandando el dinero al defi bridge
-	function enroll(uint256 idTournament) external {
-        Tournament storage enrolling = tournaments[idTournament];
-        enrolling.participants.push(msg.sender);
-        // ERC20(enrolling.accepted_tokens[0])transferfrom ????
-        // enrolling.deposits[msg.sender][enrolling.accepted_tokens[0]] = enrolling.enrollment_amount;
-        // enrolling.num_participants++;
-        // enrolling.collected_amount += enrolling.enrollment_amount;
-        uint collected_amount = enrolling.participants.length*enrolling.enrollment_amount;
-        emit Enroll(enrolling.ID, msg.sender, enrolling.participants.length, collected_amount);
-    }
+	function enrollWithERC20(uint16 idTournament) external {
+		Tournament storage enrolling = tournaments[idTournament];
+		require(
+			enrolling.num_participants < enrolling.max_participants,
+			"Tournament full"
+		);
 
-	// startTournament -->llamar desde front empezar el torneo: mandar el dinero al protocolo y empezar el defi VS comenzar el defi
-	function startTournament() external onlyAdmin {}
+		for (uint8 i = 0; i < enrolling.accepted_tokens.length; i++) {
+			require(
+				ERC20(enrolling.accepted_tokens[i]).balanceOf(msg.sender) >=
+					enrolling.enrollment_amount * 1 ether,
+				"Insufficient balance"
+			);
+			ERC20(enrolling.accepted_tokens[i]).transferFrom(
+				msg.sender,
+				address(this),
+				enrolling.enrollment_amount * 1 ether
+			);
+		}
 
-	//llamar desde front--> llamar a la función de transfer del defi bridge para devolver el dinero + premio - coste de los admin - beneficio empresa
+		enrolling.participants[msg.sender] = enrolling.enrollment_amount;
+
+		enrolling.num_participants++;
+
+		uint collected_amount = enrolling.num_participants *
+			enrolling.enrollment_amount;
+		emit Enroll(
+			enrolling.ID,
+			msg.sender,
+			enrolling.num_participants,
+			collected_amount
+		);
+	}
+
+	function enrollWithETH(uint16 idTournament) external payable {
+		Tournament storage enrolling = tournaments[idTournament];
+		require(
+			enrolling.num_participants < enrolling.max_participants,
+			"Tournament full"
+		);
+		require(
+			msg.value == enrolling.enrollment_amount * 1 ether,
+			"Insufficient balance"
+		);
+
+		// enrolling.enrollment_amount = enrolling.participants[msg.sender];
+		enrolling.participants[msg.sender] = enrolling.enrollment_amount;
+
+		uint collected_amount = enrolling.num_participants *
+			enrolling.enrollment_amount;
+		enrolling.num_participants++;
+		emit Enroll(
+			enrolling.ID,
+			msg.sender,
+			enrolling.num_participants,
+			collected_amount
+		);
+	}
+
+	function startERC20Tournament(uint16 idTournament) external onlyAdmin {
+		Tournament storage tournamentToStart = tournaments[idTournament];
+		require(block.timestamp > tournamentToStart.init_date);
+		if (
+			tournamentToStart.num_participants <
+			tournamentToStart.min_participants
+		) {
+			tournamentToStart.aborted = true;
+			return;
+		}
+		for (uint8 i = 0; i < tournamentToStart.accepted_tokens.length; i++) {
+			ERC20(tournamentToStart.accepted_tokens[i]).transfer(
+				tournamentToStart.DeFiBridge_address,
+				tournamentToStart.enrollment_amount *
+					tournamentToStart.num_participants *
+					1 ether
+			);
+		}
+		DEFIBRIDGE(tournamentToStart.DeFiBridge_address).start(
+			tournamentToStart.num_participants *
+				tournamentToStart.enrollment_amount,
+			tournamentToStart.accepted_tokens
+		);
+	}
+
+	function startETHTournament(
+		uint16 idTournament
+	) external payable onlyAdmin {
+		Tournament storage tournamentToStart = tournaments[idTournament];
+		require(block.timestamp > tournamentToStart.init_date);
+		if (
+			tournamentToStart.num_participants <
+			tournamentToStart.min_participants
+		) {
+			tournamentToStart.aborted = true;
+		} else {
+			(bool success, ) = tournamentToStart.DeFiBridge_address.call{
+				value: tournamentToStart.num_participants *
+					tournamentToStart.enrollment_amount *
+					1 ether
+			}(
+				abi.encodeWithSignature(
+					"startETH(uint256)",
+					tournamentToStart.num_participants *
+						tournamentToStart.enrollment_amount
+				)
+			);
+			require(success, "Call failed");
+		}
+	}
+
+	function abortERC20(uint16 idTournament) external {
+		Tournament storage abortedTournament = tournaments[idTournament];
+		require(abortedTournament.aborted == true);
+		// require(block.timestamp > abortedTournament.end_date); TODO falta require
+		// if (abortedTournament.accepted_tokens.length > 1) {
+		for (uint8 i = 0; i < abortedTournament.accepted_tokens.length; i++) {
+			ERC20(abortedTournament.accepted_tokens[i]).transfer(
+				address(msg.sender),
+				abortedTournament.enrollment_amount * 1 ether
+			);
+		}
+		// } else {
+		// 	ERC20(abortedTournament.accepted_tokens[0]).transfer(
+		// 		address(msg.sender),
+		// 		abortedTournament.enrollment_amount * 1 ether
+		// 	);
+		// }
+		abortedTournament.participants[msg.sender] = 0;
+	}
+
+	function abortETH(uint16 idTournament) external payable {
+		Tournament storage abortedTournament = tournaments[idTournament];
+		require(abortedTournament.aborted == true);
+		require(block.timestamp > abortedTournament.end_date);
+		(bool os, ) = payable(msg.sender).call{
+			value: abortedTournament.enrollment_amount * 1 ether
+		}("");
+		require(os);
+		abortedTournament.participants[msg.sender] = 0;
+	}
+
 	function endTournament(uint256 idTournament) public onlyAdmin {}
 
-	// abort --> se aborta el torneo porque no se cumplen los requisitos minimos
-	function abort() public onlyAdmin {}
+	// Getter function for participants of a tournament
+	function getParticipants(
+		uint16 tournamentId,
+		address participantAddress
+	) public view returns (uint16) {
+		require(tournamentId < tournaments.length, "Invalid tournament ID");
+		return tournaments[tournamentId].participants[participantAddress];
+	}
+
+	// Getter function for accepted tokens of a tournament
+	function getAcceptedTokens(
+		uint16 tournamentId
+	) public view returns (address[] memory) {
+		require(tournamentId < tournaments.length, "Invalid tournament ID");
+		return tournaments[tournamentId].accepted_tokens;
+	}
+
+	// Getter function for retrieve the Positions of the structs for ERC20 and ETH tournaments
+	function getIDSArray()
+		public
+		view
+		returns (uint[] memory ETHArray, uint[] memory ERC20Array)
+	{
+		uint[] memory tempETHArray = new uint[](tournaments.length);
+		uint[] memory tempERC20Array = new uint[](tournaments.length);
+		uint ethArrayCount = 0;
+		uint erc20ArrayCount = 0;
+
+		for (uint16 i = 0; i < tournaments.length; i++) {
+			if (tournaments[i].accepted_tokens.length == 0) {
+				tempETHArray[ethArrayCount] = tournaments[i].ID;
+				ethArrayCount++;
+			} else {
+				tempERC20Array[erc20ArrayCount] = tournaments[i].ID;
+				erc20ArrayCount++;
+			}
+		}
+
+		// Resize the arrays to their actual size
+		ETHArray = new uint[](ethArrayCount);
+		ERC20Array = new uint[](erc20ArrayCount);
+
+		for (uint i = 0; i < ethArrayCount; i++) {
+			ETHArray[i] = tempETHArray[i];
+		}
+
+		for (uint i = 0; i < erc20ArrayCount; i++) {
+			ERC20Array[i] = tempERC20Array[i];
+		}
+
+		return (ETHArray, ERC20Array);
+	}
 }
