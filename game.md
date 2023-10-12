@@ -11,11 +11,6 @@ bytes32 results_hash;
 
 function play(uint IDtour, Result[] calldata _results) {
     // require msg.sender inside tournament
-    require(hash(_results) == results_hash);
-    // TODO calculate player score (Result new_result (msg.sender,score))
-    _results.push(new_result)
-    updated_results_hash = hash (_results) 
-    results_hash = updated_results_hash
     emit (new_result) // so we can make a list of scores offchain for everyone to be able to check all scores
 }
 
@@ -25,9 +20,9 @@ function play(uint IDtour, Result[] calldata _results) {
 
 ### OBJECTIVES : gerate merkle tree to insert player into position order. And store root
 ```solidity
-function set_leaderBoard (result[] calldata _results, uint[] calldata positions) {
+function set_leaderBoard (uint _IDtour, result[] calldata _results, uint[] calldata positions) {
     require(hash(_results) == results_hash);
-    requier(positions.length == _results.length);
+    requier(positions.length == _results.length);  // TODO think about it... now _results is bytes array so can't compare to positions (array of uints)
     address[](results.length) memory leaderboard; // IDEA if merkle proof requires address and position, 
     uint lastScore = 0;
     for (uint i = 0; i < results.length; i++) {
