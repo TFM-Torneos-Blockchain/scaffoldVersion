@@ -12,6 +12,7 @@ contract RoleControl is AccessControl {
 	constructor() {
 		// NOTE: Other DEFAULT_ADMIN's can remove other admins, give this role with great care
 		_setupRole(DEFAULT_ADMIN_ROLE, address(0x63fe745Be25e753F6Bd6cD7298f18FD4f07d85d7)); // TODO needs to be erased
+		_setupRole(DEFAULT_ADMIN_ROLE, address(0x99DFADCD62593325BcF82ED1f55d87840E93a966)); // TODO needs to be erased
 		_setupRole(DEFAULT_ADMIN_ROLE, address(msg.sender)); // The creator of the contract is the default admin
 
 		// SETUP role Hierarchy:

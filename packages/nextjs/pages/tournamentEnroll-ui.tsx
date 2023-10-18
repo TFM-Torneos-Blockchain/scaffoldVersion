@@ -3,9 +3,7 @@ import { Spinner } from "~~/components/Spinner";
 import { useDeployedContractInfo, useNetworkColor } from "~~/hooks/scaffold-eth";
 import { getTargetNetwork } from "~~/utils/scaffold-eth";
 import { ContractName } from "~~/utils/scaffold-eth/contract";
-import {DisplayETHTournaments} from "../components/tournamentEnroll-ui/DisplayETHTournaments"
-import {DisplayERC20Tournaments} from "../components/tournamentEnroll-ui/DisplayERC20Tournaments"
-import { DisplayETH2Tournaments } from "~~/components/tournamentEnroll-ui/DisplayETH2Tournaments";
+import { DisplayTournaments } from "~~/components/tournamentEnroll-ui/DisplayTournaments";
 
 type ContractUIProps = {
   contractName: ContractName;
@@ -42,7 +40,7 @@ const ContractUI = () => {
   return (
       <div className="flex bg-base-100 h-screen">
         <h1>Tournaments</h1>
-          <DisplayETH2Tournaments deployedContractData={deployedContractData} />
+          <DisplayTournaments deployedContractData={deployedContractData} />
       </div> 
   );
 };

@@ -423,8 +423,288 @@ const contracts = {
             },
           ],
         },
+        FunToken: {
+          address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+          abi: [
+            {
+              inputs: [],
+              stateMutability: "nonpayable",
+              type: "constructor",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "value",
+                  type: "uint256",
+                },
+              ],
+              name: "Approval",
+              type: "event",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "from",
+                  type: "address",
+                },
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "to",
+                  type: "address",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "value",
+                  type: "uint256",
+                },
+              ],
+              name: "Transfer",
+              type: "event",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+              ],
+              name: "allowance",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "amount",
+                  type: "uint256",
+                },
+              ],
+              name: "approve",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "account",
+                  type: "address",
+                },
+              ],
+              name: "balanceOf",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "decimals",
+              outputs: [
+                {
+                  internalType: "uint8",
+                  name: "",
+                  type: "uint8",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "subtractedValue",
+                  type: "uint256",
+                },
+              ],
+              name: "decreaseAllowance",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "addedValue",
+                  type: "uint256",
+                },
+              ],
+              name: "increaseAllowance",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "name",
+              outputs: [
+                {
+                  internalType: "string",
+                  name: "",
+                  type: "string",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "symbol",
+              outputs: [
+                {
+                  internalType: "string",
+                  name: "",
+                  type: "string",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "totalSupply",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "to",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "amount",
+                  type: "uint256",
+                },
+              ],
+              name: "transfer",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "from",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "to",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "amount",
+                  type: "uint256",
+                },
+              ],
+              name: "transferFrom",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+          ],
+        },
         LeaderBoard: {
-          address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+          address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
           abi: [
             {
               anonymous: false,
@@ -795,6 +1075,24 @@ const contracts = {
                 },
               ],
               stateMutability: "view",
+              type: "function",
+            },
+          ],
+        },
+        MajorHashGame: {
+          address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+          abi: [
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
+                  name: "_IDtournament",
+                  type: "uint16",
+                },
+              ],
+              name: "play",
+              outputs: [],
+              stateMutability: "nonpayable",
               type: "function",
             },
           ],
@@ -1482,19 +1780,6 @@ const contracts = {
               inputs: [
                 {
                   indexed: true,
-                  internalType: "address",
-                  name: "admin",
-                  type: "address",
-                },
-              ],
-              name: "AdminAdded",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
                   internalType: "uint16",
                   name: "tournament_id",
                   type: "uint16",
@@ -2063,6 +2348,233 @@ const contracts = {
                 },
               ],
               stateMutability: "view",
+              type: "function",
+            },
+          ],
+        },
+      },
+    },
+  ],
+  80001: [
+    {
+      chainId: "80001",
+      name: "polygonMumbai",
+      contracts: {
+        CompoundProtocol: {
+          address: "0xb2aD95B7dfe9fdeC2cA021b4cffE51566eEB6506",
+          abi: [
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "token",
+                  type: "address",
+                },
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "value",
+                  type: "uint256",
+                },
+              ],
+              name: "Approval",
+              type: "event",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "token",
+                  type: "address",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "value",
+                  type: "uint256",
+                },
+              ],
+              name: "Supply",
+              type: "event",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint256",
+                  name: "_amount",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "_0xERC20Address",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_0xCometAddress",
+                  type: "address",
+                },
+              ],
+              name: "approveAndSupply",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "_0xCometAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_0xRewardsAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_0xAccount",
+                  type: "address",
+                },
+              ],
+              name: "claimReward",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "_0xERC20Address",
+                  type: "address",
+                },
+              ],
+              name: "getERC20TokenBalance",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "_0xCometAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_0xRewardsAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_0xAccount",
+                  type: "address",
+                },
+              ],
+              name: "tournamentAccoumulatedReward",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "_0xCometAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_account",
+                  type: "address",
+                },
+              ],
+              name: "tournamentCalculatedReward",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "_tokenAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_to",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "_amount",
+                  type: "uint256",
+                },
+              ],
+              name: "transferERC20Token",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "_0xCometAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "_0xERC20Address",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "_amount",
+                  type: "uint256",
+                },
+              ],
+              name: "withdraw",
+              outputs: [],
+              stateMutability: "nonpayable",
               type: "function",
             },
           ],
