@@ -52,7 +52,7 @@ describe("LeaderBoard and MerkleTree", function () {
       [1, 2, 0, 4, 3],
     );
     const merkleRoot = await leaderBoard.getMerkleRoot(0);
-    expect(merkleRoot.toString()).to.equal("0x383be988ce52a3a5b2334d186929972c6840f9175399febe6f7d442a076431a4");
+    expect(merkleRoot.toString()).to.equal("0x99d0bc281d4bd3be255fd5f256a1aed9becd33fb488e764f121b5cd3c25a4781");
   });
   // });
 });

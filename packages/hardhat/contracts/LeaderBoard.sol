@@ -52,15 +52,17 @@ contract LeaderBoard is RoleControl {
 		bytes32 lastScore = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // initialize the largest score posible
 		bytes32 backendSpongeHash; // With the input data we will generate another sponge hash to verify that no corrupted data has been introduced in the backend.
 		// Remember: 20 bytes for the addresses and 32 bytes for the scores.
-		for (uint i = 0; i < initial_length; i++) {
+		for (uint16 i = 0; i < initial_length; i++) {
 			backendSpongeHash = keccak256(
 				abi.encodePacked(
 					backendSpongeHash,
 					_results_bytes[i * 52:(i + 1) * 52]
 				)
 			);
-			leaderboard_hash[i] = keccak256(
-				_results_bytes[i * 52:(i + 1) * 52]
+			leaderboard_hash[i] = keccak256(abi.encodePacked(
+					_results_bytes[_positions[i]* 52:_positions[i]* 52 + 20], i
+				)
+				
 			);
 			require(
 				bytes32(

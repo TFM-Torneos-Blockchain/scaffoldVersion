@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import { keccak256 } from "viem";
-import { useScaffoldEventHistory } from "~~/hooks/scaffold-eth";
 
 // Define a function to process the events and generate the leaderboard
 type PlayerData = {

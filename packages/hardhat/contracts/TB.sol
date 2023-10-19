@@ -239,7 +239,10 @@ contract TournamentContract is RoleControl {
        
     }
     
-
+	// inputs IDTournament, (msg.sender), position, _merkleproof (esto no creo q os funcione proof[i].left, yo la merkle proof me la arreglaria para q el 
+	// primer byte sea 1 o 0 equivalente a left right, tampoco se si se pueden hacer slice de bytes[]) si no, podeis arreglaros para q la merkle proof
+	// ya sea una bytes32[] (hasheamos cada parte de la proof ya en backend) y os mandais tambien una isLeft[] con 1 y 0 para recrear el proof[i].left
+	// https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/lib/DepositContract.sol
     function getRewardAndVerify(uint256 _IDtourn, bytes _merkleLeaf, bytes[] calldata _merkleProof) public view returns(uint256) {
        bytes data = _merkleLeaf;
        for (uint256 i = 0; i < _merkleProof.length; i++) 
@@ -252,6 +255,7 @@ contract TournamentContract is RoleControl {
        require(data == merkle_root(_IDtourn));
 
        // 3. Devolver valor del reward
+	   // Tened en cuenta que el primer ganador es el 0 no el 1
        uint256 position = positions_enroll(msg.sender);
        uint256 numWinners = position_winners.length;
        int256 user_winer_position = -1;
@@ -297,7 +301,7 @@ contract TournamentContract is RoleControl {
         return amount;
     }
   
-
+  
     function claimETHReward(uint256 _IDtourn, bytes _merkleLeaf, bytes[] calldata _merkleProof) public {
         uint256 value = getRewardAndVerify( _IDtourn,  _merkleLeaf,  _merkleProof);
         require(value > 0);
