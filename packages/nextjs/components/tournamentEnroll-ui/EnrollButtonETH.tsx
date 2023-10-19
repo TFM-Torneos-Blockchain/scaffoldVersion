@@ -11,17 +11,15 @@ export default function EnrollButtonETH({
   contract,
   tournament_id,
   txAmount,
-  fn,
 }: {
-  contract: Contract<ContractName>;
+  contract: Contract<"TournamentContract">;
   tournament_id: number;
   txAmount: string;
-  fn?: string;
 }) {
   const { chain } = useNetwork();
   const writeTxn = useTransactor();
   const writeDisabled = !chain || chain?.id !== getTargetNetwork().id;
-  const enrollFunction = fn || "enrollWithETH";
+  const enrollFunction = "enrollWithETH";
 
   const {
     data: result,
@@ -39,7 +37,7 @@ export default function EnrollButtonETH({
     if (writeAsync) {
       try {
         console.log;
-        const makeWriteWithParams = () => writeAsync({ value: BigInt(txAmount)*1000000000000000000n }); // en WEIS
+        const makeWriteWithParams = () => writeAsync({ value: BigInt(txAmount) * 1000000000000000000n }); // en WEIS
         await writeTxn(makeWriteWithParams);
       } catch (e: any) {
         const message = getParsedError(e);
@@ -56,5 +54,9 @@ export default function EnrollButtonETH({
     setDisplayedTxResult(txResult);
   }, [txResult]);
 
-  return <button onClick={handleWrite}>EnrollButton</button>;
+  return (
+    <button className="text-black hover:bg-yellow-400" onClick={handleWrite} disabled={isLoading}>
+      EnrollButton
+    </button>
+  );
 }

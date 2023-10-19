@@ -8,16 +8,17 @@ import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
 
 type TReadOnlyFunctionFormProps = {
   tournament_id: number;
-  contract: Contract<ContractName>;
+  contract: Contract<"TournamentContract">;
   is_ETH: boolean;
 };
 
 export default function TournamentBox({ tournament_id, contract, is_ETH }: TReadOnlyFunctionFormProps) {
-  const [result, setResult] = useState<any>([]);
+  const [tournamentInfo, setTournamentInfo] = useState<any>([]);
+  const [showMoreInfo, setShowMoreInfo] = useState(false);
 
   const tournamentsFunction = "tournaments";
 
-  console.log(tournament_id);
+  // console.log(tournament_id);
 
   const { isFetching, refetch } = useContractRead({
     address: contract.address,
@@ -26,7 +27,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
     enabled: false,
     args: [tournament_id],
     onSuccess: (data: any) => {
-      console.log(data);
+      // console.log(data);
       const tournament = {
         id: data[0],
         min_participants: data[1],
@@ -34,14 +35,15 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
         num_participants: data[3],
         enrollment_amount: data[4].toString(),
         reward_amount: data[5].toString(),
-        init_date: data[6].toString(),
-        end_date: data[7].toString(),
+        init_date: new Date(Number(data[6])).toLocaleString(),
+        end_date: new Date(Number(data[7])).toLocaleString(),
         DeFiBridge_address: data[8],
         DeFiProtocol_address: data[9],
         aborted: data[10].toString(),
       };
-      console.log(tournament);
-      setResult(tournament);
+      // console.log(tournament);
+      console.log("asaber torunamentbox, read"); // TODO no està loggegan aixo
+      setTournamentInfo(tournament);
     },
     onError: (error: any) => {
       notification.error(error.message);
@@ -49,31 +51,100 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await refetch();
-    };
-    fetchData();
+    refetch();
+    console.log("asaber torunamentbox, useeffect");
   }, []);
 
   return (
-    <div className="bg-black">
-      {result &&
-        Object.values(result).map((text: string) => {
-          return <h1 key={text}>{text}</h1>;
-        })}
-
-      <div className="d-flex justify-between w-5/6">
-        {/* Call Enroll ETH or ERC20 depending on is_ETH variable */}
-        {is_ETH ? (
-          <EnrollButtonETH contract={contract} tournament_id={tournament_id} txAmount={result.enrollment_amount}>
-            Enroll
-          </EnrollButtonETH>
-        ) : (
-          <EnrollButtonERC20 contract={contract} tournament_id={tournament_id} txAmount={result.enrollment_amount} spender={result.DeFiBridge_address}>
-            Enroll
-          </EnrollButtonERC20>
-        )}
+    // <div className={`grid grid-cols-1 lg:grid-cols-6 px-6 lg:px-10 lg:gap-12 w-full max-w-7xl my-0`}>
+    //   <div className="col-span-5 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
+    //     <div className="col-span-1 flex flex-col">
+    //       <div className="bg-blue-800 p-4 rounded-md">
+    //         <div className="mb-4">
+    //           {showMoreInfo ? (
+    //             <div className="text-white overflow-y-auto max-h-40">
+    //               {" "}
+    //               {/* Adjust max height as needed */}
+    //               {Object.entries(tournamentInfo).map(([key, value]: [any, any]) => (
+    //                 <p key={key} className="text-base">
+    //                   {key}: {value}
+    //                 </p>
+    //               ))}
+    //             </div>
+    //           ) : (
+    //             <h1 className="text-white text-2xl font-bold">Tournament: {tournamentInfo.id}</h1>
+    //           )}
+    //         </div>
+    //         <div className="flex justify-center">
+    //           <button onClick={() => setShowMoreInfo(!showMoreInfo)} className="text-black hover:bg-yellow-400">
+    //             {showMoreInfo ? "Hide More Information" : "Show More Information"}
+    //           </button>
+    //         </div>
+    //         <div className="mt-4">
+    //           {/* Call Enroll ETH or ERC20 depending on is_ETH variable */}
+    //           {is_ETH ? (
+    //             <EnrollButtonETH
+    //               key={`boxETH-${contract}-${tournament_id}}`}
+    //               contract={contract}
+    //               tournament_id={tournament_id}
+    //               txAmount={tournamentInfo.enrollment_amount}
+    //             ></EnrollButtonETH>
+    //           ) : (
+    //             <EnrollButtonERC20
+    //               key={`boxERC20-${contract}-${tournament_id}}`}
+    //               contract={contract}
+    //               tournament_id={tournament_id}
+    //               txAmount={tournamentInfo.enrollment_amount}
+    //             ></EnrollButtonERC20>
+    //           )}
+    //         </div>
+    //       </div>
+    //     </div>
+    //   </div>
+    // </div>
+    <div className="bg-blue-800 p-4 rounded-md">
+    {showMoreInfo ? (
+      <div className="text-white overflow-y-auto max-h-40">
+        {Object.entries(tournamentInfo).map(([key, value]:[any,any]) => (
+          <p key={key} className="text-base">
+            {key}: {value}
+          </p>
+        ))}
       </div>
+    ) : (
+      <h1 className="text-white text-2xl font-bold">
+        Tournament: {tournamentInfo.id}
+      </h1>
+    )}
+    <div className="flex justify-center">
+      <button
+        onClick={() => setShowMoreInfo(!showMoreInfo)}
+        className="text-black hover:bg-yellow-400"
+      >
+        {showMoreInfo ? 'Hide More Information' : 'Show More Information'}
+      </button>
     </div>
+    <div className="mt-4">
+      {(
+        <div className="mb-4">
+          {is_ETH ? (
+            <EnrollButtonETH
+              key={`boxETH-${contract}-${tournament_id}}`}
+              contract={contract}
+              tournament_id={tournament_id}
+              txAmount={tournamentInfo.enrollment_amount}
+            />
+          ) : (
+            <EnrollButtonERC20
+              key={`boxERC20-${contract}-${tournament_id}}`}
+              contract={contract}
+              tournament_id={tournament_id}
+              txAmount={tournamentInfo.enrollment_amount}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  </div>
   );
 }

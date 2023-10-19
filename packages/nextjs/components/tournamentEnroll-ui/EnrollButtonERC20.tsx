@@ -9,36 +9,30 @@ import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import { getTargetNetwork, notification } from "~~/utils/scaffold-eth";
 import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
 
-// import  TokensApprove  from "../scaffold-eth/Contract/TokensApprove";
-export default function EnrollButtonERC20({
-  contract,
-  tournament_id,
-  txAmount,
-  spender,
-  fn,
-}: {
-  contract: Contract<ContractName>;
+type TReadOnlyFunctionFormProps = {
   tournament_id: number;
+  contract: Contract<"TournamentContract">;
   txAmount: string;
-  spender: string;
-  fn?: string;
-}) {
+};
+// import  TokensApprove  from "../scaffold-eth/Contract/TokensApprove";
+export default function EnrollButtonERC20({ tournament_id, contract, txAmount }: TReadOnlyFunctionFormProps) {
   const { chain } = useNetwork();
   const writeEnrollTxn = useTransactor();
   const writeApproveTxn = useTransactor();
   const writeDisabled = !chain || chain?.id !== getTargetNetwork().id;
-  const enrollFunction = fn || "enrollWithERC20";
+  const enrollFunction = "enrollWithERC20";
   const [ERC20addresses, setERC20addresses] = useState<any>([]);
   const [currentTokenIndex, setCurrentTokenIndex] = useState(0);
   const [isApproving, setIsApproving] = useState(true);
   const [currentAllowance, setCurrentAllowance] = useState<any>(0n);
   const [playerAddress, setPlayerAddress] = useState<any>("");
-  const [contractAddress, setContractAddress] = useState<any>("");
-
-  const { data: deployedContractData } = useDeployedContractInfo("TournamentContract");
   const { address: player_address } = getAccount();
 
-  const { data:dataAcceptedTokens,isFetching: isFetchingAcceptedTokens, refetch: refetchAcceptedTokens } = useContractRead({
+  const {
+    data: dataAcceptedTokens,
+    isFetching: isFetchingAcceptedTokens,
+    refetch: refetchAcceptedTokens,
+  } = useContractRead({
     address: contract.address,
     functionName: "getAcceptedTokens",
     abi: contract.abi as Abi,
@@ -46,11 +40,11 @@ export default function EnrollButtonERC20({
     enabled: false,
   });
 
-  const { data:dataAllowance,refetch: refetchAllowance } = useContractRead({
+  const { data: dataAllowance, refetch: refetchAllowance } = useContractRead({
     address: ERC20addresses[currentTokenIndex],
     functionName: "allowance",
     abi: erc20ABI,
-    args: [playerAddress, contractAddress],
+    args: [playerAddress, contract.address],
     enabled: false,
   });
 
@@ -66,19 +60,16 @@ export default function EnrollButtonERC20({
   };
 
   useEffect(() => {
-      setPlayerAddress(player_address);
-      setContractAddress(deployedContractData?.address);
-      // const acceptedTokens = await refetchAcceptedTokens();
-      setERC20addresses(dataAcceptedTokens);
-      // const allowance = await refetchAllowance();
-      setCurrentAllowance(dataAllowance);
-      console.log("allowance", currentAllowance);
-      console.log("acceptedTokens.data", ERC20addresses);
-      console.log("player_address", playerAddress);
-      console.log("deployedContractData", contractAddress);
-      if (currentAllowance?currentAllowance:0n > (txAmount?BigInt(txAmount):100n)) {
-        moveToNextToken();
-      }
+    setPlayerAddress(player_address);
+    setERC20addresses(dataAcceptedTokens);
+    setCurrentAllowance(dataAllowance);
+    console.log("allowance", currentAllowance);
+    console.log("acceptedTokens.data", ERC20addresses);
+    console.log("player_address", playerAddress);
+    console.log("deployedContractData", contract.address);
+    if (currentAllowance ? currentAllowance : 0n > (txAmount ? BigInt(txAmount) : 100n)) {
+      moveToNextToken();
+    }
   });
 
   const {
@@ -89,7 +80,7 @@ export default function EnrollButtonERC20({
     address: ERC20addresses[currentTokenIndex],
     abi: erc20ABI,
     functionName: "approve",
-    args: [contractAddress, txAmount ? BigInt(txAmount) : BigInt(0)],
+    args: [contract.address, txAmount ? BigInt(txAmount) : BigInt(0)],
     onSuccess: moveToNextToken,
     onError: (error: any) => {
       notification.error(error.message);
@@ -144,7 +135,7 @@ export default function EnrollButtonERC20({
   }, [txEnrollResult]);
 
   const handleClick = () => {
-    if (isApproving ) {
+    if (isApproving) {
       handleWriteApprove();
     } else {
       handleWriteEnroll();
@@ -154,7 +145,7 @@ export default function EnrollButtonERC20({
   const buttonText = isApproving ? "Approve" : "Enroll";
 
   return (
-    <button onClick={handleClick} disabled={isLoadingApprove}>
+    <button className="text-black hover:bg-yellow-400" onClick={handleClick} disabled={isLoadingApprove}>
       {buttonText}
     </button>
   );
