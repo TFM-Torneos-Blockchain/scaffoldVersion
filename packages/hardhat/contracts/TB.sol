@@ -242,6 +242,7 @@ contract TournamentContract is RoleControl {
 	// inputs IDTournament, (msg.sender), position, _merkleproof (esto no creo q os funcione proof[i].left, yo la merkle proof me la arreglaria para q el 
 	// primer byte sea 1 o 0 equivalente a left right, tampoco se si se pueden hacer slice de bytes[]) si no, podeis arreglaros para q la merkle proof
 	// ya sea una bytes32[] (hasheamos cada parte de la proof ya en backend) y os mandais tambien una isLeft[] con 1 y 0 para recrear el proof[i].left
+	// la hoja yo creo que mejor la recreamos aqui con keccak256(abi.encodePacked(msg.sender,position))
 	// https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/lib/DepositContract.sol
     function getRewardAndVerify(uint256 _IDtourn, bytes _merkleLeaf, bytes[] calldata _merkleProof) public view returns(uint256) {
        bytes data = _merkleLeaf;
