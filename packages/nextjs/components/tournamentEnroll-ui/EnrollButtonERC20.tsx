@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { getParsedError } from "../scaffold-eth";
+import { getAccount } from "@wagmi/core";
 import { Abi, Address } from "abitype";
 import { TransactionReceipt } from "viem";
-import { useContractRead, useContractWrite, useNetwork, useWaitForTransaction, erc20ABI } from "wagmi";
+import { erc20ABI, useContractRead, useContractWrite, useNetwork, useWaitForTransaction } from "wagmi";
 import { useTransactor } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import { getTargetNetwork, notification } from "~~/utils/scaffold-eth";
 import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
-// import  TokensApprove  from "../scaffold-eth/Contract/TokensApprove";
 
+// import  TokensApprove  from "../scaffold-eth/Contract/TokensApprove";
 export default function EnrollButtonERC20({
   contract,
   tournament_id,
@@ -24,61 +25,85 @@ export default function EnrollButtonERC20({
 }) {
   const { chain } = useNetwork();
   const writeEnrollTxn = useTransactor();
-  const approveTxn = useTransactor();
+  const writeApproveTxn = useTransactor();
   const writeDisabled = !chain || chain?.id !== getTargetNetwork().id;
   const enrollFunction = fn || "enrollWithERC20";
   const [ERC20addresses, setERC20addresses] = useState<any>([]);
   const [currentTokenIndex, setCurrentTokenIndex] = useState(0);
   const [isApproving, setIsApproving] = useState(true);
+  const [currentAllowance, setCurrentAllowance] = useState<any>(0n);
+  const [playerAddress, setPlayerAddress] = useState<any>("");
+  const [contractAddress, setContractAddress] = useState<any>("");
 
-  const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo("TournamentContract");
+  const { data: deployedContractData } = useDeployedContractInfo("TournamentContract");
+  const { address: player_address } = getAccount();
 
-
-  const { isFetching, refetch:executeApprove } = useContractRead({
+  const { isFetching: isFetchingAcceptedTokens, refetch: refetchAcceptedTokens } = useContractRead({
     address: contract.address,
     functionName: "getAcceptedTokens",
     abi: contract.abi as Abi,
     args: [tournament_id],
     enabled: false,
-    onSuccess: (acceptedTokens: any) => {
-      setERC20addresses(acceptedTokens);
-      console.log("accepted tokens",acceptedTokens, typeof acceptedTokens);
-      console.log("onSuccess",ERC20addresses[currentTokenIndex],typeof ERC20addresses[currentTokenIndex]);
-    },
-    onError: (error: any) => {
-      notification.error(error.message);
-    },
+  });
+
+  const { refetch: refetchAllowance } = useContractRead({
+    address: ERC20addresses[currentTokenIndex],
+    functionName: "allowance",
+    abi: erc20ABI,
+    args: [playerAddress, contractAddress],
+    enabled: false,
   });
 
   const moveToNextToken = () => {
     if (currentTokenIndex < ERC20addresses.length - 1) {
       setCurrentTokenIndex(currentTokenIndex + 1);
+      setCurrentAllowance(0n);
+      // refetchAllowance();
     } else {
       // All tokens have been approved, switch to enroll
       setIsApproving(false);
     }
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setPlayerAddress(player_address);
+      setContractAddress(deployedContractData?.address);
+      const acceptedTokens = await refetchAcceptedTokens();
+      setERC20addresses(acceptedTokens.data);
+      const allowance = await refetchAllowance();
+      setCurrentAllowance(allowance.data);
+      console.log("allowance", currentAllowance);
+      console.log("acceptedTokens.data", ERC20addresses);
+      console.log("player_address", playerAddress);
+      console.log("deployedContractData", contractAddress);
+      if (currentAllowance?currentAllowance:0n > (txAmount?BigInt(txAmount):100n)) {
+        moveToNextToken();
+      }
+    };
+    fetchData();
+  }),[ERC20addresses];
+
   const {
     data: approve_result,
-    isLoading:isLoadingApprove, 
-    writeAsync: writeApprove 
+    isLoading: isLoadingApprove,
+    writeAsync: writeApprove,
   } = useContractWrite({
-      address: ERC20addresses[currentTokenIndex],
-      abi: erc20ABI,
-      functionName: 'approve',
-      args: [deployedContractData? deployedContractData.address: "0x68B1D87F95878fE05B998F19b66F4baba5De1aed", txAmount ? BigInt(txAmount) : BigInt(0)],
-      onSuccess: moveToNextToken ,
-      onError: (error: any) => {
-        notification.error(error.message);
-        console.log(error.message);
-      },
-    });
+    address: ERC20addresses[currentTokenIndex],
+    abi: erc20ABI,
+    functionName: "approve",
+    args: [contractAddress, txAmount ? BigInt(txAmount) : BigInt(0)],
+    onSuccess: moveToNextToken,
+    onError: (error: any) => {
+      notification.error(error.message);
+      console.log(error.message);
+    },
+  });
 
   const {
     data: enroll_result,
-    isLoading:isLoadingEnroll,
-    writeAsync:writeEnroll,
+    isLoading: isLoadingEnroll,
+    writeAsync: writeEnroll,
   } = useContractWrite({
     chainId: getTargetNetwork().id,
     address: contract.address,
@@ -91,9 +116,8 @@ export default function EnrollButtonERC20({
     if (writeApprove) {
       try {
         console.log;
-        await executeApprove();
-        const makeApproveWithParams = () => writeApprove();
-        await approveTxn(makeApproveWithParams);
+        const makeWriteApproveWithParams = () => writeApprove();
+        await writeApproveTxn(makeWriteApproveWithParams);
       } catch (e: any) {
         const message = getParsedError(e);
         notification.error(message);
@@ -122,9 +146,8 @@ export default function EnrollButtonERC20({
     setDisplayedTxResult(txEnrollResult);
   }, [txEnrollResult]);
 
-
   const handleClick = () => {
-    if (isApproving) {
+    if (isApproving ) {
       handleWriteApprove();
     } else {
       handleWriteEnroll();
