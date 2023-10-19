@@ -38,7 +38,7 @@ export default function EnrollButtonERC20({
   const { data: deployedContractData } = useDeployedContractInfo("TournamentContract");
   const { address: player_address } = getAccount();
 
-  const { isFetching: isFetchingAcceptedTokens, refetch: refetchAcceptedTokens } = useContractRead({
+  const { data:dataAcceptedTokens,isFetching: isFetchingAcceptedTokens, refetch: refetchAcceptedTokens } = useContractRead({
     address: contract.address,
     functionName: "getAcceptedTokens",
     abi: contract.abi as Abi,
@@ -46,7 +46,7 @@ export default function EnrollButtonERC20({
     enabled: false,
   });
 
-  const { refetch: refetchAllowance } = useContractRead({
+  const { data:dataAllowance,refetch: refetchAllowance } = useContractRead({
     address: ERC20addresses[currentTokenIndex],
     functionName: "allowance",
     abi: erc20ABI,
@@ -66,13 +66,12 @@ export default function EnrollButtonERC20({
   };
 
   useEffect(() => {
-    const fetchData = async () => {
       setPlayerAddress(player_address);
       setContractAddress(deployedContractData?.address);
-      const acceptedTokens = await refetchAcceptedTokens();
-      setERC20addresses(acceptedTokens.data);
-      const allowance = await refetchAllowance();
-      setCurrentAllowance(allowance.data);
+      // const acceptedTokens = await refetchAcceptedTokens();
+      setERC20addresses(dataAcceptedTokens);
+      // const allowance = await refetchAllowance();
+      setCurrentAllowance(dataAllowance);
       console.log("allowance", currentAllowance);
       console.log("acceptedTokens.data", ERC20addresses);
       console.log("player_address", playerAddress);
@@ -80,9 +79,7 @@ export default function EnrollButtonERC20({
       if (currentAllowance?currentAllowance:0n > (txAmount?BigInt(txAmount):100n)) {
         moveToNextToken();
       }
-    };
-    fetchData();
-  }),[ERC20addresses];
+  });
 
   const {
     data: approve_result,
