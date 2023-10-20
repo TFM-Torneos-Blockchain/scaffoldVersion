@@ -59,10 +59,11 @@ contract LeaderBoard is RoleControl {
 					_results_bytes[i * 52:(i + 1) * 52]
 				)
 			);
-			leaderboard_hash[i] = keccak256(abi.encodePacked(
-					_results_bytes[_positions[i]* 52:_positions[i]* 52 + 20], i
+			leaderboard_hash[i] = keccak256(
+				abi.encodePacked(
+					_results_bytes[_positions[i] * 52:_positions[i] * 52 + 20],
+					i
 				)
-				
 			);
 			require(
 				bytes32(
