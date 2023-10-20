@@ -1,26 +1,25 @@
-// import { useReducer } from "react";
-import { GetTournaments } from "../components/scaffold-eth/Contract/GetTournaments";
-// import { DisplayTournaments } from "~~/components/tournamentEnroll-ui/DisplayTournaments";
-import { Abi, AbiFunction } from "abitype";
+import { useReducer } from "react";
 import { Spinner } from "~~/components/Spinner";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo, useNetworkColor } from "~~/hooks/scaffold-eth";
 import { getTargetNetwork } from "~~/utils/scaffold-eth";
-import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
+import { ContractName } from "~~/utils/scaffold-eth/contract";
+import { GetTournaments } from "~~/components/scaffold-eth/Contract/GetTournaments";
 
-// type ContractUIProps = {
-//   contractName: ContractName;
-//   className?: string;
-// };
+type ContractUIProps = {
+  contractName: ContractName;
+  className?: string;
+};
 
 /**
  * UI component to interface with deployed contracts.
  **/
 const ContractUI = () => {
-  // const [refreshDisplayVariables, triggerRefreshDisplayVariables] = useReducer(value => !value, false);
+  const [refreshDisplayVariables, triggerRefreshDisplayVariables] = useReducer(value => !value, false);
   const configuredNetwork = getTargetNetwork();
   const contractName = "TournamentContract";
 
   const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo(contractName);
+  const networkColor = useNetworkColor();
 
   if (deployedContractLoading) {
     return (
@@ -38,27 +37,11 @@ const ContractUI = () => {
     );
   }
 
-  const functionsToDisplay = (
-    ((deployedContractData.abi || []) as Abi).filter(part => part.type === "function") as AbiFunction[]
-  ).filter(fn => {
-    const isQueryableWithParams =
-      (fn.stateMutability === "view" || fn.stateMutability === "pure") &&
-      fn.inputs.length === 0 &&
-      fn.name === "getIDSArray";
-    return isQueryableWithParams;
-  });
-
-  if (!functionsToDisplay.length) {
-    console.log(functionsToDisplay);
-    return <>No read methods</>;
-  }
-
   return (
-    <div className="bg-base-100 h-screen flex flex-col items-center">
-      <h1 className="text-2xl font-bold">Enroll to your favorite Tournament!!!</h1>
-      <GetTournaments key={`display-${deployedContractData}`} contract={deployedContractData} />
-    </div>
+      <div className="flex bg-slate-800 w-screen h-screen pl-8">
+          <GetTournaments contract={deployedContractData} />
+      </div> 
   );
 };
 
-export default ContractUI;
+export default ContractUI

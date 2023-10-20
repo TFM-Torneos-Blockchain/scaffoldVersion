@@ -39,9 +39,9 @@ export const GetTournaments = ({ contract }: TReadOnlyFunctionFormProps) => {
   }, []);
 
   return (
-    <div className="py-8">
+    <div className="py-8 w-screen">
       <div className="text-2xl font-bold mb-4">ETH Tournaments</div>
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
+      <div className=" grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {tournaments[0] /* ETH */ &&
           tournaments[0].map((tournament_id: any) => {
             return (
