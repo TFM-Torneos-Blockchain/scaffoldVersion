@@ -1,63 +1,72 @@
 import { useEffect, useState } from "react";
 import { Abi, AbiFunction } from "abitype";
-import { Address } from "viem";
 import { useContractRead } from "wagmi";
-import {
-  ContractInput,
-  displayTxResult,
-  getFunctionInputKey,
-  getInitialFormState,
-  getParsedContractFunctionArgs,
-} from "~~/components/scaffold-eth";
-import { notification } from "~~/utils/scaffold-eth";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import TournamentBox from "~~/components/tournamentEnroll-ui/TournamentBox";
+import { notification } from "~~/utils/scaffold-eth";
 import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
 
 type TReadOnlyFunctionFormProps = {
-  contract: Contract<ContractName>;
+  contract: Contract<"TournamentContract">;
 };
 
 export const GetTournaments = ({ contract }: TReadOnlyFunctionFormProps) => {
   const [tournaments, setTournaments] = useState<any>([]);
 
-  const countTournamentsFunction = "getIDSArray"
-  const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo("TournamentContract");
+  const countTournamentsFunction = "getIDSArray";
 
   const { isFetching, refetch } = useContractRead({
     address: contract.address,
     functionName: countTournamentsFunction,
     abi: contract.abi as Abi,
     enabled: false,
-    onSuccess: (data: any) => {
-        setTournaments(data);
-    },
-    onError: (error: any) => {
-      notification.error(error.message);
-    },
+    // onSuccess: (data: any) => {
+    //   setTournaments(data);
+    //   console.log("asaber get tournament",data); // TODO no està loggegan aixo
+    // },
+    // onError: (error: any) => {
+    //   notification.error(error.message);
+    // },
   });
+  // refetch();  // TODO així looggeja massa (executa massa cops)
 
-useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
-        const data = await refetch();
-        setTournaments(data);
+      const data = await refetch();
+      setTournaments(data.data);
+      console.log("asaber get tournament useEffect"); // TODO no està loggegan aixo
     };
     fetchData();
-}, [])
+  }, []);
 
   return (
-    <div className="flex flex-col gap-3 py-5 first:pt-0 last:pb-1">
-  
-      <div className="flex justify-between gap-2 flex-wrap">
-        <div className="flex-grow w-4/5">
-          
-        </div>
-
-        {tournaments[0] /* ETH */ && tournaments[0].map((id: any) => {
+    <div className="py-8">
+      <div className="text-2xl font-bold mb-4">ETH Tournaments</div>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
+        {tournaments[0] /* ETH */ &&
+          tournaments[0].map((tournament_id: any) => {
             return (
-                <TournamentBox id={id}  contract={contract}  />
-    
-            )})}
+              <TournamentBox
+                key={`getTourseth-${contract}-${tournament_id}-${true}`}
+                tournament_id={tournament_id}
+                contract={contract}
+                is_ETH={true}
+              />
+            );
+          })}
+      </div>
+      <div className="text-2xl font-bold">ERC20 Tournaments</div>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
+        {tournaments[1] /* ERC20 */ &&
+          tournaments[1].map((tournament_id: any) => {
+            return (
+              <TournamentBox
+                key={`getTourserc20-${contract}-${tournament_id}-${false}`}
+                tournament_id={tournament_id}
+                contract={contract}
+                is_ETH={false}
+              />
+            );
+          })}
       </div>
     </div>
   );

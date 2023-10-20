@@ -2,12 +2,12 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 /**
- * Deploys a contract named "MajorHashGame" using the deployer account and
+ * Deploys a contract named "FunToken2" using the deployer account and
  * constructor arguments set to the deployer address
  *
  * @param hre HardhatRuntimeEnvironment object.
  */
-const deployMajorHashGame: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+const deployFunToken2: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /*
     On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
 
@@ -21,7 +21,7 @@ const deployMajorHashGame: DeployFunction = async function (hre: HardhatRuntimeE
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("MajorHashGame", {
+  await deploy("FunToken2", {
     from: deployer,
     // Contract constructor arguments
     args: [],
@@ -32,11 +32,11 @@ const deployMajorHashGame: DeployFunction = async function (hre: HardhatRuntimeE
   });
 
   // Get the deployed contract
-  // const MajorHashGame = await hre.ethers.getContract("MajorHashGame", deployer);
+  // const FunToken2 = await hre.ethers.getContract("FunToken2", deployer);
 };
 
-export default deployMajorHashGame;
+export default deployFunToken2;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags MajorHashGame
-deployMajorHashGame.tags = ["MajorHashGame"];
+// e.g. yarn deploy --tags FunToken2
+deployFunToken2.tags = ["FunToken2"];

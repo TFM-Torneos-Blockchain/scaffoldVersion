@@ -32,7 +32,6 @@ contract TournamentContract is RoleControl {
 	uint16 IDcounter;
 
 	//--------------------------------------------Events------------------------------------------------------
-	event AdminAdded(address indexed admin);
 	event TournamentCreated(uint16 indexed tournamentID);
 	event Enroll(
 		uint16 indexed tournament_id,
@@ -82,6 +81,7 @@ contract TournamentContract is RoleControl {
 	}
 
 	function enrollWithERC20(uint16 idTournament) external {
+		// TODO require/accept/manage more than one participation per player/address
 		Tournament storage enrolling = tournaments[idTournament];
 		require(
 			enrolling.num_participants < enrolling.max_participants,
@@ -91,13 +91,13 @@ contract TournamentContract is RoleControl {
 		for (uint8 i = 0; i < enrolling.accepted_tokens.length; i++) {
 			require(
 				ERC20(enrolling.accepted_tokens[i]).balanceOf(msg.sender) >=
-					enrolling.enrollment_amount * 1 ether,
-				"Insufficient balance"
+					enrolling.enrollment_amount ,
+				"Insufficient balance."
 			);
 			ERC20(enrolling.accepted_tokens[i]).transferFrom(
 				msg.sender,
 				address(this),
-				enrolling.enrollment_amount * 1 ether
+				enrolling.enrollment_amount
 			);
 		}
 
@@ -116,6 +116,7 @@ contract TournamentContract is RoleControl {
 	}
 
 	function enrollWithETH(uint16 idTournament) external payable {
+		// TODO require/accept/manage more than one participation per player/address
 		Tournament storage enrolling = tournaments[idTournament];
 		require(
 			enrolling.num_participants < enrolling.max_participants,
@@ -195,19 +196,12 @@ contract TournamentContract is RoleControl {
 		Tournament storage abortedTournament = tournaments[idTournament];
 		require(abortedTournament.aborted == true);
 		// require(block.timestamp > abortedTournament.end_date); TODO falta require
-		// if (abortedTournament.accepted_tokens.length > 1) {
 		for (uint8 i = 0; i < abortedTournament.accepted_tokens.length; i++) {
 			ERC20(abortedTournament.accepted_tokens[i]).transfer(
 				address(msg.sender),
 				abortedTournament.enrollment_amount * 1 ether
 			);
 		}
-		// } else {
-		// 	ERC20(abortedTournament.accepted_tokens[0]).transfer(
-		// 		address(msg.sender),
-		// 		abortedTournament.enrollment_amount * 1 ether
-		// 	);
-		// }
 		abortedTournament.participants[msg.sender] = 0;
 	}
 
