@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import { keccak256 } from "viem";
-import { useScaffoldEventHistory } from "~~/hooks/scaffold-eth";
+import { keccak256 } from "@ethersproject/keccak256";
+
 
 // Define a function to process the events and generate the leaderboard
 type PlayerData = {
@@ -38,10 +38,10 @@ export function getLeaderboard(tournament_id: bigint, events:NestedPlayerData) {
       [concatenatedStringBytes, event.player, event.score_number],
     );
     spongeHash = keccak256(
-      `0x${ethers.utils.solidityPack(
+      ethers.utils.solidityPack(
         ["bytes32", "address", "uint256"],
         [spongeHash, event.player, event.score_number],
-      )}`,
+      ),
     );
     scores.push(Number(event.score_number));
   }
@@ -52,8 +52,6 @@ export function getLeaderboard(tournament_id: bigint, events:NestedPlayerData) {
   // Sort the positions based on the values in scores in descending order
   positions.sort((a, b) => scores[b] - scores[a]);
 
-  console.log(positions);
-
   // Return both arrays
-  return { concatenatedStringBytes, positions };
+  return { concatenatedStringBytes, positions , spongeHash};
 }
