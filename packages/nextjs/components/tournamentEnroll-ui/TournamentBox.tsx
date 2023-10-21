@@ -5,6 +5,7 @@ import { Abi } from "abitype";
 import { useContractRead } from "wagmi";
 import { notification } from "~~/utils/scaffold-eth";
 import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
+import TournamentPopUp from "./TournamentPopUp";
 
 type TReadOnlyFunctionFormProps = {
   tournament_id: number;
@@ -102,31 +103,16 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
     //     </div>
     //   </div>
     // </div>
-    <div className="bg-blue-800 p-4 rounded-md">
-    {showMoreInfo ? (
-      <div className="text-white overflow-y-auto max-h-40">
-        {Object.entries(tournamentInfo).map(([key, value]:[any,any]) => (
-          <p key={key} className="text-base">
-            {key}: {value}
-          </p>
-        ))}
+    <div className="bg-slate-900 w-fit p-4 rounded-md">
+      <div >
+        <h2 className="font-bold">TOURNAMENT #{tournamentInfo.id}</h2>
+        <div className="flex flex-col mb-4">
+          <span>Enroll amount: {tournamentInfo.enrollment_amount}</span>
+          <span>Reward amount: {tournamentInfo.reward_amount}</span>
+          <span>Participants: {tournamentInfo.num_participants}</span>
+        </div>
       </div>
-    ) : (
-      <h1 className="text-white text-2xl font-bold">
-        Tournament: {tournamentInfo.id}
-      </h1>
-    )}
-    <div className="flex justify-center">
-      <button
-        onClick={() => setShowMoreInfo(!showMoreInfo)}
-        className="text-black hover:bg-yellow-400"
-      >
-        {showMoreInfo ? 'Hide More Information' : 'Show More Information'}
-      </button>
-    </div>
-    <div className="mt-4">
-      {(
-        <div className="mb-4">
+        <div className="mb-2">
           {is_ETH ? (
             <EnrollButtonETH
               key={`boxETH-${contract}-${tournament_id}}`}
@@ -143,7 +129,8 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
             />
           )}
         </div>
-      )}
+    <div className="flex justify-center">
+      <TournamentPopUp tournamentInfo={tournamentInfo}  />
     </div>
   </div>
   );
