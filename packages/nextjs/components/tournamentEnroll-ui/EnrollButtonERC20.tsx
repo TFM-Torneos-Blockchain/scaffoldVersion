@@ -26,7 +26,10 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
   const [isApproving, setIsApproving] = useState(true);
   const [currentAllowance, setCurrentAllowance] = useState<any>(0n);
   const [playerAddress, setPlayerAddress] = useState<any>("");
+  const [infoReaded, setInfoReaded] = useState(false);
   const { address: player_address } = getAccount();
+
+
 
   const {
     data: dataAcceptedTokens,
@@ -39,6 +42,7 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
     args: [tournament_id],
     enabled: false,
   });
+
 
   const { data: dataAllowance, refetch: refetchAllowance } = useContractRead({
     address: ERC20addresses[currentTokenIndex],
@@ -60,8 +64,9 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
   };
 
   useEffect(() => {
+    console.log('USEEFFECT')
     setPlayerAddress(player_address);
-    setERC20addresses(dataAcceptedTokens);
+    if(dataAcceptedTokens) setERC20addresses(dataAcceptedTokens);
     setCurrentAllowance(dataAllowance);
     console.log("allowance", currentAllowance);
     console.log("acceptedTokens.data", ERC20addresses);
@@ -70,7 +75,7 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
     if (currentAllowance ? currentAllowance : 0n > (txAmount ? BigInt(txAmount) : 100n)) {
       moveToNextToken();
     }
-  });
+  }, [infoReaded]);
 
   const {
     data: approve_result,
