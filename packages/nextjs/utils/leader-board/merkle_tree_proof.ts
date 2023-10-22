@@ -29,5 +29,11 @@ export function getMerkleRoot(
   root = `0x${root}`;
   const leaf = tree.getLeaf(leaf_position);
   const proof = tree.getProof(leaf);
-  return { proof, root };
+    // Sacamos el isLeft[]
+  let isLeft : boolean[] = [];
+
+  proof.forEach(el => {
+    isLeft.push(el.position === "left" ? true : false);
+  } )
+  return { isLeft, proof, root };
 }

@@ -17,13 +17,12 @@ contract TournamentContract is RoleControl {
 		uint16 num_participants;
 		uint16 enrollment_amount;
 		address[] accepted_tokens;
-		uint256 total_reward_amount; 
+		uint256[] total_reward_amount; 
         uint256[] position_winners; // [8,2,5]
-        mapping(address => uint256) positions_enroll; // Guardado durante el setLeaderBoard
 		uint256 init_date;
 		uint256 end_date;
 		address DeFiBridge_address;
-		address DeFiProtocol_address;
+		address[] DeFiProtocol_address;
 		bool aborted;
 	}
     mapping(uint256 => bytes32) results_hash;
@@ -223,20 +222,46 @@ contract TournamentContract is RoleControl {
 	//llamar desde front--> llamar a la función de transfer del defi bridge para devolver el dinero + premio - coste de los admin - beneficio empresa
     function endETHTournament(uint256 idTournament) public onlyAdmin { 
         // 1- Recuperar dinero del defi bridge y conocer
-       uint rewardReceived = 1 ether;
+		address defiBridgeAddress = tournaments[idTournament].DeFiBridge_address;
+		address[] DeFiProtocol_address = tournaments[idTournament].DeFiProtocol_address;
+		amount256 amount = tournaments[idTournament].num_participants * tournaments[idTournament].enrollment_amount;
+		uint256 balance1 = address(this).balance;
+		(bool success) = defiBridgeAddress.call(abi.encodeWithSignature("endETH(uint256,address[] calldata)",amount,DeFiProtocol_address));
+		require(success, "Call failed");
+		uint256 balance2 = address(this).balance;
+       	uint rewardReceived = balance2 - balance1;
         // 2- Calculo de restar fees al premio
+		/*
             // restar al reward las fees pagadas por los admin
             uint256 total_gas = tournaments[idTournament].gasTotalAdmin + tx.gas;
             uint256 costeAdmin = tx.gasprice * total_gas;
             rewardReceived -= costeAdmin;
-            // Sumamos al balance los gastos de los admin y la tarifa
-            contractBalance += costeAdmin + 0.1 * rewardReceived;
+			*/
             // porcentaje del premio que va a los participantes
-            uint256 premio = rewardReceived * 0.9;
-            tournaments[idTournament].total_reward_amount = premio;
-            
-        // 3- transferir dinero + premio - coste de los admin - beneficio empresa
-       
+        uint256 premio = rewardReceived * 0.8;
+        tournaments[idTournament].total_reward_amount[0] = premio;
+    }
+
+	 function endERC20Tournament(uint256 idTournament) public onlyAdmin { 
+        // 1- Recuperar tokens del defi bridge 
+		address defiBridgeAddress = tournaments[idTournament].DeFiBridge_address;
+		address[] DeFiProtocol_address = tournaments[idTournament].DeFiProtocol_address;
+		address[] accepted_tokens = tournaments[_IDtourn].accepted_tokens[0];
+		uint256[] rewardReceived;
+		amount256 amount = tournaments[idTournament].num_participants * tournaments[idTournament].enrollment_amount;
+		uint256[] balance1 ;
+		uint256[] premio;
+		for (uint i = 0; i < accepted_tokens.length; i++) {
+			balance1[i] = ERC20(accepted_tokens[i]).balanceOf(address(this));
+		}
+		(bool success) = defiBridgeAddress.call(abi.encodeWithSignature("endERC20(uint256,address[] calldata)",amount,DeFiProtocol_address));
+		require(success, "Call failed");
+		for (uint i = 0; i < accepted_tokens.length; i++) {
+			balance2 = ERC20(accepted_tokens[i]).balanceOf(address(this)) ;
+			rewardReceived[i] = balance2 - balance1[i];
+			premio[i] = rewardReceived[i] * 0.8;
+			tournaments[idTournament].total_reward_amount[i] = premio[i];
+		}     
     }
     
 	// inputs IDTournament, (msg.sender), position, _merkleproof (esto no creo q os funcione proof[i].left, yo la merkle proof me la arreglaria para q el 
@@ -244,20 +269,21 @@ contract TournamentContract is RoleControl {
 	// ya sea una bytes32[] (hasheamos cada parte de la proof ya en backend) y os mandais tambien una isLeft[] con 1 y 0 para recrear el proof[i].left
 	// la hoja yo creo que mejor la recreamos aqui con keccak256(abi.encodePacked(msg.sender,position))
 	// https://github.com/0xPolygonHermez/zkevm-contracts/blob/main/contracts/lib/DepositContract.sol
-    function getRewardAndVerify(uint256 _IDtourn, bytes _merkleLeaf, bytes[] calldata _merkleProof) public view returns(uint256) {
-       bytes data = _merkleLeaf;
-       for (uint256 i = 0; i < _merkleProof.length; i++) 
+    function getRewardAndVerify(uint256 _IDtourn, bool[] calldata isLeft,uint256 position, bytes32[] calldata _merkleProof /* hashes merkle proof */) public view returns(uint256) {
+       bytes memory merkleLeaf =  keccak256(abi.encodePacked(msg.msg.sender,position));
+       for (uint256 i = 0; i < isLeft.length; i++) 
        {
-        if (proof[i].left) {
-            data = keccak256(abi.encodePacked(_merkleProof[i].data,data));
+        if (isLeft[i]) {
+            merkleLeaf = keccak256(abi.encodePacked(_merkleProof[i],merkleLeaf));
         }
-        else { data = keccak256(abi.encodePacked(data,_merkleProof[i].data))}
-       };
-       require(data == merkle_root(_IDtourn));
+        else { merkleLeaf = keccak256(abi.encodePacked(merkleLeaf,_merkleProof[i]));}
+		}
+       
+       require(merkleLeaf == merkle_root[_IDtourn]);
 
        // 3. Devolver valor del reward
 	   // Tened en cuenta que el primer ganador es el 0 no el 1
-       uint256 position = positions_enroll(msg.sender);
+	   uint256[] memory position_winners = tournaments[_IDtourn].position_winners;
        uint256 numWinners = position_winners.length;
        int256 user_winer_position = -1;
        uint256 amount = 0;
@@ -268,7 +294,7 @@ contract TournamentContract is RoleControl {
                 user_winer_position = i;
                 break;
             }
-        };
+        }
        
         if (user_winer_position >= 0) {
             if (numWinners == 2) {
@@ -303,12 +329,21 @@ contract TournamentContract is RoleControl {
     }
   
   
-    function claimETHReward(uint256 _IDtourn, bytes _merkleLeaf, bytes[] calldata _merkleProof) public {
+    function claimETHReward(uint256 _IDtourn, bytes calldata _merkleLeaf, bytes[] calldata _merkleProof) public {
         uint256 value = getRewardAndVerify( _IDtourn,  _merkleLeaf,  _merkleProof);
         require(value > 0);
-        (bool sent, bytes memory data) = msg.sender.call{value: value}("");
+        (bool sent) = msg.sender.call{value: value}("");
         require(sent,"Failed to send Ether");
     }
+
+	function claimERC20Reward(uint256 _IDtourn, bytes calldata _merkleLeaf, bytes[] calldata _merkleProof) public {
+		uint256 amount = getRewardAndVerify( _IDtourn,  _merkleLeaf,  _merkleProof);
+        require(amount > 0);
+		address[] accepted_tokens = tournaments[_IDtourn].accepted_tokens;
+        for (uint i = 0; i < accepted_tokens.length; i++) {
+			ERC20(address[i]).tranfer(msg.sender,amount)
+		}
+	}
 
 	// Getter function for participants of a tournament
 	function getParticipants(
