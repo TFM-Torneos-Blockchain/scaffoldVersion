@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { getParsedError } from "../scaffold-eth";
 import { getAccount } from "@wagmi/core";
-import { Abi, Address } from "abitype";
+import { Abi } from "abitype";
 import { TransactionReceipt } from "viem";
 import { erc20ABI, useContractRead, useContractWrite, useNetwork, useWaitForTransaction } from "wagmi";
 import { useTransactor } from "~~/hooks/scaffold-eth";
-import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import { getTargetNetwork, notification } from "~~/utils/scaffold-eth";
-import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
+import { Contract } from "~~/utils/scaffold-eth/contract";
 
 type TReadOnlyFunctionFormProps = {
   tournament_id: number;
@@ -26,15 +25,13 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
   const [isApproving, setIsApproving] = useState(true);
   const [currentAllowance, setCurrentAllowance] = useState<any>(0n);
   const [playerAddress, setPlayerAddress] = useState<any>("");
-  const [infoReaded, setInfoReaded] = useState(false);
+  // const [infoReaded, setInfoReaded] = useState(false);
   const { address: player_address } = getAccount();
-
-
 
   const {
     data: dataAcceptedTokens,
-    isFetching: isFetchingAcceptedTokens,
-    refetch: refetchAcceptedTokens,
+    // isFetching: isFetchingAcceptedTokens,
+    // refetch: refetchAcceptedTokens,
   } = useContractRead({
     address: contract.address,
     functionName: "getAcceptedTokens",
@@ -43,8 +40,10 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
     enabled: false,
   });
 
-
-  const { data: dataAllowance, refetch: refetchAllowance } = useContractRead({
+  const {
+    data: dataAllowance,
+    // refetch: refetchAllowance
+  } = useContractRead({
     address: ERC20addresses[currentTokenIndex],
     functionName: "allowance",
     abi: erc20ABI,
@@ -64,9 +63,9 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
   };
 
   useEffect(() => {
-    console.log('USEEFFECT')
+    console.log("USEEFFECT start ERC20");
     setPlayerAddress(player_address);
-    if(dataAcceptedTokens) setERC20addresses(dataAcceptedTokens);
+    if (dataAcceptedTokens) setERC20addresses(dataAcceptedTokens);
     setCurrentAllowance(dataAllowance);
     console.log("allowance", currentAllowance);
     console.log("acceptedTokens.data", ERC20addresses);
@@ -75,7 +74,8 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
     if (currentAllowance ? currentAllowance : 0n > (txAmount ? BigInt(txAmount) : 100n)) {
       moveToNextToken();
     }
-  }, [infoReaded]);
+    console.log("USEEFFECT end ERC20");
+  });
 
   const {
     data: approve_result,
@@ -150,7 +150,12 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
   const buttonText = isApproving ? "Approve" : "Enroll";
 
   return (
-    <button className="text-black hover:bg-yellow-400" onClick={handleClick} disabled={isLoadingApprove}>
+    <button
+      className="w-56 bg-green-700 text-white active:bg-pink-600 font-bold uppercase text-sm px-4 py-1 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+      type="button"
+      onClick={handleClick}
+      disabled={isLoadingApprove}
+    >
       {buttonText}
     </button>
   );
