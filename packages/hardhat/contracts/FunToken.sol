@@ -12,5 +12,6 @@ contract FunToken is ERC20 {
     // Constructor will be called on contract creation
     constructor() ERC20("FunToken", "FUN") {
         _mint(address(0x99DFADCD62593325BcF82ED1f55d87840E93a966), initialSupply);
+        _mint(msg.sender, initialSupply);
     }
 }

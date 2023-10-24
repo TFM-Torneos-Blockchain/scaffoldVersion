@@ -24,7 +24,7 @@ export default function TokensApprove({
   const [currentAllowance, setCurrentAllowance] = useState<bigint>(0n);
 
   const { data: deployedContractData, isLoading: isLoadingContractData } =
-    useDeployedContractInfo("TournamentContract");
+    useDeployedContractInfo("TournamentManager");
   const { address: player_address } = useAccount();
 
   const { refetch: refetchAcceptedTokens, isFetching: isFetchingAcceptedTokens } = useContractRead({

@@ -1,21 +1,94 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { LeaderBoard } from "../typechain-types";
+import { TournamentManager, FunToken, FunToken2, CompoundProtocol, MajorHashGame } from "../typechain-types";
+import { getLeaderboard } from "../../nextjs/utils/leader-board/leaderboard"
+import { getMerkleRoot } from "../../nextjs/utils/leader-board/merkle_tree_proof"
+import type { Signer } from "ethers";
 
 describe("LeaderBoard and MerkleTree", function () {
   // We define a fixture to reuse the same setup in every test.
+  const currentDate = new Date();
+  const init_date_UnixTimestampInSeconds = 2;
+  const end_date = new Date(currentDate.getTime() + 15 * 24 * 60 * 60 * 1000);
+  const end_date_UnixTimestampInSeconds = Math.floor(end_date.getTime() / 1000);
 
-  let leaderBoard: LeaderBoard;
+  const enrollmentAmount = ethers.utils.parseEther("1");
+
+  const events = [
+    {
+      player: "0xc3d688B66703497DAA19211EEdff47f25384cdc3",
+      score_number: 333,
+    },
+    {
+      player: "0x11DfADcd62593325Bcf82Ed1f55d87840E93A977",
+      score_number: 56565,
+    },
+    {
+      player: "0x74a81F84268744a40FEBc48f8b812a1f188D80C3",
+      score_number: 888,
+    },
+    {
+      player: "0xc3d688B66703497DAA19211EEdff47f25384cdc3",
+      score_number: 11,
+    },
+    {
+      player: "0x11DfADcd62593325Bcf82Ed1f55d87840E93A977",
+      score_number: 15,
+    },
+  ];
+  const backendLeaderBoard = getLeaderboard(0n,events);
+  const backendMerkleTree = getMerkleRoot(0,backendLeaderBoard.concatenatedStringBytes,backendLeaderBoard.positions,1);
+
+  let leaderBoard: TournamentManager;
+  let funToken: FunToken;
+  let funToken2: FunToken2;
+  let compoundProtocol: CompoundProtocol;
+  let majorHashGame: MajorHashGame;
+  let owner: Signer, participant1: Signer, participant2: Signer;
+  
   beforeEach("Deploy contracts", async () => {
-    const [owner] = await ethers.getSigners();
-    const LeaderBoardFactory = await ethers.getContractFactory("LeaderBoard");
-    leaderBoard = (await LeaderBoardFactory.deploy()) as LeaderBoard;
+    // Initialize some signers
+    [owner, participant1, participant2] = await ethers.getSigners();
+
+    // Compound protocol contract
+    const LeaderBoardFactory = await ethers.getContractFactory("TournamentManager");
+    leaderBoard = (await LeaderBoardFactory.deploy(owner.getAddress())) as TournamentManager;
     await leaderBoard.deployed();
-    await leaderBoard.setResult(0, "0xc3d688B66703497DAA19211EEdff47f25384cdc3", 333);
-    await leaderBoard.setResult(0, "0x11DfADcd62593325Bcf82Ed1f55d87840E93A977", 56565);
-    await leaderBoard.setResult(0, "0x74a81F84268744a40FEBc48f8b812a1f188D80C3", 888);
-    await leaderBoard.setResult(0, "0xc3d688B66703497DAA19211EEdff47f25384cdc3", 11);
-    await leaderBoard.setResult(0, "0x11DfADcd62593325Bcf82Ed1f55d87840E93A977", 15);
+    // Compound protocol contract
+    const CompoundProtocolFactory = await ethers.getContractFactory("CompoundProtocol");
+    compoundProtocol = (await CompoundProtocolFactory.deploy(owner.getAddress())) as CompoundProtocol;
+    await compoundProtocol.deployed();
+    // Major hash game contract
+    const MajorHashGameFactory = await ethers.getContractFactory("MajorHashGame");
+    majorHashGame = (await MajorHashGameFactory.deploy(owner.getAddress())) as MajorHashGame;
+    await majorHashGame.deployed();
+    // FunToken contract
+    const FunTokenFactory = await ethers.getContractFactory("FunToken");
+    funToken = (await FunTokenFactory.deploy(owner.getAddress())) as FunToken;
+    await funToken.deployed();
+    // FunToken2 contract
+    const FunToken2Factory = await ethers.getContractFactory("FunToken2");
+    funToken2 = (await FunToken2Factory.deploy(owner.getAddress())) as FunToken2;
+    await funToken2.deployed();
+
+    await leaderBoard
+    .connect(owner)
+    .createTournament(
+      10000,
+      250,
+      enrollmentAmount,
+      [funToken.address],
+      init_date_UnixTimestampInSeconds,
+      end_date_UnixTimestampInSeconds,
+      compoundProtocol.address,
+      "0xF09F0369aB0a875254fB565E52226c88f10Bc839",
+    );
+
+    await leaderBoard.setResult(0, events[0].player, events[0].score_number);
+    await leaderBoard.setResult(0, events[1].player, events[1].score_number);
+    await leaderBoard.setResult(0, events[2].player, events[2].score_number);
+    await leaderBoard.setResult(0, events[3].player,events[3].score_number);
+    await leaderBoard.setResult(0, events[4].player,events[4].score_number);
   });
 
   // describe("Set result", function () {
@@ -30,7 +103,7 @@ describe("LeaderBoard and MerkleTree", function () {
     await expect(
       leaderBoard.createLeaderBoardMerkleTree(
         0,
-        "0xc3d688b66703497daa19211eedff47f25384cdc3000000000000000000000000000000000000000000000000000000000000014d11dfadcd62593325bcf82ed1f55d87840e93a977000000000000000000000000000000000000000000000000000000000000dcf574a81f84268744a40febc48f8b812a1f188d80c30000000000000000000000000000000000000000000000000000000000000378c3d688b66703497daa19211eedff47f25384cdc3000000000000000000000000000000000000000000000000000000000000000b11dfadcd62593325bcf82ed1f55d87840e93a977000000000000000000000000000000000000000000000000000000000000000f",
+        backendLeaderBoard.concatenatedStringBytes,
         [1, 2, 4, 0, 3],
       ),
     ).to.be.revertedWith("Data corrupted: incorrect players classification.");
@@ -39,8 +112,8 @@ describe("LeaderBoard and MerkleTree", function () {
     await expect(
       leaderBoard.createLeaderBoardMerkleTree(
         0,
-        "0xc3f688b66703497daa19211eedff47f25384cdc3000000000000000000000000000000000000000000000000000000000000014d11dfadcd62593325bcf82ed1f55d87840e93a977000000000000000000000000000000000000000000000000000000000000dcf574a81f84268744a40febc48f8b812a1f188d80c30000000000000000000000000000000000000000000000000000000000000378c3d688b66703497daa19211eedff47f25384cdc3000000000000000000000000000000000000000000000000000000000000000b11dfadcd62593325bcf82ed1f55d87840e93a977000000000000000000000000000000000000000000000000000000000000000f",
-        [1, 2, 0, 4, 3],
+        "0xc3d678b66703497daa19211eedff47f25394cdc3000000000000000000000000000000000000000000000000000000000000014d11dfadcd62593325bcf82ed1f55d87840e93a977000000000000000000000000000000000000000000000000000000000000dcf574a81f84268744a40febc48f8b812a1f188d80c30000000000000000000000000000000000000000000000000000000000000378c3d688b66703497daa19211eedff47f25384cdc3000000000000000000000000000000000000000000000000000000000000000b11dfadcd62593325bcf82ed1f55d87840e93a977000000000000000000000000000000000000000000000000000000000000000f",
+        backendLeaderBoard.positions,
       ),
     ).to.be.revertedWith("Data corrupted: bad spongeHash recreation.");
   });
@@ -48,11 +121,11 @@ describe("LeaderBoard and MerkleTree", function () {
   it("It should generate the same Merkle Root as the one generated by the Backend.", async () => {
     await leaderBoard.createLeaderBoardMerkleTree(
       0,
-      "0xc3d688b66703497daa19211eedff47f25384cdc3000000000000000000000000000000000000000000000000000000000000014d11dfadcd62593325bcf82ed1f55d87840e93a977000000000000000000000000000000000000000000000000000000000000dcf574a81f84268744a40febc48f8b812a1f188d80c30000000000000000000000000000000000000000000000000000000000000378c3d688b66703497daa19211eedff47f25384cdc3000000000000000000000000000000000000000000000000000000000000000b11dfadcd62593325bcf82ed1f55d87840e93a977000000000000000000000000000000000000000000000000000000000000000f",
-      [1, 2, 0, 4, 3],
+      backendLeaderBoard.concatenatedStringBytes,
+      backendLeaderBoard.positions,
     );
     const merkleRoot = await leaderBoard.getMerkleRoot(0);
-    expect(merkleRoot.toString()).to.equal("0x99d0bc281d4bd3be255fd5f256a1aed9becd33fb488e764f121b5cd3c25a4781");
+    expect(merkleRoot.toString()).to.equal(backendMerkleTree.root);
   });
   // });
 });

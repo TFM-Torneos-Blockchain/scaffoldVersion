@@ -2,12 +2,12 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 /**
- * Deploys a contract named "TournamentContract" using the deployer account and
+ * Deploys a contract named "TournamentManager" using the deployer account and
  * constructor arguments set to the deployer address
  *
  * @param hre HardhatRuntimeEnvironment object.
  */
-const deployTournamentContract: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+const deployTournamentManager: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   /*
     On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
 
@@ -21,7 +21,7 @@ const deployTournamentContract: DeployFunction = async function (hre: HardhatRun
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("TournamentContract", {
+  await deploy("TournamentManager", {
     from: deployer,
     // Contract constructor arguments
     args: [],
@@ -32,11 +32,11 @@ const deployTournamentContract: DeployFunction = async function (hre: HardhatRun
   });
 
   // Get the deployed contract
-  // const TournamentContract = await hre.ethers.getContract("TournamentContract", deployer);
+  // const TournamentManager = await hre.ethers.getContract("TournamentManager", deployer);
 };
 
-export default deployTournamentContract;
+export default deployTournamentManager;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags TournamentContract
-deployTournamentContract.tags = ["TournamentContract"];
+// e.g. yarn deploy --tags TournamentManager
+deployTournamentManager.tags = ["TournamentManager"];

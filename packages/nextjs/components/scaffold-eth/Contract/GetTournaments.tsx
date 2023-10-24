@@ -6,7 +6,7 @@ import { notification } from "~~/utils/scaffold-eth";
 import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
 
 type TReadOnlyFunctionFormProps = {
-  contract: Contract<"TournamentContract">;
+  contract: Contract<"TournamentManager">;
 };
 
 export const GetTournaments = ({ contract }: TReadOnlyFunctionFormProps) => {

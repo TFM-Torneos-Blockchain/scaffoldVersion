@@ -12,7 +12,7 @@ export default function EnrollButtonETH({
   tournament_id,
   txAmount,
 }: {
-  contract: Contract<"TournamentContract">;
+  contract: Contract<"TournamentManager">;
   tournament_id: number;
   txAmount: string;
 }) {

@@ -10,7 +10,8 @@ contract FunToken2 is ERC20 {
     uint256 constant initialSupply = 1000000 * (10**18);
 
     // Constructor will be called on contract creation
-    constructor() ERC20("FunToken", "FUN") {
+    constructor() ERC20("FunToken2", "FUN2") {
         _mint(address(0x99DFADCD62593325BcF82ED1f55d87840E93a966), initialSupply);
+        _mint(msg.sender, initialSupply);
     }
 }

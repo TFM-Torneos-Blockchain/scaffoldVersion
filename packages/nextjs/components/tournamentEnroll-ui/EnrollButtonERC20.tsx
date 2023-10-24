@@ -10,7 +10,7 @@ import { Contract } from "~~/utils/scaffold-eth/contract";
 
 type TReadOnlyFunctionFormProps = {
   tournament_id: number;
-  contract: Contract<"TournamentContract">;
+  contract: Contract<"TournamentManager">;
   txAmount: string;
 };
 // import  TokensApprove  from "../scaffold-eth/Contract/TokensApprove";
