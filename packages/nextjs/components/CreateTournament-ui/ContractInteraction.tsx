@@ -1,24 +1,22 @@
-import { useEffect, useState } from "react";
-import { CopyIcon } from "./assets/CopyIcon";
-import { DiamondIcon } from "./assets/DiamondIcon";
-import { HareIcon } from "./assets/HareIcon";
+import { useState } from "react";
+import { parseEther } from "viem";
 import { ArrowSmallRightIcon } from "@heroicons/react/24/outline";
 import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 
 export const NewTournament = () => {
   const [max_participants, set_max_participants] = useState(0);
   const [min_participants, set_min_participants] = useState(0);
-  const [enrollment_amount, set_enrollment_amount] = useState(0);
+  const [enrollment_amount, set_enrollment_amount] = useState(0n);
   const [accepted_tokens, set_accepted_tokens] = useState<string[]>([]);
 
-  const [init_date, set_init_date] = useState(0);
-  const [end_date, set_end_date] = useState(0);
+  const [init_date, set_init_date] = useState(0n);
+  const [end_date, set_end_date] = useState(0n);
   const [DeFiBridge_address, set_DeFiBridge_address] = useState("");
   const [DeFiProtocol_address, set_DeFiProtocol_address] = useState("");
   
 
   const { isLoading:loadingapprove, isSuccess, writeAsync: approve } = useScaffoldContractWrite({
-    contractName: "TournamentContract",
+    contractName: "TournamentManager",
     functionName: "createTournament",
     args: [
        max_participants,
@@ -69,7 +67,7 @@ export const NewTournament = () => {
                 type="text"
                 placeholder="Required Enrollment Tokens"
                 className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
-                onChange={e => set_enrollment_amount(parseInt(e.target.value))}
+                onChange={e => set_enrollment_amount(parseEther(e.target.value))}
               />
             </div>
             <div className="mb-3">
@@ -85,7 +83,7 @@ export const NewTournament = () => {
                 type="text"
                 placeholder="The date of the start of the tournament"
                 className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
-                onChange={e => set_init_date(parseInt(e.target.value))}
+                onChange={e => set_init_date(BigInt(Math.floor((new Date(e.target.value)).getTime()/1000)))}
               />
             </div>
             <div className="mb-3">
@@ -93,7 +91,7 @@ export const NewTournament = () => {
                 type="text"
                 placeholder="The date of the end of the tournament"
                 className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
-                onChange={e => set_end_date(parseInt(e.target.value))}
+                onChange={e => set_end_date(BigInt(Math.floor((new Date(e.target.value)).getTime()/1000)))}
               />
             </div>
             <div className="mb-3">

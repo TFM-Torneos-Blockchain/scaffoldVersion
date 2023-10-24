@@ -168,9 +168,9 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "uint256",
+                  internalType: "uint128",
                   name: "_amount_of_tokens",
-                  type: "uint256",
+                  type: "uint128",
                 },
                 {
                   internalType: "address",
@@ -181,25 +181,6 @@ const contracts = {
               name: "end",
               outputs: [],
               stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "_0xERC20Addresses",
-                  type: "address",
-                },
-              ],
-              name: "getERC20TokenBalance",
-              outputs: [
-                {
-                  internalType: "uint256",
-                  name: "",
-                  type: "uint256",
-                },
-              ],
-              stateMutability: "view",
               type: "function",
             },
             {
@@ -334,9 +315,9 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "uint256",
+                  internalType: "uint128",
                   name: "_amount_of_tokens",
-                  type: "uint256",
+                  type: "uint128",
                 },
                 {
                   internalType: "address[]",
@@ -424,7 +405,7 @@ const contracts = {
           ],
         },
         FunToken: {
-          address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+          address: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
           abi: [
             {
               inputs: [],
@@ -704,7 +685,7 @@ const contracts = {
           ],
         },
         FunToken2: {
-          address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+          address: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
           abi: [
             {
               inputs: [],
@@ -983,384 +964,8 @@ const contracts = {
             },
           ],
         },
-        LeaderBoard: {
-          address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-          abi: [
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "uint256",
-                  name: "tournamentId",
-                  type: "uint256",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "player",
-                  type: "address",
-                },
-                {
-                  indexed: false,
-                  internalType: "uint256",
-                  name: "score_number",
-                  type: "uint256",
-                },
-              ],
-              name: "ResultCreated",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "previousAdminRole",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "newAdminRole",
-                  type: "bytes32",
-                },
-              ],
-              name: "RoleAdminChanged",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "sender",
-                  type: "address",
-                },
-              ],
-              name: "RoleGranted",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "sender",
-                  type: "address",
-                },
-              ],
-              name: "RoleRevoked",
-              type: "event",
-            },
-            {
-              inputs: [],
-              name: "DEFAULT_ADMIN_ROLE",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "addAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "uint256",
-                  name: "_IDtournament",
-                  type: "uint256",
-                },
-                {
-                  internalType: "bytes",
-                  name: "_results_bytes",
-                  type: "bytes",
-                },
-                {
-                  internalType: "uint16[]",
-                  name: "_positions",
-                  type: "uint16[]",
-                },
-              ],
-              name: "createLeaderBoardMerkleTree",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "deleteAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "uint16",
-                  name: "tournamentId",
-                  type: "uint16",
-                },
-              ],
-              name: "getMerkleRoot",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-              ],
-              name: "getRoleAdmin",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "uint16",
-                  name: "tournamentId",
-                  type: "uint16",
-                },
-              ],
-              name: "getSpongeHash",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "grantRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "hasRole",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "isAdmin",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "renounceRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "renounceToAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "revokeRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "uint256",
-                  name: "_IDtournament",
-                  type: "uint256",
-                },
-                {
-                  internalType: "address",
-                  name: "_player",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "_new_score",
-                  type: "uint256",
-                },
-              ],
-              name: "setResult",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes4",
-                  name: "interfaceId",
-                  type: "bytes4",
-                },
-              ],
-              name: "supportsInterface",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-          ],
-        },
         MajorHashGame: {
-          address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+          address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
           abi: [
             {
               inputs: [
@@ -2052,8 +1657,8 @@ const contracts = {
             },
           ],
         },
-        TournamentContract: {
-          address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+        TournamentManager: {
+          address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
           abi: [
             {
               anonymous: false,
@@ -2072,18 +1677,43 @@ const contracts = {
                 },
                 {
                   indexed: false,
-                  internalType: "uint256",
+                  internalType: "uint16",
                   name: "num_participants",
-                  type: "uint256",
+                  type: "uint16",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint128",
+                  name: "collected_amount",
+                  type: "uint128",
+                },
+              ],
+              name: "Enroll",
+              type: "event",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "uint16",
+                  name: "tournamentId",
+                  type: "uint16",
+                },
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "player",
+                  type: "address",
                 },
                 {
                   indexed: false,
                   internalType: "uint256",
-                  name: "collected_amount",
+                  name: "score_number",
                   type: "uint256",
                 },
               ],
-              name: "Enroll",
+              name: "ResultCreated",
               type: "event",
             },
             {
@@ -2230,6 +1860,29 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint16",
+                  name: "_IDtournament",
+                  type: "uint16",
+                },
+                {
+                  internalType: "bytes",
+                  name: "_results_bytes",
+                  type: "bytes",
+                },
+                {
+                  internalType: "uint16[]",
+                  name: "_positions",
+                  type: "uint16[]",
+                },
+              ],
+              name: "createLeaderBoardMerkleTree",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
                   name: "_max_participants",
                   type: "uint16",
                 },
@@ -2239,9 +1892,9 @@ const contracts = {
                   type: "uint8",
                 },
                 {
-                  internalType: "uint8",
+                  internalType: "uint128",
                   name: "_enrollment_amount",
-                  type: "uint8",
+                  type: "uint128",
                 },
                 {
                   internalType: "address[]",
@@ -2249,14 +1902,14 @@ const contracts = {
                   type: "address[]",
                 },
                 {
-                  internalType: "uint8",
-                  name: "_enrollment_time",
-                  type: "uint8",
+                  internalType: "uint64",
+                  name: "_init_date",
+                  type: "uint64",
                 },
                 {
-                  internalType: "uint8",
-                  name: "_tournament_duration",
-                  type: "uint8",
+                  internalType: "uint64",
+                  name: "_end_date",
+                  type: "uint64",
                 },
                 {
                   internalType: "address",
@@ -2290,9 +1943,9 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "uint256",
+                  internalType: "uint16",
                   name: "idTournament",
-                  type: "uint256",
+                  type: "uint16",
                 },
               ],
               name: "endTournament",
@@ -2370,6 +2023,25 @@ const contracts = {
                   name: "tournamentId",
                   type: "uint16",
                 },
+              ],
+              name: "getMerkleRoot",
+              outputs: [
+                {
+                  internalType: "bytes32",
+                  name: "",
+                  type: "bytes32",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
+                  name: "tournamentId",
+                  type: "uint16",
+                },
                 {
                   internalType: "address",
                   name: "participantAddress",
@@ -2379,9 +2051,9 @@ const contracts = {
               name: "getParticipants",
               outputs: [
                 {
-                  internalType: "uint16",
+                  internalType: "uint128",
                   name: "",
-                  type: "uint16",
+                  type: "uint128",
                 },
               ],
               stateMutability: "view",
@@ -2396,6 +2068,25 @@ const contracts = {
                 },
               ],
               name: "getRoleAdmin",
+              outputs: [
+                {
+                  internalType: "bytes32",
+                  name: "",
+                  type: "bytes32",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
+                  name: "tournamentId",
+                  type: "uint16",
+                },
+              ],
+              name: "getSpongeHash",
               outputs: [
                 {
                   internalType: "bytes32",
@@ -2520,6 +2211,29 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint16",
+                  name: "_IDtournament",
+                  type: "uint16",
+                },
+                {
+                  internalType: "address",
+                  name: "_player",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "_new_score",
+                  type: "uint256",
+                },
+              ],
+              name: "setResult",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
                   name: "idTournament",
                   type: "uint16",
                 },
@@ -2592,24 +2306,24 @@ const contracts = {
                   type: "uint16",
                 },
                 {
-                  internalType: "uint16",
+                  internalType: "uint128",
                   name: "enrollment_amount",
-                  type: "uint16",
+                  type: "uint128",
                 },
                 {
-                  internalType: "uint256",
+                  internalType: "uint128",
                   name: "reward_amount",
-                  type: "uint256",
+                  type: "uint128",
                 },
                 {
-                  internalType: "uint256",
+                  internalType: "uint64",
                   name: "init_date",
-                  type: "uint256",
+                  type: "uint64",
                 },
                 {
-                  internalType: "uint256",
+                  internalType: "uint64",
                   name: "end_date",
-                  type: "uint256",
+                  type: "uint64",
                 },
                 {
                   internalType: "address",
@@ -2620,6 +2334,16 @@ const contracts = {
                   internalType: "address",
                   name: "DeFiProtocol_address",
                   type: "address",
+                },
+                {
+                  internalType: "bytes32",
+                  name: "results_sponge_hash",
+                  type: "bytes32",
+                },
+                {
+                  internalType: "bytes32",
+                  name: "merkle_root",
+                  type: "bytes32",
                 },
                 {
                   internalType: "bool",

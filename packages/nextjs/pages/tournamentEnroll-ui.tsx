@@ -16,7 +16,7 @@ type ContractUIProps = {
 const ContractUI = () => {
   const [refreshDisplayVariables, triggerRefreshDisplayVariables] = useReducer(value => !value, false);
   const configuredNetwork = getTargetNetwork();
-  const contractName = "TournamentContract";
+  const contractName = "TournamentManager";
 
   const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo(contractName);
   const networkColor = useNetworkColor();

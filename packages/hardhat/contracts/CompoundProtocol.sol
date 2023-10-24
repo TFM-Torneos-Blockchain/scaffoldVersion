@@ -7,7 +7,7 @@ import "./RoleControl.sol";
 
 
 contract CompoundProtocol is RoleControl{
-	// Add events for logging
+
 	event Approval(
 		address indexed token,
 		address indexed spender,
@@ -16,7 +16,7 @@ contract CompoundProtocol is RoleControl{
 	event Supply(address indexed token, uint256 value);
 
 	// maybe should also have the defi address as parameter??
-	function start(uint _amount_of_tokens, address[] calldata _0xERC20Addresses) external onlyAdmin{
+	function start(uint128 _amount_of_tokens, address[] calldata _0xERC20Addresses) external onlyAdmin{
 		startDeFiBridge(
 			_amount_of_tokens,
 			_0xERC20Addresses,
@@ -26,7 +26,7 @@ contract CompoundProtocol is RoleControl{
 
 	// supply uses contract holded tokens
 	function startDeFiBridge(
-		uint256 _amount,
+		uint128 _amount,
 		address[] calldata _0xERC20Addresses,
 		address _0xCometAddress
 	) private  onlyAdmin{
@@ -45,8 +45,7 @@ contract CompoundProtocol is RoleControl{
 		emit Supply(_0xERC20Addresses[0], _amount);
 	}
 
-	function end(uint _amount_of_tokens, address _0xERC20Addresses) external onlyAdmin{
-		// todo onlyAdmins
+	function end(uint128 _amount_of_tokens, address _0xERC20Addresses) external onlyAdmin{
 		withdraw(
 			0xF09F0369aB0a875254fB565E52226c88f10Bc839,
 			_0xERC20Addresses,
@@ -114,12 +113,5 @@ contract CompoundProtocol is RoleControl{
 		uint accrued = comet.baseTrackingAccrued(_account);
 
 		return accrued;
-	}
-
-	// Function to get the balance of an ERC20 token
-	function getERC20TokenBalance(
-		address _0xERC20Addresses
-	) public view returns (uint256) {
-		return ERC20(_0xERC20Addresses).balanceOf(address(this));
 	}
 }
