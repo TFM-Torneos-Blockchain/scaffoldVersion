@@ -2,8 +2,12 @@ import Link from "next/link";
 import type { NextPage } from "next";
 import { BugAntIcon, MagnifyingGlassIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import { MetaHeader } from "~~/components/MetaHeader";
+import { listenOnQuoteUploadedEvent } from "~~/utils/leader-board/eventListener";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
 const Home: NextPage = () => {
+  const { data: deployedContract } = useDeployedContractInfo("TournamentManager");
+listenOnQuoteUploadedEvent(deployedContract?.abi, deployedContract?.address as string, process.env.ALCHEMY_API_KEY || "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF");
   return (
     <>
       <MetaHeader />
