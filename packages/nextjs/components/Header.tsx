@@ -30,7 +30,7 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
  */
 export const Header = () => {
   const { address } = useAccount();
-  const isConditionMet = address === "0x99DFADCD62593325BcF82ED1f55d87840E93a966";
+  const isConditionMet = address === process.env.NEXT_PUBLIC_ADMIN1 || address === process.env.NEXT_PUBLIC_ADMIN2;
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const burgerMenuRef = useRef<HTMLDivElement>(null);
   useOutsideClick(
