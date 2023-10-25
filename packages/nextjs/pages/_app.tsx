@@ -38,9 +38,9 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
       <RainbowKitProvider
         chains={appChains.chains}
         avatar={BlockieAvatar}
-        theme={isDarkTheme ? darkTheme() : lightTheme()}
+        theme={lightTheme()}
       >
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen bg-slate-800">
           <Header />
           <main className="relative flex flex-col flex-1">
             <Component {...pageProps} />

@@ -38,7 +38,7 @@ const ContractUI = () => {
   }
 
   return (
-      <div className="flex bg-slate-800 w-screen h-screen pl-8">
+      <div className="flex bg-slate-800 pl-8 w-full">
           <GetTournaments contract={deployedContractData} />
       </div> 
   );

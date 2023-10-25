@@ -39,10 +39,10 @@ export const NewTournament = () => {
   };
 
   return (
-    <div className="flex justify-center bg-base-300 relative pb-10">
+    <div className="flex justify-center relative pb-10 bg-slate-800">
 
       <div className="flex flex-col w-full mx-5 sm:mx-8 2xl:mx-20">
-        <div className="flex flex-col items-center mt-6 px-7 py-8 bg-base-200 opacity-80 rounded-2xl shadow-lg border-2 border-primary">
+        <div className="flex flex-col items-center mt-6 px-7 py-8 bg-slate-700 opacity-80 rounded-2xl shadow-lg border-2 border-primary">
           <span className="text-4xl sm:text-6xl text-white">Enter Tournament Variables</span>
 
           <div className="mt-8 ">
