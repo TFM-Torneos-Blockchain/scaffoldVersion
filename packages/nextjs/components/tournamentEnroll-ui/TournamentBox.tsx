@@ -6,6 +6,7 @@ import { useContractRead } from "wagmi";
 import { notification } from "~~/utils/scaffold-eth";
 import { Contract } from "~~/utils/scaffold-eth/contract";
 import TournamentPopUp from "./TournamentPopUp";
+import { formatEther } from "viem";
 
 type TReadOnlyFunctionFormProps = {
   tournament_id: number;
@@ -31,13 +32,13 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
         min_participants: data[1],
         max_participants: data[2],
         num_participants: data[3],
-        enrollment_amount: data[4].toString(),
-        reward_amount: data[5].toString(),
-        init_date: new Date(Number(data[6])).toLocaleString(),
-        end_date: new Date(Number(data[7])).toLocaleString(),
+        enrollment_amount: formatEther(data[4]),
+        reward_amount: formatEther(data[5]),
+        init_date: new Date(Number(data[6])*1000).toLocaleString(),
+        end_date: new Date(Number(data[7])*1000).toLocaleString(),
         DeFiBridge_address: data[8],
         DeFiProtocol_address: data[9],
-        aborted: data[10].toString(),
+        aborted: Boolean(parseInt(data[10])).toString(),
       };
       console.log("asaber torunamentbox, read"); // TODO no està loggegan aixo
       setTournamentInfo(tournament);
@@ -68,14 +69,14 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
               key={`boxETH-${contract}-${tournament_id}}`}
               contract={contract}
               tournament_id={tournament_id}
-              txAmount={tournamentInfo.enrollment_amount}
+              txAmount={(tournamentInfo.enrollment_amount)}
             />
           ) : (
             <EnrollButtonERC20
               key={`boxERC20-${contract}-${tournament_id}}`}
               contract={contract}
               tournament_id={tournament_id}
-              txAmount={tournamentInfo.enrollment_amount}
+              txAmount={(tournamentInfo.enrollment_amount)}
             />
           )}
         </div>

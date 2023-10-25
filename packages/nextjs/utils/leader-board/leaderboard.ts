@@ -1,12 +1,11 @@
 import { keccak256 } from "@ethersproject/keccak256";
 import { ethers } from "ethers";
-import { keccak256 } from "@ethersproject/keccak256";
 
 
 // Define a function to process the events and generate the leaderboard
 type PlayerData = {
   player: string;
-  score_number: number;
+  score_number: BigInt;
 };
 
 // Define a type for the outer nested array

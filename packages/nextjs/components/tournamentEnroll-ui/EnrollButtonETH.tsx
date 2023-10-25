@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getParsedError } from "../scaffold-eth";
 import { Abi } from "abitype";
-import { TransactionReceipt } from "viem";
+import { TransactionReceipt, parseEther } from "viem";
 import { useContractWrite, useNetwork, useWaitForTransaction } from "wagmi";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import { getTargetNetwork, notification } from "~~/utils/scaffold-eth";
@@ -37,7 +37,7 @@ export default function EnrollButtonETH({
     if (writeAsync) {
       try {
         console.log;
-        const makeWriteWithParams = () => writeAsync({ value: BigInt(txAmount) * 1000000000000000000n }); // en WEIS
+        const makeWriteWithParams = () => writeAsync({ value: parseEther(txAmount)}); // en WEIS
         await writeTxn(makeWriteWithParams);
       } catch (e: any) {
         const message = getParsedError(e);

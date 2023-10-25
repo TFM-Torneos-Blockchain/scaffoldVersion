@@ -405,7 +405,7 @@ const contracts = {
           ],
         },
         FunToken: {
-          address: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+          address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
           abi: [
             {
               inputs: [],
@@ -685,7 +685,7 @@ const contracts = {
           ],
         },
         FunToken2: {
-          address: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+          address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
           abi: [
             {
               inputs: [],
@@ -965,8 +965,19 @@ const contracts = {
           ],
         },
         MajorHashGame: {
-          address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+          address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
           abi: [
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "_tournamentManagerAddress",
+                  type: "address",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "constructor",
+            },
             {
               inputs: [
                 {
@@ -1658,7 +1669,7 @@ const contracts = {
           ],
         },
         TournamentManager: {
-          address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+          address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
           abi: [
             {
               anonymous: false,
@@ -1936,19 +1947,6 @@ const contracts = {
                 },
               ],
               name: "deleteAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "uint16",
-                  name: "idTournament",
-                  type: "uint16",
-                },
-              ],
-              name: "endTournament",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
