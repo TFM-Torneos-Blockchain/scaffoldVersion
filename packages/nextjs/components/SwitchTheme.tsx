@@ -8,10 +8,10 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
 
   useEffect(() => {
     const body = document.body;
-    body.setAttribute("data-theme", isDarkMode ? "scaffoldEthDark" : "scaffoldEth");
+    body.setAttribute("data-theme","scaffoldEthDark");
   }, [isDarkMode]);
 
-  return (
+  /* return (
     <div className={`flex space-x-2 text-sm ${className}`}>
       <input
         id="theme-toggle"
@@ -27,5 +27,5 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
         </label>
       )}
     </div>
-  );
+  ); */
 };

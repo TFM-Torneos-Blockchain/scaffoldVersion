@@ -38,28 +38,12 @@ export const GetTournaments = ({ contract }: TReadOnlyFunctionFormProps) => {
     fetchData();
   }, []);
 
-  if(!tournaments) return (
-    <div className="mt-8">
-    <div className=" bg-slate-700 py-3 px-6 rounded mb-8 min-h-[300px]">
-    <div className="text-2xl font-bold mb-4">ETH Tournaments</div>
-    <div className=" grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      
-    </div>
-    </div>
-    <div className=" bg-slate-700 py-3 px-6 rounded mb-8 min-h-[300px]">
-    <div className="text-2xl font-bold">ERC20 Tournaments</div>
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 xl:grid-cols-3">
-      
-    </div>
-    </div>
-  </div>
-  );
 
   return (
     <div className="mt-8 w-full mr-8">
       <div className="mx-10 bg-slate-700 py-3 px-6 rounded mb-8 min-h-[300px]">
       <div className="text-2xl font-bold"><h1>ETH Tournaments</h1></div>
-        {tournaments[0] && tournaments[0].length > 0  /* ETH */ ?
+        {tournaments && tournaments[0] && tournaments[0].length > 0  /* ETH */ ?
         (<div className="flex-wrap flex ">
         {
         tournaments[0].map((tournament_id: any) => {
@@ -83,7 +67,7 @@ export const GetTournaments = ({ contract }: TReadOnlyFunctionFormProps) => {
       <div className="mx-10 bg-slate-700 py-3 px-6 rounded mb-8 min-h-[300px]">
       <div className="text-2xl font-bold"><h1>ERC20 Tournaments</h1></div>
       
-        {tournaments[1] && tournaments[1].length > 0 ? /* ERC20 */
+        {tournaments && tournaments[1] && tournaments[1].length > 0 ? /* ERC20 */
         (<div className="flex-wrap flex ">
         {
           tournaments[1].map((tournament_id: any) => {
