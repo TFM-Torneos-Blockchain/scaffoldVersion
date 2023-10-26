@@ -1,6 +1,5 @@
 import { keccak256 } from "@ethersproject/keccak256";
 import { ethers } from "ethers";
-import { keccak256 } from "@ethersproject/keccak256";
 
 
 // Define a function to process the events and generate the leaderboard
