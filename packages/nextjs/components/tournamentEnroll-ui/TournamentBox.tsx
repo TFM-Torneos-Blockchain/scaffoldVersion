@@ -53,7 +53,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
   }, []);
 
   return (
-    <div className="bg-slate-900 w-fit p-4 rounded-md ">
+    <div className="bg-slate-900 w-fit p-4 rounded-md shadow-md shadow-black ">
       <div >
         <h2 className="font-bold">TOURNAMENT #{tournamentInfo.id}</h2>
         <div className="flex flex-col mb-4">

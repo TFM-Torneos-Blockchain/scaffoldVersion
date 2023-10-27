@@ -5,7 +5,7 @@ export default function TournamentPopUp({tournamentInfo}: {tournamentInfo: any})
   return (
     <>
       <button
-        className="w-56 bg-white text-slate-950 active:bg-pink-600 font-bold uppercase text-sm px-4 py-1 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+        className="w-56 bg-white text-slate-950 active:bg-slate-700 active:text-white font-bold uppercase text-sm px-4 py-1 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
         type="button"
         onClick={() => setShowModal(true)}
       >
