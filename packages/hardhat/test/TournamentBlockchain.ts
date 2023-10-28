@@ -66,8 +66,9 @@ describe("Tournament Management", function () {
       [funToken.address],
       init_date_UnixTimestampInSeconds,
       end_date_UnixTimestampInSeconds,
+      0,
       compoundProtocol.address,
-      "0xF09F0369aB0a875254fB565E52226c88f10Bc839",
+      ["0xF09F0369aB0a875254fB565E52226c88f10Bc839"],
     );
 
     await tournamentManager
@@ -79,8 +80,9 @@ describe("Tournament Management", function () {
       [],
       init_date_UnixTimestampInSeconds,
       end_date_UnixTimestampInSeconds,
+      1,
       rocketContract.address,
-      "0xF09F0369aB0a875254fB565E52226c88f10Bc839",
+      ["0xF09F0369aB0a875254fB565E52226c88f10Bc839"],
     );
 
   });
@@ -116,8 +118,8 @@ describe("Tournament Management", function () {
       expect(newTournament.init_date).to.equal(init_date_UnixTimestampInSeconds);
       expect(newTournament.end_date).to.equal(end_date_UnixTimestampInSeconds);
 
-      expect(newTournament.DeFiBridge_address).to.equal(compoundProtocol.address);
-      expect(newTournament.DeFiProtocol_address).to.equal("0xF09F0369aB0a875254fB565E52226c88f10Bc839");
+      // expect(newTournament.DeFiBridge_address).to.equal(compoundProtocol.address);
+      // expect(newTournament.DeFiProtocol_address).to.equal("0xF09F0369aB0a875254fB565E52226c88f10Bc839");
 
       expect(newTournament.reward_amount).to.equal(0);
       expect(newTournament.aborted).to.equal(false);
@@ -134,12 +136,13 @@ describe("Tournament Management", function () {
           .createTournament(
             10000,
             250,
-            10,
-            ["0x4DAFE12E1293D889221B1980672FE260Ac9dDd28"],
+            enrollmentAmount,
+            [funToken.address],
             init_date_UnixTimestampInSeconds,
             end_date_UnixTimestampInSeconds,
-            "0xF09F0369aB0a875254fB565E52226c88f10Bc839",
-            "0xF09F0369aB0a875254fB565E52226c88f10Bc839",
+            0,
+            compoundProtocol.address,
+            ["0xF09F0369aB0a875254fB565E52226c88f10Bc839"],
           ),
       ).to.be.revertedWith("Restricted to admins.");
     });

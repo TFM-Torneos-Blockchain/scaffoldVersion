@@ -78,10 +78,11 @@ describe("LeaderBoard and MerkleTree", function () {
       250,
       enrollmentAmount,
       [funToken.address],
-      init_date_UnixTimestampInSeconds,
-      end_date_UnixTimestampInSeconds,
+      0,
+      0,
+      0,
       compoundProtocol.address,
-      "0xF09F0369aB0a875254fB565E52226c88f10Bc839",
+      ["0xF09F0369aB0a875254fB565E52226c88f10Bc839"],
     );
 
     await leaderBoard.setResult(0, events[0].player, events[0].score_number);
