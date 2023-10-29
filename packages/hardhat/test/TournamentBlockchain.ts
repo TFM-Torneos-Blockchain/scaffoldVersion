@@ -68,7 +68,7 @@ describe("Tournament Management", function () {
     .connect(admin)
     .createTournament(
       10000,
-      250,
+      1,
       enrollmentAmount,
       [funToken.address],
       init_date_UnixTimestampInSeconds,
@@ -82,7 +82,7 @@ describe("Tournament Management", function () {
     .connect(admin)
     .createTournament(
       10000,
-      250,
+      1,
       enrollmentAmount,
       [],
       init_date_UnixTimestampInSeconds,
@@ -95,9 +95,6 @@ describe("Tournament Management", function () {
 
     clone = new ethers.Contract(newTournament.DeFiBridge_address, compoundProtocol.interface, owner) as CompoundProtocol;
       await clone.deployed();
-
-
-
 
   });
 
@@ -126,7 +123,7 @@ describe("Tournament Management", function () {
       expect(newTournament).to.exist;
       expect(newTournament.ID).to.equal(0);
       expect(newTournament.max_participants).to.equal(10000);
-      expect(newTournament.min_participants).to.equal(250);
+      expect(newTournament.min_participants).to.equal(1);
       expect(newTournament.enrollment_amount).to.equal(enrollmentAmount);
 
       expect(newTournament.init_date).to.equal(init_date_UnixTimestampInSeconds);
@@ -221,7 +218,6 @@ describe("Tournament Management", function () {
 
     it("should allow Admins to start an ERC20 tournament", async () => {
       const enrollmentAmount = ethers.utils.parseEther("1");
-      const newTournament = await tournamentManager.tournaments(0);
 
       // Enroll participants
       await funToken.connect(owner).approve(tournamentManager.address,enrollmentAmount);

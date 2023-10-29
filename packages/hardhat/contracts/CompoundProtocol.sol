@@ -24,7 +24,7 @@ contract CompoundProtocol {
 		uint128 _amount_of_tokens,
 		address[] calldata _0xERC20Addresses,
 		address[] calldata _defiProtocolAddress
-	) private {
+	) external {
 		require(msg.sender == admin, "Restricted to admins.");
 
 		// Approve the Compound protocol contract to spend tokens

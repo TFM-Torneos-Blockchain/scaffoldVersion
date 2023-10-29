@@ -87,11 +87,15 @@ contract TournamentManager is RoleControl, CloneFactory {
 			newTournament.DeFiBridge_address = address(clone);
 			clone.initialize(address(this));
 		} else if (type_of_protocol == 1) {
-			RocketProtocol clone1 = RocketProtocol(createClone(_DeFiBridge_to_clone));
+			RocketProtocol clone1 = RocketProtocol(
+				createClone(_DeFiBridge_to_clone)
+			);
 			newTournament.DeFiBridge_address = address(clone1);
 			clone1.initialize(address(this));
 		} else if (type_of_protocol == 2) {
-			UniswapV2Protocol clone2 = UniswapV2Protocol(createClone(_DeFiBridge_to_clone));
+			UniswapV2Protocol clone2 = UniswapV2Protocol(
+				createClone(_DeFiBridge_to_clone)
+			);
 			newTournament.DeFiBridge_address = address(clone2);
 			clone2.initialize(address(this));
 		}
@@ -101,7 +105,6 @@ contract TournamentManager is RoleControl, CloneFactory {
 				_DeFiProtocol_addresses[i]
 			);
 		}
-
 		IDcounter++;
 
 		emit TournamentCreated(newTournament.ID);
@@ -194,10 +197,9 @@ contract TournamentManager is RoleControl, CloneFactory {
 					tournamentToStart.num_participants
 			);
 		}
-
 		IDefiBridge(tournamentToStart.DeFiBridge_address).startERC20(
-			tournamentToStart.num_participants *
-				tournamentToStart.enrollment_amount,
+			tournamentToStart.enrollment_amount *
+					tournamentToStart.num_participants,
 			tournamentToStart.accepted_tokens,
 			tournamentToStart.DeFiProtocol_addresses
 		);

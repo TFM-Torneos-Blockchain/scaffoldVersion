@@ -11,7 +11,7 @@ interface IDefiBridge {
 		uint128 _amount_of_tokens,
 		address[] calldata _0xERC20Addresses,
 		address[] calldata _defiProtocolAddress
-	) external;
+	) external ;
 
 	function startETH(
 		uint _amount_of_ETH,
@@ -28,4 +28,5 @@ interface IDefiBridge {
 		uint _amount_of_ETH,
 		address[] calldata _defiProtocolAddress
 	) external payable;
+	
 }
