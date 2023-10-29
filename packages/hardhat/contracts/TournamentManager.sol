@@ -7,9 +7,10 @@ import "./interfaces/DeFiBridge.sol";
 import "./interfaces/Clone.sol";
 import "./CompoundProtocol.sol";
 import "./RocketProtocol.sol";
+import "./UniswapV2Protocol.sol";
 import "./RoleControl.sol";
 
-contract TournamentManager is RoleControl, CloneFactory{
+contract TournamentManager is RoleControl, CloneFactory {
 	//------------------------------------------Storage-------------------------------------------------------------
 	// Struct tournament
 	struct Tournament {
@@ -79,14 +80,26 @@ contract TournamentManager is RoleControl, CloneFactory{
 		newTournament.init_date = _init_date;
 		newTournament.end_date = _end_date;
 
-		if(type_of_protocol == 0 ){
-			newTournament.DeFiBridge_address = createClone(_DeFiBridge_to_clone);
-		} else if(type_of_protocol == 1 ){
-			newTournament.DeFiBridge_address = createClone(_DeFiBridge_to_clone);
+		if (type_of_protocol == 0) {
+			CompoundProtocol clone = CompoundProtocol(
+				createClone(_DeFiBridge_to_clone)
+			);
+			newTournament.DeFiBridge_address = address(clone);
+			clone.initialize(address(this));
+		} else if (type_of_protocol == 1) {
+			RocketProtocol clone1 = RocketProtocol(createClone(_DeFiBridge_to_clone));
+			newTournament.DeFiBridge_address = address(clone1);
+			clone1.initialize(address(this));
+		} else if (type_of_protocol == 2) {
+			UniswapV2Protocol clone2 = UniswapV2Protocol(createClone(_DeFiBridge_to_clone));
+			newTournament.DeFiBridge_address = address(clone2);
+			clone2.initialize(address(this));
 		}
 
 		for (uint8 i = 0; i < _DeFiProtocol_addresses.length; i++) {
-			newTournament.DeFiProtocol_addresses.push(_DeFiProtocol_addresses[i]);
+			newTournament.DeFiProtocol_addresses.push(
+				_DeFiProtocol_addresses[i]
+			);
 		}
 
 		IDcounter++;
@@ -181,10 +194,12 @@ contract TournamentManager is RoleControl, CloneFactory{
 					tournamentToStart.num_participants
 			);
 		}
-		DEFIBRIDGE(tournamentToStart.DeFiBridge_address).start(
+
+		IDefiBridge(tournamentToStart.DeFiBridge_address).startERC20(
 			tournamentToStart.num_participants *
 				tournamentToStart.enrollment_amount,
-			tournamentToStart.accepted_tokens
+			tournamentToStart.accepted_tokens,
+			tournamentToStart.DeFiProtocol_addresses
 		);
 	}
 
@@ -209,7 +224,8 @@ contract TournamentManager is RoleControl, CloneFactory{
 				abi.encodeWithSignature(
 					"startETH(uint256)",
 					tournamentToStart.num_participants *
-						tournamentToStart.enrollment_amount
+						tournamentToStart.enrollment_amount,
+					tournamentToStart.DeFiProtocol_addresses
 				)
 			);
 			require(success, "Call failed");
@@ -261,10 +277,10 @@ contract TournamentManager is RoleControl, CloneFactory{
 	// 	uint rewardReceived = balance2 - balance1;
 	// 	// 2- Calculo de restar fees al premio
 	// 	/*
-    //         // restar al reward las fees pagadas por los admin
-    //         uint256 total_gas = tournaments[idTournament].gasTotalAdmin + tx.gas;
-    //         uint256 costeAdmin = tx.gasprice * total_gas;
-    //         rewardReceived -= costeAdmin;
+	//         // restar al reward las fees pagadas por los admin
+	//         uint256 total_gas = tournaments[idTournament].gasTotalAdmin + tx.gas;
+	//         uint256 costeAdmin = tx.gasprice * total_gas;
+	//         rewardReceived -= costeAdmin;
 	// 		*/
 	// 	// porcentaje del premio que va a los participantes
 	// 	uint256 premio = rewardReceived * 0.8;

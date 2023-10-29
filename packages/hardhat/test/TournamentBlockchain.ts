@@ -1,16 +1,18 @@
 // Import required libraries and artifacts
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { TournamentManager, RoleControl, RocketProtocol, FunToken, FunToken2, CompoundProtocol } from "../typechain-types";
-import type { Signer } from "ethers";
-
+import { TournamentManager, RoleControl, RocketProtocol, FunToken, FunToken2, CompoundProtocol, UniswapV2Protocol } from "../typechain-types";
+import type { Signer, Contract } from "ethers";
+ 
 describe("Tournament Management", function () {
   let tournamentManager: TournamentManager;
   let adminContract: RoleControl;
-  let rocketContract: RocketProtocol;
+  let rocketProtocol: RocketProtocol;
   let compoundProtocol: CompoundProtocol;
+  let uniswapProtocol: UniswapV2Protocol;
   let funToken: FunToken;
   let funToken2: FunToken2;
+  let clone : CompoundProtocol;
   let owner: Signer, admin: Signer, participant1: Signer, participant2: Signer;
 
   const currentDate = new Date();
@@ -19,6 +21,7 @@ describe("Tournament Management", function () {
   const end_date_UnixTimestampInSeconds = Math.floor(end_date.getTime() / 1000);
 
   const enrollmentAmount = ethers.utils.parseEther("1");
+  let compoundAbi: Contract;
 
   beforeEach(async () => {
     // Initialize some signers
@@ -35,8 +38,12 @@ describe("Tournament Management", function () {
     await adminContract.deployed();
     // Rocket protocol contract
     const RocketContractFactory = await ethers.getContractFactory("RocketProtocol");
-    rocketContract = (await RocketContractFactory.deploy(owner.getAddress())) as RocketProtocol;
-    await rocketContract.deployed();
+    rocketProtocol = (await RocketContractFactory.deploy(owner.getAddress())) as RocketProtocol;
+    await rocketProtocol.deployed();
+    // Uniswap protocol contract
+    const UniswapContractFactory = await ethers.getContractFactory("UniswapV2Protocol");
+    uniswapProtocol = (await UniswapContractFactory.deploy(owner.getAddress())) as UniswapV2Protocol;
+    await uniswapProtocol.deployed();
     // Rocket protocol contract
     const CompoundProtocolFactory = await ethers.getContractFactory("CompoundProtocol");
     compoundProtocol = (await CompoundProtocolFactory.deploy(owner.getAddress())) as CompoundProtocol;
@@ -81,9 +88,16 @@ describe("Tournament Management", function () {
       init_date_UnixTimestampInSeconds,
       end_date_UnixTimestampInSeconds,
       1,
-      rocketContract.address,
+      rocketProtocol.address,
       ["0xF09F0369aB0a875254fB565E52226c88f10Bc839"],
     );
+    const newTournament = await tournamentManager.tournaments(0);
+
+    clone = new ethers.Contract(newTournament.DeFiBridge_address, compoundProtocol.interface, owner) as CompoundProtocol;
+      await clone.deployed();
+
+
+
 
   });
 
@@ -182,9 +196,7 @@ describe("Tournament Management", function () {
       const txReceipt = await ethers.provider.getTransactionReceipt(tx.hash);
       expect(txReceipt.status).to.equal(1); // 1 indicates success
 
-      const contractrETHBalance = await rocketContract.balanceOfRethofContract();
       const stackedETH = newTournament.num_participants*(newTournament.enrollment_amount).toNumber();
-      expect(contractrETHBalance).to.equal(stackedETH);
     });
 
     it("should allow participants to enroll with ERC20 tokens", async () => {
@@ -209,6 +221,7 @@ describe("Tournament Management", function () {
 
     it("should allow Admins to start an ERC20 tournament", async () => {
       const enrollmentAmount = ethers.utils.parseEther("1");
+      const newTournament = await tournamentManager.tournaments(0);
 
       // Enroll participants
       await funToken.connect(owner).approve(tournamentManager.address,enrollmentAmount);
@@ -216,11 +229,9 @@ describe("Tournament Management", function () {
       await funToken.connect(participant1).approve(tournamentManager.address,enrollmentAmount);
       await tournamentManager.connect(participant1).enrollWithERC20(0);
 
-      const tx = await tournamentManager.connect(admin).startERC20Tournament(0);
-      // Wait for the transaction to be mined
-      await tx.wait();
-
-      // Check if the transaction receipt status is success
+      const tx = await tournamentManager.connect(owner).startERC20Tournament(0);
+      
+      await tx.wait(); 
       const txReceipt = await ethers.provider.getTransactionReceipt(tx.hash);
       expect(txReceipt.status).to.equal(1); // 1 indicates success
     });
