@@ -4,7 +4,16 @@ pragma solidity ^0.8;
 import "./interfaces/InterfaceComet.sol";
 import "./interfaces/Erc20.sol";
 
-contract CompoundProtocol {
+// Open Zeppelin libraries for controlling upgradability and access.
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+contract CompoundProtocol is
+	Initializable,
+	UUPSUpgradeable,
+	OwnableUpgradeable
+{
 	event Approval(
 		address indexed token,
 		address indexed spender,
@@ -14,10 +23,14 @@ contract CompoundProtocol {
 	bool private initialized;
 	address public admin;
 
-	function initialize(address set_admin) public {
-		require(!initialized, "Contract instance has already been initialized");
-		admin = set_admin;
+	function initialize() public initializer {
+		///@dev as there is no constructor, we need to initialise the OwnableUpgradeable explicitly
+		__Ownable_init();
+      __UUPSUpgradeable_init();
 	}
+
+	///@dev required by the OZ UUPS module
+	function _authorizeUpgrade(address) internal override onlyOwner {}
 
 	// supply uses contract holded tokens
 	function startERC20(
@@ -31,7 +44,7 @@ contract CompoundProtocol {
 		ERC20(_0xERC20Addresses[0]).approve(
 			_defiProtocolAddress[0],
 			_amount_of_tokens
-		); 
+		);
 
 		// Emit event for approval
 		emit Approval(_0xERC20Addresses[0], address(this), _amount_of_tokens);
@@ -54,11 +67,8 @@ contract CompoundProtocol {
 			_0xERC20Addresses[0],
 			_amount_of_tokens
 		);
-		claimReward(
-			_defiProtocolAddress[0],
-			_defiProtocolAddress[1]
-		);
-		transferERC20Token(_0xERC20Addresses[0],admin);
+		claimReward(_defiProtocolAddress[0], _defiProtocolAddress[1]);
+		transferERC20Token(_0xERC20Addresses[0], admin);
 	}
 
 	function withdraw(
@@ -89,5 +99,4 @@ contract CompoundProtocol {
 		require(succeed, "Transfer failed.");
 		return true;
 	}
-
 }
