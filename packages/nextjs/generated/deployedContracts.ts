@@ -8,6 +8,38 @@ const contracts = {
           address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
           abi: [
             {
+              inputs: [],
+              name: "InvalidInitialization",
+              type: "error",
+            },
+            {
+              inputs: [],
+              name: "NotInitializing",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
+              ],
+              name: "OwnableInvalidOwner",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "account",
+                  type: "address",
+                },
+              ],
+              name: "OwnableUnauthorizedAccount",
+              type: "error",
+            },
+            {
               anonymous: false,
               inputs: [
                 {
@@ -36,25 +68,13 @@ const contracts = {
               anonymous: false,
               inputs: [
                 {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "previousAdminRole",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "newAdminRole",
-                  type: "bytes32",
+                  indexed: false,
+                  internalType: "uint64",
+                  name: "version",
+                  type: "uint64",
                 },
               ],
-              name: "RoleAdminChanged",
+              name: "Initialized",
               type: "event",
             },
             {
@@ -62,49 +82,18 @@ const contracts = {
               inputs: [
                 {
                   indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
                   internalType: "address",
-                  name: "account",
+                  name: "previousOwner",
                   type: "address",
                 },
                 {
                   indexed: true,
                   internalType: "address",
-                  name: "sender",
+                  name: "newOwner",
                   type: "address",
                 },
               ],
-              name: "RoleGranted",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "sender",
-                  type: "address",
-                },
-              ],
-              name: "RoleRevoked",
+              name: "OwnershipTransferred",
               type: "event",
             },
             {
@@ -127,45 +116,6 @@ const contracts = {
               type: "event",
             },
             {
-              inputs: [],
-              name: "DEFAULT_ADMIN_ROLE",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "addAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "deleteAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
               inputs: [
                 {
                   internalType: "uint128",
@@ -173,9 +123,14 @@ const contracts = {
                   type: "uint128",
                 },
                 {
-                  internalType: "address",
+                  internalType: "address[]",
                   name: "_0xERC20Addresses",
-                  type: "address",
+                  type: "address[]",
+                },
+                {
+                  internalType: "address[]",
+                  name: "_defiProtocolAddress",
+                  type: "address[]",
                 },
               ],
               name: "end",
@@ -186,128 +141,32 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
+                  internalType: "address",
+                  name: "tournament_manager_address",
+                  type: "address",
                 },
               ],
-              name: "getRoleAdmin",
+              name: "initialize",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "owner",
               outputs: [
                 {
-                  internalType: "bytes32",
+                  internalType: "address",
                   name: "",
-                  type: "bytes32",
+                  type: "address",
                 },
               ],
               stateMutability: "view",
               type: "function",
             },
             {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "grantRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "hasRole",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "isAdmin",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "renounceRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "renounceToAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "revokeRole",
+              inputs: [],
+              name: "renounceOwnership",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
@@ -324,8 +183,13 @@ const contracts = {
                   name: "_0xERC20Addresses",
                   type: "address[]",
                 },
+                {
+                  internalType: "address[]",
+                  name: "_defiProtocolAddress",
+                  type: "address[]",
+                },
               ],
-              name: "start",
+              name: "startERC20",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
@@ -333,84 +197,111 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "bytes4",
-                  name: "interfaceId",
-                  type: "bytes4",
-                },
-              ],
-              name: "supportsInterface",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
                   internalType: "address",
-                  name: "_0xCometAddress",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_0xRewardsAddress",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_0xAccount",
+                  name: "newOwner",
                   type: "address",
                 },
               ],
-              name: "tournamentAccoumulatedReward",
-              outputs: [
-                {
-                  internalType: "uint256",
-                  name: "",
-                  type: "uint256",
-                },
-              ],
+              name: "transferOwnership",
+              outputs: [],
               stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "_0xCometAddress",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_account",
-                  type: "address",
-                },
-              ],
-              name: "tournamentCalculatedReward",
-              outputs: [
-                {
-                  internalType: "uint256",
-                  name: "",
-                  type: "uint256",
-                },
-              ],
-              stateMutability: "view",
               type: "function",
             },
           ],
         },
         FunToken: {
-          address: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+          address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
           abi: [
             {
               inputs: [],
               stateMutability: "nonpayable",
               type: "constructor",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "allowance",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "needed",
+                  type: "uint256",
+                },
+              ],
+              name: "ERC20InsufficientAllowance",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "sender",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "balance",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "needed",
+                  type: "uint256",
+                },
+              ],
+              name: "ERC20InsufficientBalance",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "approver",
+                  type: "address",
+                },
+              ],
+              name: "ERC20InvalidApprover",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "receiver",
+                  type: "address",
+                },
+              ],
+              name: "ERC20InvalidReceiver",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "sender",
+                  type: "address",
+                },
+              ],
+              name: "ERC20InvalidSender",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+              ],
+              name: "ERC20InvalidSpender",
+              type: "error",
             },
             {
               anonymous: false,
@@ -495,7 +386,7 @@ const contracts = {
                 },
                 {
                   internalType: "uint256",
-                  name: "amount",
+                  name: "value",
                   type: "uint256",
                 },
               ],
@@ -540,54 +431,6 @@ const contracts = {
                 },
               ],
               stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "spender",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "subtractedValue",
-                  type: "uint256",
-                },
-              ],
-              name: "decreaseAllowance",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "spender",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "addedValue",
-                  type: "uint256",
-                },
-              ],
-              name: "increaseAllowance",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "nonpayable",
               type: "function",
             },
             {
@@ -638,7 +481,7 @@ const contracts = {
                 },
                 {
                   internalType: "uint256",
-                  name: "amount",
+                  name: "value",
                   type: "uint256",
                 },
               ],
@@ -667,7 +510,7 @@ const contracts = {
                 },
                 {
                   internalType: "uint256",
-                  name: "amount",
+                  name: "value",
                   type: "uint256",
                 },
               ],
@@ -685,12 +528,98 @@ const contracts = {
           ],
         },
         FunToken2: {
-          address: "0x610178dA211FEF7D417bC0e6FeD39F05609AD788",
+          address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
           abi: [
             {
               inputs: [],
               stateMutability: "nonpayable",
               type: "constructor",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "allowance",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "needed",
+                  type: "uint256",
+                },
+              ],
+              name: "ERC20InsufficientAllowance",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "sender",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "balance",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "needed",
+                  type: "uint256",
+                },
+              ],
+              name: "ERC20InsufficientBalance",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "approver",
+                  type: "address",
+                },
+              ],
+              name: "ERC20InvalidApprover",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "receiver",
+                  type: "address",
+                },
+              ],
+              name: "ERC20InvalidReceiver",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "sender",
+                  type: "address",
+                },
+              ],
+              name: "ERC20InvalidSender",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "spender",
+                  type: "address",
+                },
+              ],
+              name: "ERC20InvalidSpender",
+              type: "error",
             },
             {
               anonymous: false,
@@ -775,7 +704,7 @@ const contracts = {
                 },
                 {
                   internalType: "uint256",
-                  name: "amount",
+                  name: "value",
                   type: "uint256",
                 },
               ],
@@ -820,54 +749,6 @@ const contracts = {
                 },
               ],
               stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "spender",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "subtractedValue",
-                  type: "uint256",
-                },
-              ],
-              name: "decreaseAllowance",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "spender",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "addedValue",
-                  type: "uint256",
-                },
-              ],
-              name: "increaseAllowance",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "nonpayable",
               type: "function",
             },
             {
@@ -918,7 +799,7 @@ const contracts = {
                 },
                 {
                   internalType: "uint256",
-                  name: "amount",
+                  name: "value",
                   type: "uint256",
                 },
               ],
@@ -947,7 +828,7 @@ const contracts = {
                 },
                 {
                   internalType: "uint256",
-                  name: "amount",
+                  name: "value",
                   type: "uint256",
                 },
               ],
@@ -970,6 +851,17 @@ const contracts = {
             {
               inputs: [
                 {
+                  internalType: "address",
+                  name: "tournament_manager_address",
+                  type: "address",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "constructor",
+            },
+            {
+              inputs: [
+                {
                   internalType: "uint16",
                   name: "_IDtournament",
                   type: "uint16",
@@ -980,39 +872,67 @@ const contracts = {
               stateMutability: "nonpayable",
               type: "function",
             },
+            {
+              inputs: [],
+              name: "tournamentManager",
+              outputs: [
+                {
+                  internalType: "contract ITournamentManager",
+                  name: "",
+                  type: "address",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
           ],
         },
         RocketProtocol: {
-          address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+          address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
           abi: [
             {
               inputs: [],
-              stateMutability: "nonpayable",
-              type: "constructor",
+              name: "InvalidInitialization",
+              type: "error",
+            },
+            {
+              inputs: [],
+              name: "NotInitializing",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
+              ],
+              name: "OwnableInvalidOwner",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "account",
+                  type: "address",
+                },
+              ],
+              name: "OwnableUnauthorizedAccount",
+              type: "error",
             },
             {
               anonymous: false,
               inputs: [
                 {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "previousAdminRole",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "newAdminRole",
-                  type: "bytes32",
+                  indexed: false,
+                  internalType: "uint64",
+                  name: "version",
+                  type: "uint64",
                 },
               ],
-              name: "RoleAdminChanged",
+              name: "Initialized",
               type: "event",
             },
             {
@@ -1020,125 +940,34 @@ const contracts = {
               inputs: [
                 {
                   indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
                   internalType: "address",
-                  name: "account",
+                  name: "previousOwner",
                   type: "address",
                 },
                 {
                   indexed: true,
                   internalType: "address",
-                  name: "sender",
+                  name: "newOwner",
                   type: "address",
                 },
               ],
-              name: "RoleGranted",
+              name: "OwnershipTransferred",
               type: "event",
             },
             {
-              anonymous: false,
               inputs: [
                 {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "sender",
-                  type: "address",
-                },
-              ],
-              name: "RoleRevoked",
-              type: "event",
-            },
-            {
-              inputs: [],
-              name: "DEFAULT_ADMIN_ROLE",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "addAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "balanceOfRethofContract",
-              outputs: [
-                {
                   internalType: "uint256",
-                  name: "",
+                  name: "_amount",
                   type: "uint256",
                 },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "balanceOfRethofSender",
-              outputs: [
                 {
-                  internalType: "uint256",
-                  name: "",
-                  type: "uint256",
+                  internalType: "address[]",
+                  name: "_defiProtocolAddress",
+                  type: "address[]",
                 },
               ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "",
-                  type: "address",
-                },
-              ],
-              name: "balances",
-              outputs: [
-                {
-                  internalType: "uint256",
-                  name: "",
-                  type: "uint256",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "claimReward",
+              name: "endETH",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
@@ -1147,11 +976,31 @@ const contracts = {
               inputs: [
                 {
                   internalType: "address",
-                  name: "account",
+                  name: "tournament_manager_address",
                   type: "address",
                 },
               ],
-              name: "deleteAdmin",
+              name: "initialize",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "owner",
+              outputs: [
+                {
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "renounceOwnership",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
@@ -1160,189 +1009,13 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint256",
-                  name: "_amount_of_tokens",
+                  name: "_amount_of_ETH",
                   type: "uint256",
                 },
-              ],
-              name: "deposit",
-              outputs: [],
-              stateMutability: "payable",
-              type: "function",
-            },
-            {
-              inputs: [
                 {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-              ],
-              name: "getRoleAdmin",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "grantRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "hasRole",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "isAdmin",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "renounceRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "renounceToAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "revokeRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "rocketDepositPool",
-              outputs: [
-                {
-                  internalType: "contract IRocketDepositPool",
-                  name: "",
-                  type: "address",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "rocketStorage",
-              outputs: [
-                {
-                  internalType: "contract IRocketStorage",
-                  name: "",
-                  type: "address",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "rocketTokenRETH",
-              outputs: [
-                {
-                  internalType: "contract IRocketTokenRETH",
-                  name: "",
-                  type: "address",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "uint256",
-                  name: "_amount_of_tokens",
-                  type: "uint256",
+                  internalType: "address[]",
+                  name: "_defiProtocolAddress",
+                  type: "address[]",
                 },
               ],
               name: "startETH",
@@ -1353,313 +1026,48 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "bytes4",
-                  name: "interfaceId",
-                  type: "bytes4",
+                  internalType: "address",
+                  name: "newOwner",
+                  type: "address",
                 },
               ],
-              name: "supportsInterface",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "transferRethToContract",
+              name: "transferOwnership",
               outputs: [],
               stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "withdraw",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-          ],
-        },
-        RoleControl: {
-          address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-          abi: [
-            {
-              inputs: [],
-              stateMutability: "nonpayable",
-              type: "constructor",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "previousAdminRole",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "newAdminRole",
-                  type: "bytes32",
-                },
-              ],
-              name: "RoleAdminChanged",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "sender",
-                  type: "address",
-                },
-              ],
-              name: "RoleGranted",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "sender",
-                  type: "address",
-                },
-              ],
-              name: "RoleRevoked",
-              type: "event",
-            },
-            {
-              inputs: [],
-              name: "DEFAULT_ADMIN_ROLE",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "addAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "deleteAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-              ],
-              name: "getRoleAdmin",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "grantRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "hasRole",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "isAdmin",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "renounceRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "renounceToAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "revokeRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes4",
-                  name: "interfaceId",
-                  type: "bytes4",
-                },
-              ],
-              name: "supportsInterface",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
               type: "function",
             },
           ],
         },
         TournamentManager: {
-          address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+          address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
           abi: [
+            {
+              inputs: [],
+              name: "ERC1167FailedCreateClone",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
+              ],
+              name: "OwnableInvalidOwner",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "account",
+                  type: "address",
+                },
+              ],
+              name: "OwnableUnauthorizedAccount",
+              type: "error",
+            },
             {
               anonymous: false,
               inputs: [
@@ -1696,6 +1104,25 @@ const contracts = {
               inputs: [
                 {
                   indexed: true,
+                  internalType: "address",
+                  name: "previousOwner",
+                  type: "address",
+                },
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "newOwner",
+                  type: "address",
+                },
+              ],
+              name: "OwnershipTransferred",
+              type: "event",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
                   internalType: "uint16",
                   name: "tournamentId",
                   type: "uint16",
@@ -1721,81 +1148,6 @@ const contracts = {
               inputs: [
                 {
                   indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "previousAdminRole",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "newAdminRole",
-                  type: "bytes32",
-                },
-              ],
-              name: "RoleAdminChanged",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "sender",
-                  type: "address",
-                },
-              ],
-              name: "RoleGranted",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "sender",
-                  type: "address",
-                },
-              ],
-              name: "RoleRevoked",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
                   internalType: "uint16",
                   name: "tournamentID",
                   type: "uint16",
@@ -1803,19 +1155,6 @@ const contracts = {
               ],
               name: "TournamentCreated",
               type: "event",
-            },
-            {
-              inputs: [],
-              name: "DEFAULT_ADMIN_ROLE",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
             },
             {
               inputs: [
@@ -1841,19 +1180,6 @@ const contracts = {
               name: "abortETH",
               outputs: [],
               stateMutability: "payable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "addAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
               type: "function",
             },
             {
@@ -1913,29 +1239,16 @@ const contracts = {
                 },
                 {
                   internalType: "address",
-                  name: "_DeFiBridge_address",
+                  name: "_DeFiBridge_to_clone",
                   type: "address",
                 },
                 {
-                  internalType: "address",
-                  name: "_DeFiProtocol_address",
-                  type: "address",
+                  internalType: "address[]",
+                  name: "_DeFiProtocol_addresses",
+                  type: "address[]",
                 },
               ],
               name: "createTournament",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "deleteAdmin",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
@@ -1948,7 +1261,20 @@ const contracts = {
                   type: "uint16",
                 },
               ],
-              name: "endTournament",
+              name: "endERC20Tournament",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
+                  name: "idTournament",
+                  type: "uint16",
+                },
+              ],
+              name: "endETHTournament",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
@@ -2062,25 +1388,6 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-              ],
-              name: "getRoleAdmin",
-              outputs: [
-                {
-                  internalType: "bytes32",
-                  name: "",
-                  type: "bytes32",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
                   internalType: "uint16",
                   name: "tournamentId",
                   type: "uint16",
@@ -2098,111 +1405,21 @@ const contracts = {
               type: "function",
             },
             {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "grantRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "hasRole",
+              inputs: [],
+              name: "owner",
               outputs: [
                 {
-                  internalType: "bool",
+                  internalType: "address",
                   name: "",
-                  type: "bool",
+                  type: "address",
                 },
               ],
               stateMutability: "view",
               type: "function",
             },
             {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "isAdmin",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "renounceRole",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "renounceToAdmin",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "bytes32",
-                  name: "role",
-                  type: "bytes32",
-                },
-                {
-                  internalType: "address",
-                  name: "account",
-                  type: "address",
-                },
-              ],
-              name: "revokeRole",
+              inputs: [],
+              name: "renounceOwnership",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
@@ -2259,25 +1476,6 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "bytes4",
-                  name: "interfaceId",
-                  type: "bytes4",
-                },
-              ],
-              name: "supportsInterface",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
                   internalType: "uint256",
                   name: "",
                   type: "uint256",
@@ -2311,11 +1509,6 @@ const contracts = {
                   type: "uint128",
                 },
                 {
-                  internalType: "uint128",
-                  name: "reward_amount",
-                  type: "uint128",
-                },
-                {
                   internalType: "uint64",
                   name: "init_date",
                   type: "uint64",
@@ -2328,11 +1521,6 @@ const contracts = {
                 {
                   internalType: "address",
                   name: "DeFiBridge_address",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "DeFiProtocol_address",
                   type: "address",
                 },
                 {
@@ -2354,82 +1542,15 @@ const contracts = {
               stateMutability: "view",
               type: "function",
             },
-          ],
-        },
-      },
-    },
-  ],
-  80001: [
-    {
-      chainId: "80001",
-      name: "polygonMumbai",
-      contracts: {
-        CompoundProtocol: {
-          address: "0xb2aD95B7dfe9fdeC2cA021b4cffE51566eEB6506",
-          abi: [
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "token",
-                  type: "address",
-                },
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "spender",
-                  type: "address",
-                },
-                {
-                  indexed: false,
-                  internalType: "uint256",
-                  name: "value",
-                  type: "uint256",
-                },
-              ],
-              name: "Approval",
-              type: "event",
-            },
-            {
-              anonymous: false,
-              inputs: [
-                {
-                  indexed: true,
-                  internalType: "address",
-                  name: "token",
-                  type: "address",
-                },
-                {
-                  indexed: false,
-                  internalType: "uint256",
-                  name: "value",
-                  type: "uint256",
-                },
-              ],
-              name: "Supply",
-              type: "event",
-            },
             {
               inputs: [
                 {
-                  internalType: "uint256",
-                  name: "_amount",
-                  type: "uint256",
-                },
-                {
                   internalType: "address",
-                  name: "_0xERC20Address",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_0xCometAddress",
+                  name: "newOwner",
                   type: "address",
                 },
               ],
-              name: "approveAndSupply",
+              name: "transferOwnership",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
@@ -2437,146 +1558,27 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "address",
-                  name: "_0xCometAddress",
-                  type: "address",
+                  internalType: "uint16",
+                  name: "_IDtourn",
+                  type: "uint16",
                 },
                 {
-                  internalType: "address",
-                  name: "_0xRewardsAddress",
-                  type: "address",
+                  internalType: "bool[]",
+                  name: "isLeft",
+                  type: "bool[]",
                 },
                 {
-                  internalType: "address",
-                  name: "_0xAccount",
-                  type: "address",
+                  internalType: "uint16",
+                  name: "position",
+                  type: "uint16",
+                },
+                {
+                  internalType: "bytes32[]",
+                  name: "_merkleProof",
+                  type: "bytes32[]",
                 },
               ],
-              name: "claimReward",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "_0xERC20Address",
-                  type: "address",
-                },
-              ],
-              name: "getERC20TokenBalance",
-              outputs: [
-                {
-                  internalType: "uint256",
-                  name: "",
-                  type: "uint256",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "_0xCometAddress",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_0xRewardsAddress",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_0xAccount",
-                  type: "address",
-                },
-              ],
-              name: "tournamentAccoumulatedReward",
-              outputs: [
-                {
-                  internalType: "uint256",
-                  name: "",
-                  type: "uint256",
-                },
-              ],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "_0xCometAddress",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_account",
-                  type: "address",
-                },
-              ],
-              name: "tournamentCalculatedReward",
-              outputs: [
-                {
-                  internalType: "uint256",
-                  name: "",
-                  type: "uint256",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "_tokenAddress",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_to",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "_amount",
-                  type: "uint256",
-                },
-              ],
-              name: "transferERC20Token",
-              outputs: [
-                {
-                  internalType: "bool",
-                  name: "",
-                  type: "bool",
-                },
-              ],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "_0xCometAddress",
-                  type: "address",
-                },
-                {
-                  internalType: "address",
-                  name: "_0xERC20Address",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "_amount",
-                  type: "uint256",
-                },
-              ],
-              name: "withdraw",
+              name: "verifyAndClaim",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",

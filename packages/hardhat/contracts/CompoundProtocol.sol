@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8;
+pragma solidity ^0.8.0;
 
 import "./interfaces/InterfaceComet.sol";
 import "./interfaces/Erc20.sol";
-import "./RoleControl.sol";
 
+// Open Zeppelin libraries for controlling upgradability and access.
+// import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract CompoundProtocol is RoleControl{
-
+// Initializable
+contract CompoundProtocol is OwnableUpgradeable {
 	event Approval(
 		address indexed token,
 		address indexed spender,
@@ -15,51 +17,49 @@ contract CompoundProtocol is RoleControl{
 	);
 	event Supply(address indexed token, uint256 value);
 
-	// maybe should also have the defi address as parameter??
-	function start(uint128 _amount_of_tokens, address[] calldata _0xERC20Addresses) external onlyAdmin{
-		startDeFiBridge(
-			_amount_of_tokens,
-			_0xERC20Addresses,
-			0xF09F0369aB0a875254fB565E52226c88f10Bc839
-		);
+	function initialize(address tournament_manager_address) public initializer {
+		__Ownable_init(tournament_manager_address);
 	}
+
+	// TODO SI NO EM FUNCIONA PROVAR AIXÍ
+	// function initialize(address owner) external initializer {
+	//   __Ownable_init();
+	//   transferOwnership(owner);
 
 	// supply uses contract holded tokens
-	function startDeFiBridge(
-		uint128 _amount,
+	function startERC20(
+		uint128 _amount_of_tokens,
 		address[] calldata _0xERC20Addresses,
-		address _0xCometAddress
-	) private  onlyAdmin{
+		address[] calldata _defiProtocolAddress
+	) external onlyOwner {
 		// Approve the Compound protocol contract to spend tokens
-		ERC20(_0xERC20Addresses[0]).approve(_0xCometAddress, _amount);
-
-		// Emit event for approval
-		emit Approval(_0xERC20Addresses[0], address(this), _amount);
-
-		Comet comet = Comet(_0xCometAddress);
-
-		// Supply tokens to Compound
-		comet.supply(_0xERC20Addresses[0], _amount);
-
-		// Emit event for supply
-		emit Supply(_0xERC20Addresses[0], _amount);
-	}
-
-	function end(uint128 _amount_of_tokens, address _0xERC20Addresses) external onlyAdmin{
-		withdraw(
-			0xF09F0369aB0a875254fB565E52226c88f10Bc839,
-			_0xERC20Addresses,
+		ERC20(_0xERC20Addresses[0]).approve(
+			_defiProtocolAddress[0],
 			_amount_of_tokens
 		);
-		claimReward(
-			0xF09F0369aB0a875254fB565E52226c88f10Bc839,
-			0x0785f2AC0dCBEDEE4b8D62c25A34098E9A0dF4bB
+
+		// Emit event for approval
+		emit Approval(_0xERC20Addresses[0], address(this), _amount_of_tokens);
+
+		Comet comet = Comet(_defiProtocolAddress[0]);
+		comet.supply(_0xERC20Addresses[0], _amount_of_tokens);
+
+		// Emit event for supply
+		emit Supply(_0xERC20Addresses[0], _amount_of_tokens);
+	}
+
+	function endERC20(
+		uint128 _amount_of_tokens,
+		address[] calldata _0xERC20Addresses,
+		address[] calldata _defiProtocolAddress
+	) external onlyOwner {
+		withdraw(
+			_defiProtocolAddress[0],
+			_0xERC20Addresses[0],
+			_amount_of_tokens
 		);
-		// transferERC20Token()  TODO this should have the amount of tokens that was supplied from the users, + the amount of reard tokens
-		// so we need a way to know the amount of reward tokens.
-		// TODO it also should actualize a REWARD variable in tournamentManager so it can handle the reward distribution.
-		// TargetContract target = TargetContract(_0xtournamentManager);
-		// target.end(_amount_of_reward_tokens);
+		claimReward(_defiProtocolAddress[0], _defiProtocolAddress[1]);
+		transferERC20Token(_0xERC20Addresses[0], msg.sender);
 	}
 
 	function withdraw(
@@ -82,36 +82,12 @@ contract CompoundProtocol is RoleControl{
 	// Function to transfer an amount of ERC20 token
 	function transferERC20Token(
 		address _tokenAddress,
-		address _to,
-		uint256 _amount
+		address _to
 	) private returns (bool) {
 		ERC20 token = ERC20(_tokenAddress);
+		uint _amount = token.balanceOf(address(this));
 		bool succeed = token.transfer(_to, _amount);
 		require(succeed, "Transfer failed.");
 		return true;
-	}
-
-	function tournamentAccoumulatedReward(
-		address _0xCometAddress,
-		address _0xRewardsAddress,
-		address _0xAccount
-	) public returns (uint) {
-		return
-			CometRewards(_0xRewardsAddress)
-				.getRewardOwed(_0xCometAddress, _0xAccount)
-				.owed;
-	}
-
-	/**
-	 * @dev Calculates the reward accrued for an account on a Comet deployment
-	 */
-	function tournamentCalculatedReward(
-		address _0xCometAddress,
-		address _account
-	) external view returns (uint) {
-		Comet comet = Comet(_0xCometAddress);
-		uint accrued = comet.baseTrackingAccrued(_account);
-
-		return accrued;
 	}
 }
