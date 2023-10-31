@@ -1,26 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0-only
-pragma solidity >0.5.0 <0.9.0;
+pragma solidity ^0.8.0;
 
 import "./interfaces/IRocketDepositPool.sol";
 import "./interfaces/IRocketTokenRETH.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract RocketProtocol {
-	bool private initialized;
-	address public admin;
 
-	// Change-State functions
+contract RocketProtocol is  OwnableUpgradeable{
 
-	function initialize(address set_admin) public {
-		require(!initialized, "Contract instance has already been initialized");
-		admin = set_admin;
-	}
+    function initialize(address tournament_manager_address) initializer public {
+        __Ownable_init(tournament_manager_address);
+    }
 
 	function startETH(
 		uint256 _amount_of_ETH,
 		address[] calldata _defiProtocolAddress
-	) external payable {
+	) external payable onlyOwner{
 		// Check deposit amount
-		address ROCKET_TOKEN_RETH = _defiProtocolAddress[0];
 		address ROCKET_DEPOSIT_POOL = _defiProtocolAddress[1];
 		require(
 			msg.value > 0.01 ether,
@@ -37,7 +33,7 @@ contract RocketProtocol {
 	function endETH(
 		uint256 _amount,
 		address[] calldata _defiProtocolAddress
-	) external {
+	) external onlyOwner{
 		address ROCKET_TOKEN_RETH = _defiProtocolAddress[0];
 		uint256 balance1 = address(this).balance;
 		claimReward(_amount, ROCKET_TOKEN_RETH);

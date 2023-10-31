@@ -5,13 +5,10 @@ import "./interfaces/IUniswapV2ERC20.sol";
 import "./interfaces/IUniswapV2Router02.sol";
 import "./interfaces/IUniswapV2Pair.sol";
 import "./interfaces/Erc20.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract UniswapV2Protocol {
-	bool private initialized;
-	address public admin;
-
+contract UniswapV2Protocol is OwnableUpgradeable {
 	// Events
-
 	event AddLiquidityPair(
 		uint256 amountToken1,
 		uint256 amountToken2,
@@ -19,19 +16,15 @@ contract UniswapV2Protocol {
 	);
 	event RemoveLiquidity(uint256 amountToken1, uint256 amountToken2);
 
-	// Change-State functions
-	function initialize(address set_admin) public {
-		require(!initialized, "Contract instance has already been initialized");
-		admin = set_admin;
+	function initialize(address tournament_manager_address) public initializer {
+		__Ownable_init(tournament_manager_address);
 	}
 
 	function startERC20(
 		uint256 _amount_of_tokens,
 		address[] calldata _0xERC20Addresses,
 		address[] calldata _defiProtocolAddress
-	) external {
-		require(msg.sender == admin, "Restricted to admins.");
-
+	) external onlyOwner {
 		address TOKEN_1 = _0xERC20Addresses[0];
 		address TOKEN_2 = _0xERC20Addresses[1];
 		address UNISWAP_V2_ROUTER_02 = _defiProtocolAddress[0];
@@ -81,9 +74,7 @@ contract UniswapV2Protocol {
 		uint256 _amount_of_tokens,
 		address[] calldata _0xERC20Addresses,
 		address[] calldata _defiProtocolAddress
-	) external {
-		require(msg.sender == admin, "Restricted to admins.");
-
+	) external onlyOwner {
 		address TOKEN_1 = _0xERC20Addresses[0];
 		address TOKEN_2 = _0xERC20Addresses[1];
 		address UNISWAP_V2_ROUTER_02 = _defiProtocolAddress[0];
@@ -95,8 +86,8 @@ contract UniswapV2Protocol {
 			UNISWAP_V2_ROUTER_02,
 			PAIR
 		);
-		transferERC20Token(_0xERC20Addresses[0], admin);
-		transferERC20Token(_0xERC20Addresses[1], admin);
+		transferERC20Token(_0xERC20Addresses[0], msg.sender);
+		transferERC20Token(_0xERC20Addresses[1], msg.sender);
 	}
 
 	// removeLiquidity --> Removes liquidity from an USDT⇄DAI pool (ERC-20)

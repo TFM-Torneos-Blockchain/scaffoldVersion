@@ -1,45 +1,37 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8;
+pragma solidity ^0.8.0;
 
 import "./interfaces/InterfaceComet.sol";
 import "./interfaces/Erc20.sol";
 
 // Open Zeppelin libraries for controlling upgradability and access.
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+// import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract CompoundProtocol is
-	Initializable,
-	UUPSUpgradeable,
-	OwnableUpgradeable
-{
+// Initializable
+contract CompoundProtocol is OwnableUpgradeable {
 	event Approval(
 		address indexed token,
 		address indexed spender,
 		uint256 value
 	);
 	event Supply(address indexed token, uint256 value);
-	bool private initialized;
-	address public admin;
 
-	function initialize() public initializer {
-		///@dev as there is no constructor, we need to initialise the OwnableUpgradeable explicitly
-		__Ownable_init();
-      __UUPSUpgradeable_init();
+	function initialize(address tournament_manager_address) public initializer {
+		__Ownable_init(tournament_manager_address);
 	}
 
-	///@dev required by the OZ UUPS module
-	function _authorizeUpgrade(address) internal override onlyOwner {}
+	// TODO SI NO EM FUNCIONA PROVAR AIXÍ
+	// function initialize(address owner) external initializer {
+	//   __Ownable_init();
+	//   transferOwnership(owner);
 
 	// supply uses contract holded tokens
 	function startERC20(
 		uint128 _amount_of_tokens,
 		address[] calldata _0xERC20Addresses,
 		address[] calldata _defiProtocolAddress
-	) external {
-		require(msg.sender == admin, "Restricted to admins.");
-
+	) external onlyOwner {
 		// Approve the Compound protocol contract to spend tokens
 		ERC20(_0xERC20Addresses[0]).approve(
 			_defiProtocolAddress[0],
@@ -60,15 +52,14 @@ contract CompoundProtocol is
 		uint128 _amount_of_tokens,
 		address[] calldata _0xERC20Addresses,
 		address[] calldata _defiProtocolAddress
-	) external {
-		require(msg.sender == admin, "Restricted to admins.");
+	) external onlyOwner {
 		withdraw(
 			_defiProtocolAddress[0],
 			_0xERC20Addresses[0],
 			_amount_of_tokens
 		);
 		claimReward(_defiProtocolAddress[0], _defiProtocolAddress[1]);
-		transferERC20Token(_0xERC20Addresses[0], admin);
+		transferERC20Token(_0xERC20Addresses[0], msg.sender);
 	}
 
 	function withdraw(

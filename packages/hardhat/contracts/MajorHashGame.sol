@@ -8,8 +8,8 @@ contract MajorHashGame {
 	ITournamentManager public  tournamentManager ; 
 	mapping(address=>bool) hasPlayed;
 
-	constructor(address set_admin){
-		tournamentManager = ITournamentManager(set_admin);
+	constructor(address tournament_manager_address){
+		tournamentManager = ITournamentManager(tournament_manager_address);
 	}
 
 	// _results is a bytes array of the concatenation of (player_adress, player_score) for each Play in the tournament e.j: _results = bytes(add1,score1,add2,score2,...)

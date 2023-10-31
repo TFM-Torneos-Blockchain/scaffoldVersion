@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.5.0;
+pragma solidity ^0.8.0;
 
 // https://docs.uniswap.org/contracts/v2/reference/smart-contracts/Pair-ERC-20
 
