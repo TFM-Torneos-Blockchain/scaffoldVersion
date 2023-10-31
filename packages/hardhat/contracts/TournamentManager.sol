@@ -35,7 +35,7 @@ contract TournamentManager is Ownable(msg.sender) {
 	uint16 IDcounter;
 
 	//--------------------------------------------Events------------------------------------------------------
-	event TournamentCreated(uint16 indexed tournamentID, Tournament);
+	event TournamentCreated(uint16 indexed tournamentID);
 	event Enroll(
 		uint16 indexed tournament_id,
 		address indexed user,
@@ -86,7 +86,7 @@ contract TournamentManager is Ownable(msg.sender) {
 		}
 		IDcounter++;
 
-		emit TournamentCreated(newTournament.ID, newTournament);
+		emit TournamentCreated(newTournament.ID);
 	}
 
 	function enrollWithERC20(uint16 idTournament) external {
@@ -237,7 +237,13 @@ contract TournamentManager is Ownable(msg.sender) {
 		abortedTournament.participants[msg.sender] = 0;
 	}
 
-	function endERC20Tournament(uint16 idTournament) public onlyOwner {
+	function endERC20Tournament(
+		uint16 idTournament,
+		bytes calldata _results_bytes, // each element is 52 bytes: 20 for the address and 32 for the score.
+		uint16[] calldata _positions
+	) public onlyOwner {
+		createLeaderBoardMerkleTree(idTournament, _results_bytes, _positions);
+
 		Tournament storage tournamentToEnd = tournaments[idTournament];
 
 		uint128[] memory DeFiBridgeReward = IDefiBridge(
@@ -259,8 +265,13 @@ contract TournamentManager is Ownable(msg.sender) {
 		}
 	}
 
-	function endETHTournament(uint16 idTournament) public onlyOwner {
+	function endETHTournament(
+		uint16 idTournament,
+		bytes calldata _results_bytes, // each element is 52 bytes: 20 for the address and 32 for the score.
+		uint16[] calldata _positions
+	) public onlyOwner {
 		// 1- Recuperar dinero del defi bridge y conocer
+		createLeaderBoardMerkleTree(idTournament, _results_bytes, _positions);
 		Tournament storage tournamentToEnd = tournaments[idTournament];
 
 		uint128 DeFiBridgeReward = IDefiBridge(
@@ -426,7 +437,7 @@ contract TournamentManager is Ownable(msg.sender) {
 		uint16 _IDtournament,
 		bytes calldata _results_bytes, // each element is 52 bytes: 20 for the address and 32 for the score.
 		uint16[] calldata _positions
-	) public {
+	) private {
 		require(
 			block.timestamp >= tournaments[_IDtournament].end_date,
 			"Tournament hasn't end yet"
