@@ -55,7 +55,7 @@ export const RainbowKitCustomConnectButton = () => {
                     </label>
                     <ul
                       tabIndex={0}
-                      className="dropdown-content menu p-2 mt-1 shadow-center shadow-accent bg-base-200 rounded-box gap-1"
+                      className="dropdown-content menu p-2 mt-1 shadow-center shadow-accent bg-slate-200 rounded-box gap-1"
                     >
                       <li>
                         <button
@@ -102,7 +102,7 @@ export const RainbowKitCustomConnectButton = () => {
                     </label>
                     <ul
                       tabIndex={0}
-                      className="dropdown-content menu z-[2] p-2 mt-2 shadow-center shadow-accent bg-base-200 rounded-box gap-1"
+                      className="dropdown-content menu z-[2] p-2 mt-2 shadow-center shadow-slate-800 bg-slate-800 rounded-box gap-1"
                     >
                       <li>
                         {addressCopied ? (
@@ -133,12 +133,12 @@ export const RainbowKitCustomConnectButton = () => {
                           </CopyToClipboard>
                         )}
                       </li>
-                      <li>
+                     {/*  <li>
                         <label htmlFor="qrcode-modal" className="btn-sm !rounded-xl flex gap-3 py-3">
                           <QrCodeIcon className="h-6 w-4 ml-2 sm:ml-0" />
                           <span className="whitespace-nowrap">View QR Code</span>
                         </label>
-                      </li>
+                      </li> */}
                       <li>
                         <button className="menu-item btn-sm !rounded-xl flex gap-3 py-3" type="button">
                           <ArrowTopRightOnSquareIcon className="h-6 w-4 ml-2 sm:ml-0" />
