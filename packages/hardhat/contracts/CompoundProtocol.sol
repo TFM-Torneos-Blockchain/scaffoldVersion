@@ -48,7 +48,7 @@ contract CompoundProtocol is OwnableUpgradeable {
 		emit Supply(_0xERC20Addresses[0], _amount_of_tokens);
 	}
 
-	function end(
+	function endERC20(
 		uint128 _amount_of_tokens,
 		address[] calldata _0xERC20Addresses,
 		address[] calldata _defiProtocolAddress

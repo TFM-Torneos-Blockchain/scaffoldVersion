@@ -14,11 +14,11 @@ contract TournamentManager is Ownable(msg.sender) {
 		uint16 ID;
 		uint8 min_participants;
 		uint16 max_participants;
-		mapping(address => uint128) participants;
+		mapping(address => uint128) participants; // ! NEED TO BE ADDRESS TO BOOL
 		uint16 num_participants;
 		uint128 enrollment_amount; // in weis
 		address[] accepted_tokens;
-		uint128[] total_reward_amount; // IDEA
+		uint128[] total_reward_amount; // !reward+initial inversion WRONG!!! WE NEED JUST REWARD
 		uint64 init_date;
 		uint64 end_date;
 		address DeFiBridge_address;
@@ -35,7 +35,7 @@ contract TournamentManager is Ownable(msg.sender) {
 	uint16 IDcounter;
 
 	//--------------------------------------------Events------------------------------------------------------
-	event TournamentCreated(uint16 indexed tournamentID);
+	event TournamentCreated(uint16 indexed tournamentID, Tournament);
 	event Enroll(
 		uint16 indexed tournament_id,
 		address indexed user,
@@ -86,7 +86,7 @@ contract TournamentManager is Ownable(msg.sender) {
 		}
 		IDcounter++;
 
-		emit TournamentCreated(newTournament.ID);
+		emit TournamentCreated(newTournament.ID, newTournament);
 	}
 
 	function enrollWithERC20(uint16 idTournament) external {
@@ -248,6 +248,7 @@ contract TournamentManager is Ownable(msg.sender) {
 				tournamentToEnd.accepted_tokens,
 				tournamentToEnd.DeFiProtocol_addresses
 			);
+		// !TODO fer els returns dels bridges i calcular be els diners !DeFiBridgeReward- invertit
 		for (uint i = 0; i < tournamentToEnd.accepted_tokens.length; i++) {
 			uint128 playersReward = (DeFiBridgeReward[i] * 8) / 10;
 			tournamentToEnd.total_reward_amount[i] = playersReward;
@@ -286,7 +287,7 @@ contract TournamentManager is Ownable(msg.sender) {
 		Tournament storage endedTournament = tournaments[_IDtourn];
 
 		require(
-			endedTournament.participants[msg.sender] != 0,
+			endedTournament.participants[msg.sender] == 0,
 			"You already claimed your award!!!"
 		);
 
@@ -360,28 +361,25 @@ contract TournamentManager is Ownable(msg.sender) {
 	function getPayoutStructure(
 		uint16 numParticipants
 	) internal pure returns (uint256[] memory) {
+		uint256[] memory payout = new uint256[](numParticipants);
 		if (numParticipants <= 10) {
-			uint256[] memory payout = new uint256[](numParticipants);
 			payout[0] = 70;
 			if (numParticipants == 2) {
 				payout[1] = 30;
 			}
 			return payout;
 		} else if (numParticipants <= 31) {
-			uint256[] memory payout = new uint256[](numParticipants);
 			payout[0] = 60;
 			payout[1] = 30;
 			payout[2] = 10;
 			return payout;
 		} else if (numParticipants <= 63) {
-			uint256[] memory payout = new uint256[](numParticipants);
 			payout[0] = 50;
 			payout[1] = 25;
 			payout[2] = 15;
 			payout[3] = 10;
 			return payout;
 		} else if (numParticipants <= 80) {
-			uint256[] memory payout = new uint256[](numParticipants);
 			payout[0] = 45;
 			payout[1] = 25;
 			payout[2] = 14;
@@ -390,7 +388,6 @@ contract TournamentManager is Ownable(msg.sender) {
 			payout[5] = 3;
 			return payout;
 		} else {
-			uint256[] memory payout = new uint256[](numParticipants);
 			payout[0] = 44;
 			payout[1] = 22;
 			payout[2] = 12;
