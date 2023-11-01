@@ -16,49 +16,49 @@ contract UniswapV2Protocol is OwnableUpgradeable {
 	);
 	event RemoveLiquidity(uint256 amountToken1, uint256 amountToken2);
 
-	function initialize(address tournament_manager_address) public initializer {
-		__Ownable_init(tournament_manager_address);
+	function initialize(address tournamentManagerAddress) public initializer {
+		__Ownable_init(tournamentManagerAddress);
 	}
 
 	function startERC20(
-		uint256 _amount_of_tokens,
-		address[] calldata _0xERC20Addresses,
-		address[] calldata _defiProtocolAddress
+		uint256 amountOfTokens,
+		address[] calldata erc20Addresses,
+		address[] calldata defiProtocolAddress
 	) external onlyOwner {
-		address TOKEN_1 = _0xERC20Addresses[0];
-		address TOKEN_2 = _0xERC20Addresses[1];
-		address UNISWAP_V2_ROUTER_02 = _defiProtocolAddress[0];
+		address token1 = erc20Addresses[0];
+		address token2 = erc20Addresses[1];
+		address uniswapV2Router02 = defiProtocolAddress[0];
 		addLiquidityPair(
-			_amount_of_tokens,
-			_amount_of_tokens,
-			TOKEN_1,
-			TOKEN_2,
-			UNISWAP_V2_ROUTER_02
+			amountOfTokens,
+			amountOfTokens,
+			token1,
+			token2,
+			uniswapV2Router02
 		);
 	}
 
-	// addLiquidityPair--> Adds liquidity to ERC-20⇄ERC-20 pool
+	// addLiquidityPair --> Adds liquidity to ERC-20⇄ERC-20 pool
 	function addLiquidityPair(
-		uint256 _amount_token_1,
-		uint256 _amount_token_2,
-		address token_1,
-		address token_2,
+		uint256 _amountToken1,
+		uint256 _amountToken2,
+		address token1,
+		address token2,
 		address uniswapRouter
 	) private {
 		uint256 deadline = block.timestamp + 15;
 		// Give the router allowance of tokens
-		IUniswapV2ERC20(token_1).approve(uniswapRouter, _amount_token_1);
-		IUniswapV2ERC20(token_2).approve(uniswapRouter, _amount_token_2);
+		IUniswapV2ERC20(token1).approve(uniswapRouter, _amountToken1);
+		IUniswapV2ERC20(token2).approve(uniswapRouter, _amountToken2);
 		// Call to the function addLiquidity from smart contract UniswapV2Router02
 		(
 			uint256 amountToken1, // The amount of Token1 sent to the pool.
 			uint256 amountToken2, // The amount of Token2 sent to the pool.
 			uint256 liquidity // The amount of liquidity tokens minted.
 		) = IUniswapV2Router02(uniswapRouter).addLiquidity(
-				token_1,
-				token_2,
-				_amount_token_1 * 1 ether,
-				_amount_token_2 * 1 ether,
+				token1,
+				token2,
+				_amountToken1,
+				_amountToken2,
 				0,
 				0,
 				address(this),
@@ -71,30 +71,40 @@ contract UniswapV2Protocol is OwnableUpgradeable {
 	}
 
 	function endERC20(
-		uint256 _amount_of_tokens,
-		address[] calldata _0xERC20Addresses,
-		address[] calldata _defiProtocolAddress
-	) external onlyOwner {
-		address TOKEN_1 = _0xERC20Addresses[0];
-		address TOKEN_2 = _0xERC20Addresses[1];
-		address UNISWAP_V2_ROUTER_02 = _defiProtocolAddress[0];
-		address PAIR = _defiProtocolAddress[1];
+		uint256 amountOfTokens,
+		address[] calldata erc20Addresses,
+		address[] calldata defiProtocolAddress
+	) external onlyOwner returns (uint256[] memory) {
+		address token1 = erc20Addresses[0];
+		address token2 = erc20Addresses[1];
+		address uniswapV2Router02 = defiProtocolAddress[0];
+		address pair = defiProtocolAddress[1];
 		removeLiquidity(
-			_amount_of_tokens,
-			TOKEN_1,
-			TOKEN_2,
-			UNISWAP_V2_ROUTER_02,
-			PAIR
+			amountOfTokens,
+			token1,
+			token2,
+			uniswapV2Router02,
+			pair
 		);
-		transferERC20Token(_0xERC20Addresses[0], msg.sender);
-		transferERC20Token(_0xERC20Addresses[1], msg.sender);
+		uint256 totalCollected1 = transferERC20Token(
+			erc20Addresses[0],
+			msg.sender
+		);
+		uint256 totalCollected2 = transferERC20Token(
+			erc20Addresses[1],
+			msg.sender
+		);
+		uint256[] memory deFiBridgeRewards = new uint256[](2);
+		deFiBridgeRewards[0] = totalCollected1 - amountOfTokens;
+		deFiBridgeRewards[1] = totalCollected2 - amountOfTokens;
+		return deFiBridgeRewards;
 	}
 
 	// removeLiquidity --> Removes liquidity from an USDT⇄DAI pool (ERC-20)
 	function removeLiquidity(
 		uint256 liquidity,
-		address token_1,
-		address token_2,
+		address token1,
+		address token2,
 		address uniswapRouter,
 		address pair
 	) private {
@@ -106,8 +116,8 @@ contract UniswapV2Protocol is OwnableUpgradeable {
 			uint256 amountToken1, // The amount of Token1 received.
 			uint256 amountToken2 // The amount of Token2 received.
 		) = IUniswapV2Router02(uniswapRouter).removeLiquidity(
-				token_1,
-				token_2,
+				token1,
+				token2,
 				liquidity,
 				0,
 				0,
@@ -119,13 +129,13 @@ contract UniswapV2Protocol is OwnableUpgradeable {
 	}
 
 	function transferERC20Token(
-		address _tokenAddress,
-		address _to
-	) private returns (bool) {
-		ERC20 token = ERC20(_tokenAddress);
-		uint _amount = token.balanceOf(address(this));
-		bool succeed = token.transfer(_to, _amount);
+		address tokenAddress,
+		address to
+	) private returns (uint256) {
+		ERC20 token = ERC20(tokenAddress);
+		uint amount = token.balanceOf(address(this));
+		bool succeed = token.transfer(to, amount);
 		require(succeed, "Transfer failed.");
-		return true;
+		return amount;
 	}
 }

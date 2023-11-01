@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.0;
 
-interface IDefiBridge {
-	function initialize(address tournament_manager_address) external;
+interface IDeFiBridge {
+	function initialize(address tournamentManagerAddress) external;
 
 	function startERC20(
-		uint128 _amount_of_tokens,
-		address[] calldata _0xERC20Addresses,
-		address[] calldata _defiProtocolAddress
+		uint256 amountOfTokens,
+		address[] calldata erc20Addresses,
+		address[] calldata defiProtocolAddresses
 	) external;
 
 	function startETH(
-		uint _amount_of_ETH,
-		address[] calldata _defiProtocolAddress
+		uint amountOfETH,
+		address[] calldata defiProtocolAddresses
 	) external payable;
 
 	function endERC20(
-		uint128 _amount_of_tokens,
-		address[] calldata _0xERC20Addresses,
-		address[] calldata _defiProtocolAddress
-	) external returns(uint128[] memory);
+		uint256 amountOfTokens,
+		address[] calldata erc20Addresses,
+		address[] calldata defiProtocolAddresses
+	) external returns (uint256[] memory);
 
 	function endETH(
-		uint _amount_of_ETH,
-		address[] calldata _defiProtocolAddress
-	) external payable returns(uint128);
+		uint amountOfETH,
+		address[] calldata defiProtocolAddresses
+	) external payable returns (uint256);
 }
