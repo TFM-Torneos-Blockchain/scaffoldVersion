@@ -13,9 +13,10 @@ type TReadOnlyFunctionFormProps = {
   tournament_id: number;
   contract: Contract<"TournamentManager">;
   txAmount: string;
+  setEnrolled: any;
 };
 // import  TokensApprove  from "../scaffold-eth/Contract/TokensApprove";
-export default function EnrollButtonERC20({ tournament_id, contract, txAmount }: TReadOnlyFunctionFormProps) {
+export default function EnrollButtonERC20({ tournament_id, contract, txAmount, setEnrolled }: TReadOnlyFunctionFormProps) {
   const { chain } = useNetwork();
   const writeEnrollTxn = useTransactor();
   const writeApproveTxn = useTransactor();
@@ -154,6 +155,7 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
         console.log;
         const makeWriteWithParams = () => writeEnroll();
         await writeEnrollTxn(makeWriteWithParams);
+        setEnrolled(true);
       } catch (e: any) {
         const message = getParsedError(e);
         notification.error(message);

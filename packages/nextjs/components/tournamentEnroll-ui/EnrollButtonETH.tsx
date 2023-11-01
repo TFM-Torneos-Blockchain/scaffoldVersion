@@ -12,10 +12,12 @@ export default function EnrollButtonETH({
   contract,
   tournament_id,
   txAmount,
+  setEnrolled
 }: {
   contract: Contract<"TournamentManager">;
   tournament_id: number;
   txAmount: string;
+  setEnrolled: any;
 }) {
   const { chain } = useNetwork();
   const writeTxn = useTransactor();
@@ -69,6 +71,7 @@ export default function EnrollButtonETH({
         console.log;
         const makeWriteWithParams = () => writeAsync({ value: BigInt(txAmount) }); // en WEIS
         await writeTxn(makeWriteWithParams);
+        setEnrolled(true);
       } catch (e: any) {
         const message = getParsedError(e);
         notification.error(message);

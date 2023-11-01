@@ -15,22 +15,14 @@ export default function PlayButton({contract, id, txAmount, fn}: {contract: Cont
     const { chain } = useNetwork();
     const writeTxn = useTransactor();
     const writeDisabled = !chain || chain?.id !== getTargetNetwork().id;
-    const enrollFunction = fn || "enrollWithETH"
-    const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo("TournamentContract");
+
+    const playFunction = "play"
     // const provider = new ethers.providers.Web3Provider(window.ethereum); // Web3Provider o proveedor similar
     
      const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/'); // Sustituye 'URL_DE_TU_RED_ETHEREUM' por la URL de la red Ethereum que estás utilizando
    // listenOnQuoteUploadedEvent(deployedContractData?.abi, deployedContractData?.address as string, "wss://eth-mainnet.g.alchemy.com/v2/vWBspZ6zScCc8dGnEhMBggT3gKXnMzrv");
    console.log("provider:", provider);
-    const contract2 = new ethers.Contract(contract.address,contract.abi, provider);
-    console.log(contract2);
-    contract2.on('Enroll', (param:any,param2:any, param3: any, param4: any) => {
-      //useScaffoldEventHistory
-      // Maneja el evento
-      console.log("enroll creado");
-      handleWriteJson({id: param, name: param2, amount: param3, date: param4})
-    });
-    console.log("index.js")  
+ 
 
     const handleWriteJson = async (datatoWrtie: {}) => {
       try {
@@ -55,7 +47,7 @@ export default function PlayButton({contract, id, txAmount, fn}: {contract: Cont
     } = useContractWrite({
       chainId: getTargetNetwork().id,
       address: contract.address,
-      functionName: enrollFunction,
+      functionName: playFunction,
       abi: contract.abi as Abi,
       args: [id],
     });
@@ -64,7 +56,7 @@ export default function PlayButton({contract, id, txAmount, fn}: {contract: Cont
       if (writeAsync) {
         try {
             console.log
-          const makeWriteWithParams = () => writeAsync({ value: BigInt(txAmount * 1000000000000000000) }); // en WEIS
+          const makeWriteWithParams = () => writeAsync({ value: BigInt(txAmount) }); // en WEIS
           await writeTxn(makeWriteWithParams);
           
         } catch (e: any) {

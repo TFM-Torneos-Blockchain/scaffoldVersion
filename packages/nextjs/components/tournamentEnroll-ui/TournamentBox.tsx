@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import EnrollButtonERC20 from "./EnrollButtonERC20";
 import EnrollButtonETH from "./EnrollButtonETH";
 import { Abi } from "abitype";
-import { useContractRead } from "wagmi";
+import { useAccount, useContractRead } from "wagmi";
 import { notification } from "~~/utils/scaffold-eth";
 import { Contract } from "~~/utils/scaffold-eth/contract";
 import TournamentPopUp from "./TournamentPopUp";
+import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
+import PlayButton from "./PlayButton";
+import { ethers } from "ethers";
 
 type TReadOnlyFunctionFormProps = {
   tournament_id: number;
@@ -15,11 +18,11 @@ type TReadOnlyFunctionFormProps = {
 
 export default function TournamentBox({ tournament_id, contract, is_ETH }: TReadOnlyFunctionFormProps) {
   const [tournamentInfo, setTournamentInfo] = useState<any>([]);
-
+  const [enrolled, setEnrolled] = useState<boolean>(false);
   const tournamentsFunction = "tournaments";
+  const { address } = useAccount();
 
-
-  const { isFetching, refetch } = useContractRead({
+    const { isFetching, refetch } = useContractRead({
     address: contract.address,
     functionName: tournamentsFunction,
     abi: contract.abi as Abi,
@@ -52,6 +55,9 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
     console.log("asaber torunamentbox, useeffect");
   }, []);
 
+  console.log(tournamentInfo)
+  const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo('MajorHashGame');
+
   return (
     <div className="bg-slate-900 w-fit p-4 rounded-md shadow-md shadow-black ">
       <div >
@@ -62,6 +68,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
           <span>Participants: {tournamentInfo.num_participants}</span>
         </div>
       </div>
+        {tournamentInfo.init_date > Date.now() < tournamentInfo.end_date  ? 
         <div className="mb-2">
           {is_ETH ? (
             <EnrollButtonETH
@@ -69,6 +76,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
               contract={contract}
               tournament_id={tournament_id}
               txAmount={tournamentInfo.enrollment_amount}
+              setEnrolled={setEnrolled}
             />
           ) : (
             <EnrollButtonERC20
@@ -76,9 +84,21 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
               contract={contract}
               tournament_id={tournament_id}
               txAmount={tournamentInfo.enrollment_amount}
+              setEnrolled={setEnrolled}
             />
           )}
-        </div>
+        </div> : <div>{tournamentInfo.init_date < Date.now() < tournamentInfo.end_date ? 
+        (<div className="mb-2">
+          {deployedContractData && (
+            <PlayButton
+              key={`boxETH-${contract}-${tournament_id}}`}
+              contract={deployedContractData}
+              id={tournament_id}
+              txAmount={tournamentInfo.enrollment_amount}
+            />
+          )}
+        </div>) : <div>
+          Claim</div>} </div>}
     <div className="flex justify-center">
       <TournamentPopUp tournamentInfo={tournamentInfo}  />
     </div>
