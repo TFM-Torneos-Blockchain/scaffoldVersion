@@ -1,0 +1,15 @@
+[
+  {
+    "id": 0,
+    "registrations": [
+      {
+        "name": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "amount": 1,
+        "date": {
+          "type": "BigNumber",
+          "hex": "0x00"
+        }
+      }
+    ]
+  }
+]
