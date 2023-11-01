@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 // Define a function to process the events and generate the leaderboard
 type PlayerData = {
   player: string;
-  score_number: number;
+  score_number: bigint;
 };
 
 // Define a type for the outer nested array

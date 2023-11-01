@@ -31,15 +31,16 @@ contract RocketProtocol is OwnableUpgradeable {
 	function endETH(
 		uint256 amountOfETH,
 		address[] calldata defiProtocolAddress
-	) external onlyOwner returns (uint256){
+	) external onlyOwner returns (uint256) {
 		address rocketTokenRETH = defiProtocolAddress[0];
-		uint256 balance1 = address(this).balance;
 		claimReward(amountOfETH, rocketTokenRETH);
-		uint256 balance2 = address(this).balance;
+		uint256 balance = address(this).balance;
 		// Transfer ETH to the sender
-		uint256 amountETH = balance2 - balance1;
-		payable(msg.sender).transfer(amountETH);
-		return amountETH;
+		(bool success, ) = msg.sender.call{ value: balance }("");
+		require(success, "Failed to send ETH to TM.");
+		payable(msg.sender).transfer(balance);
+		uint256 rewardETH = balance - amountOfETH;
+		return rewardETH;
 	}
 
 	function claimReward(uint256 amountOfETH, address rocketTokenRETH) private {

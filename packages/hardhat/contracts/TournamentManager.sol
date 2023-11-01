@@ -102,8 +102,7 @@ contract TournamentManager is Ownable(msg.sender) {
 
 		// Ensure that the enrollment period is still open.
 		require(
-			block.timestamp >= selectedTournament.initDate &&
-				block.timestamp <= selectedTournament.endDate,
+			block.timestamp <= selectedTournament.initDate,
 			"Enrollment period has ended."
 		);
 
@@ -147,7 +146,10 @@ contract TournamentManager is Ownable(msg.sender) {
 
 	function enrollWithETH(uint16 idTournament) external payable {
 		TournamentData storage selectedTournament = tournaments[idTournament];
-
+		require(
+			block.timestamp <= selectedTournament.initDate,
+			"Enrollment period has ended."
+		);
 		require(
 			selectedTournament.isParticipant[msg.sender] == false,
 			"Address is already enrolled in this tournament."
