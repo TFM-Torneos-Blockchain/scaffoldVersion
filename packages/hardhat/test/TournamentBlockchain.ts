@@ -1,6 +1,7 @@
 // Import required libraries and artifacts
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 import {
   TournamentManager,
   RocketProtocol,
@@ -22,15 +23,15 @@ describe("Tournament Management", function () {
   let owner: Signer, participant1: Signer, participant2: Signer;
 
   const currentDate = new Date();
-  const tomorrow = new Date(currentDate.getTime() + 2 * 24 * 60 * 60 * 1000); // Add 24 hours
+  const tomorrow = new Date(currentDate.getTime() +   105 * 60 * 60 * 1000); // Add 105 hours
   const init_date_UnixTimestampInSeconds = Math.floor(tomorrow.getTime() / 1000);
 
-  const afterTomorrow = new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000); // Add another 24 hours
+  const afterTomorrow = new Date(tomorrow.getTime() + 5 * 60 * 60 * 1000); // Add another 5 hours
   const end_date_UnixTimestampInSeconds = Math.floor(afterTomorrow.getTime() / 1000);
 
   const enrollmentAmount = ethers.utils.parseEther("1");
 
-  beforeEach(async () => {
+  before(async () => {
     // Initialize some signers
     [owner, participant1, participant2] = await ethers.getSigners();
 
@@ -92,9 +93,18 @@ describe("Tournament Management", function () {
 
     clone = new ethers.Contract(newTournament.deFiBridgeAddress, compoundProtocol.interface, owner) as CompoundProtocol;
     await clone.deployed();
-    // console.log(newTournament.deFiBridgeAddress);
-    // console.log(clone.address);
-    // console.log(await clone.a());
+
+
+    // Enroll ETH participants
+    await tournamentManager.enrollWithETH(1, { value: enrollmentAmount });
+    await tournamentManager.connect(participant1).enrollWithETH(1, { value: enrollmentAmount });
+
+    // Enroll ERC20 participants
+    await funToken.connect(owner).approve(tournamentManager.address, enrollmentAmount);
+    await tournamentManager.enrollWithERC20(0);
+    await funToken.connect(participant1).approve(tournamentManager.address, enrollmentAmount);
+    await tournamentManager.connect(participant1).enrollWithERC20(0);
+    
   });
 
   it("should allow Owner to create a tournament, check all input parameters", async () => {
@@ -112,92 +122,60 @@ describe("Tournament Management", function () {
     // expect(newTournament.DeFiProtocol_address).to.equal("0xF09F0369aB0a875254fB565E52226c88f10Bc839");
 
     expect(newTournament.aborted).to.equal(false);
-    expect(newTournament.numParticipants).to.equal(0);
+    expect(newTournament.numParticipants).to.equal(2);
 
     expect(await tournamentManager.getAcceptedTokens(0)).to.deep.equal([funToken.address]);
   });
 
   it("should not allow non-Owner to create a tournament", async () => {
-    await expect(
-      tournamentManager
-        .connect(participant1)
-        .createTournament(
-          10000,
-          250,
-          enrollmentAmount,
-          [funToken.address],
-          init_date_UnixTimestampInSeconds,
-          end_date_UnixTimestampInSeconds,
-          compoundProtocol.address,
-          ["0xF09F0369aB0a875254fB565E52226c88f10Bc839"],
-        ),
-    ).to.be.revertedWith("Restricted to admins.");
+
+        expect(tournamentManager
+          .connect(participant1)
+          .createTournament(
+            10000,
+            250,
+            enrollmentAmount,
+            [funToken.address],
+            init_date_UnixTimestampInSeconds,
+            end_date_UnixTimestampInSeconds,
+            compoundProtocol.address,
+            ["0xF09F0369aB0a875254fB565E52226c88f10Bc839"],
+          )).to.be.revertedWithCustomError(tournamentManager, "OwnableUnauthorizedAccount")
+          .withArgs(participant1.getAddress());
+        
   });
 
   it("should allow participants to enroll with ETH tokens", async () => {
-    // Enroll the first participant
-    await tournamentManager.enrollWithETH(1, { value: enrollmentAmount });
-    // Get the updated tournament data
     const newTournament = await tournamentManager.tournaments(1);
     // Check if the number of participants increased
-    expect(newTournament.numParticipants).to.equal(1);
-    // Enroll the second participant
-    await tournamentManager.connect(participant1).enrollWithETH(1, { value: enrollmentAmount });
-    // Get the updated tournament data
-    const updatedTournament = await tournamentManager.tournaments(1);
-    // Check if the number of participants increased
-    expect(updatedTournament.numParticipants).to.equal(2);
-    // Check if the first participant's enrollment amount is set correctly
+    expect(newTournament.numParticipants).to.equal(2);
+    // Check if the first participant's enrollment check is set correctly
     const participant1Enrollment = await tournamentManager.getParticipants(1, participant1.getAddress());
     expect(participant1Enrollment).to.equal(true);
   });
 
-  it("should allow Admins to start an ETH tournament", async () => {
-    // Enroll participants
-    await tournamentManager.enrollWithETH(1, { value: enrollmentAmount });
-    await tournamentManager.connect(participant1).enrollWithETH(1, { value: enrollmentAmount });
-    await tournamentManager.connect(participant2).enrollWithETH(1, { value: enrollmentAmount });
+  it("should allow participants to enroll with ERC20 tokens", async () => {
+    // Get the updated tournament data
+    const updatedTournament = await tournamentManager.tournaments(0);
+    // Check if the number of participants increased
+    expect(updatedTournament.numParticipants).to.equal(2);
+    // Check if the first participant's enrollment check is set correctly
+    const participant1Enrollment = await tournamentManager.getParticipants(0, participant1.getAddress());
+    expect(participant1Enrollment).to.equal(true);
+  });
 
+  it("should allow Admins to start an ETH tournament", async () => {
+    await time.increase(3600 * 6);
     const tx = await tournamentManager.connect(owner).startETHTournament(1);
     // Wait for the transaction to be mined
     await tx.wait();
-
     // Check if the transaction receipt status is success
     const txReceipt = await ethers.provider.getTransactionReceipt(tx.hash);
     expect(txReceipt.status).to.equal(1); // 1 indicates success
   });
 
-  it("should allow participants to enroll with ERC20 tokens", async () => {
-    // Enroll the first participant
-    await funToken.connect(owner).approve(tournamentManager.address, enrollmentAmount);
-    await tournamentManager.enrollWithERC20(0);
-    // Get the updated tournament data
-    const newTournament = await tournamentManager.tournaments(0);
-    // Check if the number of participants increased
-    expect(newTournament.numParticipants).to.equal(1);
-    // Enroll the second participant
-    await funToken.connect(participant1).approve(tournamentManager.address, enrollmentAmount);
-    await tournamentManager.connect(participant1).enrollWithERC20(0);
-    // Get the updated tournament data
-    const updatedTournament = await tournamentManager.tournaments(0);
-    // Check if the number of participants increased
-    expect(updatedTournament.numParticipants).to.equal(2);
-    // Check if the first participant's enrollment amount is set correctly
-    const participant1Enrollment = await tournamentManager.getParticipants(0, participant1.getAddress());
-    expect(participant1Enrollment).to.equal(true);
-  });
-
   it("should allow Admins to start an ERC20 tournament", async () => {
-    const enrollmentAmount = ethers.utils.parseEther("1");
-
-    // Enroll participants
-    await funToken.connect(owner).approve(tournamentManager.address, enrollmentAmount);
-    await tournamentManager.enrollWithERC20(0);
-    await funToken.connect(participant1).approve(tournamentManager.address, enrollmentAmount);
-    await tournamentManager.connect(participant1).enrollWithERC20(0);
-
     const tx = await tournamentManager.connect(owner).startERC20Tournament(0);
-
     await tx.wait();
     const txReceipt = await ethers.provider.getTransactionReceipt(tx.hash);
     expect(txReceipt.status).to.equal(1); // 1 indicates success

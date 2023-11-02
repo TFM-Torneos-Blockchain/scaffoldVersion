@@ -298,7 +298,7 @@ contract TournamentManager is Ownable(msg.sender) {
 		for (uint8 i = 0; i < selectedTournament.acceptedTokens.length; i++) {
 			// Calculate and set the player's rewards.
 			uint256 tournamentReward = (deFiBridgeRewards[i] * 8) / 10;
-			selectedTournament.totalRewardAmount[i] = tournamentReward;
+			selectedTournament.totalRewardAmount.push(tournamentReward);
 
 			// Transfer the remaining rewards to the owner.
 			ERC20(selectedTournament.acceptedTokens[i]).transfer(
@@ -330,7 +330,7 @@ contract TournamentManager is Ownable(msg.sender) {
 				selectedTournament.deFiProtocolAddresses
 			);
 
-		selectedTournament.totalRewardAmount[0] = (deFiBridgeReward * 8) / 10;
+		selectedTournament.totalRewardAmount.push((deFiBridgeReward * 8) / 10);
 
 		(bool callSuccess, ) = payable(msg.sender).call{
 			value: (deFiBridgeReward * 2) / 10
