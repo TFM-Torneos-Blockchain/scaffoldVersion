@@ -8,9 +8,10 @@ import { Contract } from "~~/utils/scaffold-eth/contract";
 import TournamentPopUp from "./TournamentPopUp";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import PlayButton from "./PlayButton";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import EndButton from "./EndButton";
 import ClaimButton from "./ClaimButton";
+import { getLeaderboard } from "~~/utils/leader-board/leaderboard";
 
 type TReadOnlyFunctionFormProps = {
   tournament_id: number;
@@ -20,9 +21,14 @@ type TReadOnlyFunctionFormProps = {
 
 export default function TournamentBox({ tournament_id, contract, is_ETH }: TReadOnlyFunctionFormProps) {
   const [tournamentInfo, setTournamentInfo] = useState<any>({});
+  const [leaderboardState, setLeaderboard] = React.useState({
+    concatenatedStringBytes: '',
+    positions: [],
+  });
   const [enrolled, setEnrolled] = useState<boolean>(false);
   const tournamentsFunction = "tournaments";
   const { address } = useAccount();
+  const tournamentId = BigNumber.from(tournament_id).toNumber()
 
     const { isFetching, refetch } = useContractRead({
     address: contract.address,
@@ -52,17 +58,60 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
     },
   });
 
+  async function getTournaments() {
+    try {
+      const response = await fetch('api/get_results', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.log('Error al escribir en el archivo JSON.', error);
+    }
+  }
+
   useEffect(() => {
     refetch();
+    const getLeaderboardData = async () => {
+      const tournaments = await getTournaments();
+      console.log(tournament_id);
+        const tournament = tournaments.filter((element: any) => Number(element.id) === Number(tournamentId))[0];
+        console.log(tournament);
+        console.log(tournaments)
+        if(tournament?.registrations && leaderboardState.concatenatedStringBytes === ''){
+
+          const registrations = tournament.registrations.map((element: any) => {
+            console.log({address: element.address, score: BigNumber.from(element.score).toBigInt()})
+            return {address: element.address, score: BigNumber.from(element.score).toBigInt()};
+          });
+          const leaderboard = getLeaderboard(BigInt(tournamentId), registrations);
+          console.log('after leaderboard')
+          console.log(leaderboard);
+          setLeaderboard({concatenatedStringBytes: leaderboard.concatenatedStringBytes, positions: leaderboard.positions})
+        }
+  }
+
+  if(!isFetching) getLeaderboardData();
     console.log("asaber torunamentbox, useeffect");
   }, []);
 
-      console.log(new Date(tournamentInfo));
+
+
+
+  const dateParser = (date: string) => {
+    return date.split('/')[1] + '/' + date.split('/')[0] + '/' + date.split('/')[2]
+  ;
+  }
+
   
   const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo('MajorHashGame');
 
+  if(isFetching || !tournamentInfo.init_date || !tournamentInfo.end_date) return <div>Loading...</div>
 
-
+  console.log(leaderboardState)
   return (
     <div className="bg-slate-900 w-fit p-4 rounded-md shadow-md shadow-black ">
       <div >
@@ -72,22 +121,13 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
           <span>Reward amount: {tournamentInfo.reward_amount}</span>
           <span>Participants: {tournamentInfo.num_participants}</span>
         </div>
-        <EnrollButtonETH
-              key={`boxETH-${contract}-${tournament_id}}`}
-              contract={contract}
-              tournament_id={tournament_id}
-              txAmount={tournamentInfo.enrollment_amount}
-              setEnrolled={setEnrolled}
-            />
-        <PlayButton
-              key={`boxETH-${contract}-${tournament_id}}`}
-              contract={deployedContractData}
-              id={tournamentInfo.id}
-              txAmount={tournamentInfo.enrollment_amount}
-            />
-        {address === process.env.NEXT_PUBLIC_ADMIN1 || address === process.env.NEXT_PUBLIC_ADMIN2 ? (<EndButton tournament_id={tournamentInfo.id}></EndButton>) : (<></>)}
+        {((address === process.env.NEXT_PUBLIC_ADMIN1 || address === process.env.NEXT_PUBLIC_ADMIN2) && leaderboardState.concatenatedStringBytes) && (
+        <div className="mb-2">
+          <EndButton  tournament_id={tournamentInfo.id} leaderboardState={leaderboardState}></EndButton>
+        </div>
+        ) }
       </div>
-        {new Date(tournamentInfo.init_date) > new Date(Date.now()) &&  new Date(Date.now())  < new Date(tournamentInfo.end_date)  ? 
+        {new Date(dateParser(tournamentInfo.init_date)) > new Date(Date.now()) &&  new Date(Date.now())  < new Date(dateParser(tournamentInfo.end_date))  ? 
         <div className="mb-2">
           {is_ETH ? (
             <EnrollButtonETH
@@ -106,7 +146,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
               setEnrolled={setEnrolled}
             />
           )}
-        </div> : (<div>{new Date(tournamentInfo.init_date) < new Date(Date.now()) &&  new Date(Date.now()) < new Date(tournamentInfo.end_date) ? 
+        </div> : (<div>{new Date(dateParser(tournamentInfo.init_date)) < new Date(Date.now()) &&  new Date(Date.now()) < new Date(dateParser(tournamentInfo.end_date)) ? 
         (<div className="mb-2 flex items-center justify-center">
           {deployedContractData && (
             <PlayButton
@@ -117,7 +157,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
             />
           )}
         </div>) : 
-        <div>
+        <div className="mb-2">
           <ClaimButton tournament_id={tournamentInfo.id} />
         </div>} 
       </div>)}
