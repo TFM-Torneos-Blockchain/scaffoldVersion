@@ -2,6 +2,7 @@ import { keccak256 } from "@ethersproject/keccak256";
 import { ethers } from "ethers";
 import { MerkleTree } from "merkletreejs";
 
+
 // leaf_position corresponds to player classification being 0 the winner of the tournament
 export function getMerkleRoot(
   tournament_id: number,

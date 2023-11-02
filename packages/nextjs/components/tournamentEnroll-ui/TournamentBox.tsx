@@ -9,6 +9,8 @@ import TournamentPopUp from "./TournamentPopUp";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 import PlayButton from "./PlayButton";
 import { ethers } from "ethers";
+import EndButton from "./EndButton";
+import ClaimButton from "./ClaimButton";
 
 type TReadOnlyFunctionFormProps = {
   tournament_id: number;
@@ -29,18 +31,18 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
     enabled: false,
     args: [tournament_id],
     onSuccess: (data: any) => {
+      console.log(data)
       const tournament = {
         id: data[0],
         min_participants: data[1],
         max_participants: data[2],
         num_participants: data[3],
         enrollment_amount: data[4].toString(),
-        reward_amount: data[5].toString(),
-        init_date: new Date(Number(data[6])).toLocaleString(),
-        end_date: new Date(Number(data[7])).toLocaleString(),
-        DeFiBridge_address: data[8],
-        DeFiProtocol_address: data[9],
-        aborted: data[10].toString(),
+        init_date: new Date(Number(data[5]*1000n)).toLocaleString(),
+        end_date: new Date(Number(data[6]*1000n)).toLocaleString(),
+        DeFiBridge_address: data[7],
+        DeFiProtocol_address: data[8],
+        aborted: data[9].toString(),
       };
       console.log("asaber torunamentbox, read"); // TODO no està loggegan aixo
       setTournamentInfo(tournament);
@@ -54,21 +56,29 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
     refetch();
     console.log("asaber torunamentbox, useeffect");
   }, []);
-
-  console.log(tournamentInfo)
+  if(tournamentInfo.id === 9) {
+      console.log(new Date(tournamentInfo.init_date));
+      console.log(new Date(tournamentInfo.end_date));
+      console.log(new Date(Date.now()));
+      console.log(new Date(tournamentInfo.init_date) < new Date(Date.now()) )
+      console.log( new Date(Date.now()) < tournamentInfo.end_date)
+  }
   const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo('MajorHashGame');
+
+
 
   return (
     <div className="bg-slate-900 w-fit p-4 rounded-md shadow-md shadow-black ">
       <div >
         <h2 className="font-bold">TOURNAMENT #{tournamentInfo.id}</h2>
         <div className="flex flex-col mb-4">
-          <span>Enroll amount: {tournamentInfo.enrollment_amount}</span>
+          <span>Enroll amount: {tournamentInfo.enrollment_amount/10**18}</span>
           <span>Reward amount: {tournamentInfo.reward_amount}</span>
           <span>Participants: {tournamentInfo.num_participants}</span>
         </div>
+        {address === process.env.NEXT_PUBLIC_ADMIN1 || address === process.env.NEXT_PUBLIC_ADMIN2 ? (<EndButton tournament_id={tournament_id}></EndButton>) : (<></>)}
       </div>
-        {tournamentInfo.init_date > Date.now() < tournamentInfo.end_date  ? 
+        {new Date(tournamentInfo.init_date) > new Date(Date.now()) &&  new Date(Date.now())  < new Date(tournamentInfo.end_date)  ? 
         <div className="mb-2">
           {is_ETH ? (
             <EnrollButtonETH
@@ -87,8 +97,8 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
               setEnrolled={setEnrolled}
             />
           )}
-        </div> : <div>{tournamentInfo.init_date < Date.now() < tournamentInfo.end_date ? 
-        (<div className="mb-2">
+        </div> : <div>{new Date(tournamentInfo.init_date) < new Date(Date.now()) &&  new Date(Date.now()) < new Date(tournamentInfo.end_date) ? 
+        (<div className="mb-2 flex items-center justify-center">
           {deployedContractData && (
             <PlayButton
               key={`boxETH-${contract}-${tournament_id}}`}
@@ -97,8 +107,11 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
               txAmount={tournamentInfo.enrollment_amount}
             />
           )}
-        </div>) : <div>
-          Claim</div>} </div>}
+        </div>) : 
+        <div>
+          <ClaimButton torunament_id={tournament_id} />
+        </div>} 
+      </div>}
     <div className="flex justify-center">
       <TournamentPopUp tournamentInfo={tournamentInfo}  />
     </div>

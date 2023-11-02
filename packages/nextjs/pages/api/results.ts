@@ -2,9 +2,9 @@ import fs from 'fs';
 import path from 'path';
 
 export default function handler(req: any, res: any) {
-  const filePath = path.join(process.cwd(), 'data', 'tournaments.json');
-  const data: {id: number, name: string, amount: any, numParticipants: any} = req.body;
-
+  const filePath = path.join(process.cwd(), 'data', 'results.json');
+  const data: {id: number, address: string, score: any} = req.body;
+console.log(data)
 
   try {
     const fileContent = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
@@ -16,13 +16,12 @@ export default function handler(req: any, res: any) {
 
     if (elementIndex !== -1) {
       // Si el id ya está registrado, añadir al array registrations
-     if( !elements[elementIndex].registrations.filter((element: any) => element.name === data.name) ){
-         elements[elementIndex].registrations.push({ address: data.name, amount: data.amount, date: data.date });
+     if( !elements[elementIndex].registrations.filter((element: any) => element.address === data.address) ){
+         elements[elementIndex].registrations.push({ address: data.address, score: data.score });
      }
     } else {
       // Si el id no está registrado, añadir un nuevo objeto con el id y el primer registro
-      elements.push({ id: data.id, registrations: [{ address: data.name, amount: data.amount, date: data.date }] });
-      //elements.push({ id: data.id, init_date: data.init_date, end_date: data.end_date, finished: false ,registrations: [{ address: data.name, amount: data.amount, date: data.date }] });
+      elements.push({ id: data.id, registrations: [{ address: data.address, score: data.score }] });
     }
 
 
