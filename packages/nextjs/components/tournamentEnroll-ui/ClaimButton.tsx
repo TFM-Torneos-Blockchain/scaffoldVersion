@@ -16,7 +16,7 @@ export default function ClaimButton(tournament_id: number) {
         isLeft: [],
         proof: [],
     });
-    const [registerPosition, setRegisterPosition] = React.useState(0);
+    const [classificationPosition, setClassificationPosition] = React.useState(0);
     const {address} = useAccount();
   
   const writeTxn = useTransactor();
@@ -32,14 +32,15 @@ export default function ClaimButton(tournament_id: number) {
       address: deployedContractData?.address,
       functionName: 'verifyAndClaim',
       abi: deployedContractData?.abi,
-      args: [Number(tournament_id), merkleTreeState.isLeft , registerPosition, merkleTreeState.proof ],
+      args: [Number(tournament_id.tournament_id), merkleTreeState.isLeft , classificationPosition, merkleTreeState.proof ],
     });
 
   const handleWrite = async () => {
+    console.log(tournament_id)
     if (writeAsync) {
       try {
         const tournaments = await getTournaments();
-        const tournament = tournaments.filter((element: any) => Number(element.id) === Number(tournament_id))[0];
+        const tournament = tournaments.filter((element: any) => Number(element.id) === Number(tournament_id.tournament_id))[0];
         console.log(tournament);
         console.log(tournaments)
         const entryPosition = tournament.registrations.map((element: any, i: number) => {
@@ -47,10 +48,10 @@ export default function ClaimButton(tournament_id: number) {
                 return i;
             }   
         });
-        setRegisterPosition(entryPosition);
-        const leaderboard = getLeaderboard(BigInt(tournament_id), tournament.registrations);
+        const leaderboard = getLeaderboard(BigInt(tournament_id.tournament_id), tournament.registrations);
         let leaf_position = 0;
         leaf_position = leaderboard.positions.findIndex((element: any) => element === entryPosition);
+        setClassificationPosition(leaf_position);
         console.log('leaf position: ' + leaf_position)
         const merkle = getMerkleRoot(tournament_id, leaderboard.concatenatedStringBytes, leaderboard.positions, leaf_position);
         console.log('after leaderboard');

@@ -12,7 +12,7 @@ type TReadOnlyFunctionFormProps = {
 export const GetTournaments = ({ contract }: TReadOnlyFunctionFormProps) => {
   const [tournaments, setTournaments] = useState<any>([]);
 
-  const countTournamentsFunction = "getIDSArray";
+  const countTournamentsFunction = "getTournamentIds";
 
   const { isFetching, refetch } = useContractRead({
     address: contract.address,

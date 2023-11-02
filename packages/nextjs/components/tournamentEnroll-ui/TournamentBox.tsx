@@ -19,7 +19,7 @@ type TReadOnlyFunctionFormProps = {
 };
 
 export default function TournamentBox({ tournament_id, contract, is_ETH }: TReadOnlyFunctionFormProps) {
-  const [tournamentInfo, setTournamentInfo] = useState<any>([]);
+  const [tournamentInfo, setTournamentInfo] = useState<any>({});
   const [enrolled, setEnrolled] = useState<boolean>(false);
   const tournamentsFunction = "tournaments";
   const { address } = useAccount();
@@ -72,7 +72,20 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
           <span>Reward amount: {tournamentInfo.reward_amount}</span>
           <span>Participants: {tournamentInfo.num_participants}</span>
         </div>
-        {address === process.env.NEXT_PUBLIC_ADMIN1 || address === process.env.NEXT_PUBLIC_ADMIN2 ? (<EndButton tournament_id={tournament_id}></EndButton>) : (<></>)}
+        <EnrollButtonETH
+              key={`boxETH-${contract}-${tournament_id}}`}
+              contract={contract}
+              tournament_id={tournament_id}
+              txAmount={tournamentInfo.enrollment_amount}
+              setEnrolled={setEnrolled}
+            />
+        <PlayButton
+              key={`boxETH-${contract}-${tournament_id}}`}
+              contract={deployedContractData}
+              id={tournamentInfo.id}
+              txAmount={tournamentInfo.enrollment_amount}
+            />
+        {address === process.env.NEXT_PUBLIC_ADMIN1 || address === process.env.NEXT_PUBLIC_ADMIN2 ? (<EndButton tournament_id={tournamentInfo.id}></EndButton>) : (<></>)}
       </div>
         {new Date(tournamentInfo.init_date) > new Date(Date.now()) &&  new Date(Date.now())  < new Date(tournamentInfo.end_date)  ? 
         <div className="mb-2">
@@ -105,7 +118,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
           )}
         </div>) : 
         <div>
-          <ClaimButton torunament_id={tournamentInfo.id} />
+          <ClaimButton tournament_id={tournamentInfo.id} />
         </div>} 
       </div>)}
     <div className="flex justify-center">

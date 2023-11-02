@@ -58,9 +58,9 @@ export default function PlayButton({contract, id, txAmount, fn}: {contract: Cont
       writeAsync,
     } = useContractWrite({
       chainId: getTargetNetwork().id,
-      address: contract.address,
+      address: contract?.address,
       functionName: playFunction,
-      abi: contract.abi as Abi,
+      abi: contract?.abi as Abi,
       args: [id],
     });
   
