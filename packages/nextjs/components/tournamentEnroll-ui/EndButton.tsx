@@ -4,11 +4,12 @@ import { useDeployedContractInfo, useTransactor } from '~~/hooks/scaffold-eth';
 import { getLeaderboard } from '~~/utils/leader-board/leaderboard';
 import { getTargetNetwork, notification } from '~~/utils/scaffold-eth';
 import { getParsedError } from '../scaffold-eth';
+import { BigNumber } from 'ethers';
 
 export default function EndButton(tournament_id: {torunament_id: any}) {
     const [leaderboardState, setLeaderboard] = React.useState({
         concatenatedStringBytes: '',
-        positions: [0],
+        positions: [],
     });
   
   const writeTxn = useTransactor();
@@ -31,10 +32,14 @@ export default function EndButton(tournament_id: {torunament_id: any}) {
     if (writeAsync) {
       try {
         const tournaments = await getTournaments();
-        const tournament = tournaments.filter((element: any) => Number(element.id) === Number(tournament_id.tournament_id))[0];
+        const tournament = tournaments.filter((element: any) => Number(element.id) === Number(0))[0];
         console.log(tournament);
         console.log(tournaments)
-        const leaderboard = getLeaderboard(BigInt(tournament_id.tournament_id), tournament.registrations);
+        const registrations = tournament.registrations.map((element: any) => {
+          console.log({address: element.address, score: BigNumber.from(element.score).toBigInt()})
+            return {address: element.address, score: BigNumber.from(element.score).toBigInt()};
+        });
+        const leaderboard = getLeaderboard(BigInt(0), registrations);
         console.log('after leaderboard')
         console.log(leaderboard);
         setLeaderboard({concatenatedStringBytes: leaderboard.concatenatedStringBytes, positions: leaderboard.positions})

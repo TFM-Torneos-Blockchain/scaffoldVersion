@@ -56,13 +56,9 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
     refetch();
     console.log("asaber torunamentbox, useeffect");
   }, []);
-  if(tournamentInfo.id === 9) {
-      console.log(new Date(tournamentInfo.init_date));
-      console.log(new Date(tournamentInfo.end_date));
-      console.log(new Date(Date.now()));
-      console.log(new Date(tournamentInfo.init_date) < new Date(Date.now()) )
-      console.log( new Date(Date.now()) < tournamentInfo.end_date)
-  }
+
+      console.log(new Date(tournamentInfo));
+  
   const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo('MajorHashGame');
 
 
@@ -97,21 +93,21 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
               setEnrolled={setEnrolled}
             />
           )}
-        </div> : <div>{new Date(tournamentInfo.init_date) < new Date(Date.now()) &&  new Date(Date.now()) < new Date(tournamentInfo.end_date) ? 
+        </div> : (<div>{new Date(tournamentInfo.init_date) < new Date(Date.now()) &&  new Date(Date.now()) < new Date(tournamentInfo.end_date) ? 
         (<div className="mb-2 flex items-center justify-center">
           {deployedContractData && (
             <PlayButton
               key={`boxETH-${contract}-${tournament_id}}`}
               contract={deployedContractData}
-              id={tournament_id}
+              id={tournamentInfo.id}
               txAmount={tournamentInfo.enrollment_amount}
             />
           )}
         </div>) : 
         <div>
-          <ClaimButton torunament_id={tournament_id} />
+          <ClaimButton torunament_id={tournamentInfo.id} />
         </div>} 
-      </div>}
+      </div>)}
     <div className="flex justify-center">
       <TournamentPopUp tournamentInfo={tournamentInfo}  />
     </div>

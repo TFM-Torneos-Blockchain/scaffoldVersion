@@ -7,13 +7,13 @@ import { getMerkleRoot } from '~~/utils/leader-board/merkle_tree_proof';
 import { getTargetNetwork, notification } from '~~/utils/scaffold-eth';
 import { getParsedError } from '../scaffold-eth';
 
-export default function ClaimButton(tournament_id: {torunament_id: any}) {
+export default function ClaimButton(tournament_id: number) {
     const [leaderboardState, setLeaderboard] = React.useState({
         concatenatedStringBytes: '',
         positions: [0],
     });
     const [merkleTreeState, setMerkleTree] = React.useState({
-        isLeft: [true],
+        isLeft: [],
         proof: [],
     });
     const [registerPosition, setRegisterPosition] = React.useState(0);
@@ -32,14 +32,14 @@ export default function ClaimButton(tournament_id: {torunament_id: any}) {
       address: deployedContractData?.address,
       functionName: 'verifyAndClaim',
       abi: deployedContractData?.abi,
-      args: [Number(tournament_id.tournament_id), merkleTreeState.isLeft , registerPosition, merkleTreeState.proof ],
+      args: [Number(tournament_id), merkleTreeState.isLeft , registerPosition, merkleTreeState.proof ],
     });
 
   const handleWrite = async () => {
     if (writeAsync) {
       try {
         const tournaments = await getTournaments();
-        const tournament = tournaments.filter((element: any) => Number(element.id) === Number(tournament_id.tournament_id))[0];
+        const tournament = tournaments.filter((element: any) => Number(element.id) === Number(tournament_id))[0];
         console.log(tournament);
         console.log(tournaments)
         const entryPosition = tournament.registrations.map((element: any, i: number) => {
@@ -48,11 +48,11 @@ export default function ClaimButton(tournament_id: {torunament_id: any}) {
             }   
         });
         setRegisterPosition(entryPosition);
-        const leaderboard = getLeaderboard(BigInt(tournament_id.tournament_id), tournament.registrations);
+        const leaderboard = getLeaderboard(BigInt(tournament_id), tournament.registrations);
         let leaf_position = 0;
         leaf_position = leaderboard.positions.findIndex((element: any) => element === entryPosition);
         console.log('leaf position: ' + leaf_position)
-        const merkle = getMerkleRoot(tournament_id.tournament_id, leaderboard.concatenatedStringBytes, leaderboard.positions, leaf_position);
+        const merkle = getMerkleRoot(tournament_id, leaderboard.concatenatedStringBytes, leaderboard.positions, leaf_position);
         console.log('after leaderboard');
         console.log(leaderboard);
         setLeaderboard({concatenatedStringBytes: leaderboard.concatenatedStringBytes, positions: leaderboard.positions});
@@ -91,7 +91,7 @@ async function getTournaments() {
     <button 
     className="w-56 bg-green-700 text-white active:bg-slate-700 font-bold uppercase text-sm px-4 py-1 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
     type="button"
-    onClick={handleWrite}>Play</button>
+    onClick={handleWrite}>Claim</button>
 
   </div>
   )
