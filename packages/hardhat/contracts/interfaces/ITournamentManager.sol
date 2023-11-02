@@ -8,32 +8,32 @@ interface ITournamentManager {
 	 * @param _0xERC20Addresses The ERC20 token address which will be used for the protocol
 	 */
 
-	struct Tournament {
+	struct TournamentData {
 		uint16 ID;
-		uint8 min_participants;
-		uint16 max_participants;
-		mapping(address => uint128) participants;
-		uint16 num_participants;
-		uint128 enrollment_amount;
-		address[] accepted_tokens;
-		uint128 reward_amount;
-		uint64 init_date;
-		uint64 end_date;
-		address DeFiBridge_address;
-		address[] DeFiProtocol_addresses;
-		bytes32 results_sponge_hash;
-		bytes32 merkle_root;
+		uint8 minParticipants;
+		uint16 maxParticipants;
+		mapping(address => bool) isParticipant;
+		uint16 numParticipants;
+		uint256 enrollmentAmount; // in Wei
+		address[] acceptedTokens;
+		uint256[] totalRewardAmount; // Only rewards
+		uint64 initDate;
+		uint64 endDate;
+		address deFiBridgeAddress;
+		address[] deFiProtocolAddresses;
+		bytes32 resultsSpongeHash;
+		bytes32 merkleRoot;
 		bool aborted;
 	}
 
 	function setResult(
-		uint16 _IDtournament,
-		address _player,
-		uint _new_score
+		uint16 idTournament,
+		address player,
+		uint256 newScore
 	) external;
 
 	function getParticipants(
-		uint16 tournamentId,
+		uint16 idTournament,
 		address participantAddress
-	) external view returns (uint128);
+	) external view returns (bool);
 }

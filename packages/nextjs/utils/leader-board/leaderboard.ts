@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 // Define a function to process the events and generate the leaderboard
 type PlayerData = {
   player: string;
-  score_number: number;
+  score_number: bigint;
 };
 
 // Define a type for the outer nested array
@@ -24,7 +24,7 @@ export function getLeaderboard(tournament_id: bigint, events: NestedPlayerData) 
   // });
   // console.log(events);
   // console.log("ELS player", events[0].args.player, typeof events[0].args.player); // 0x11DfADcd62593325Bcf82Ed1f55d87840E93A977 string
-  // console.log("ELS score", events[0].args.score_number, typeof events[0].args.score_number); // 2222n bigint
+  // console.log("ELS score", events[0].args.score_number, typeof events[0].args.score_number); // 2222n bigint 216514651561691561561651n
 
   const scores: number[] = [];
   let concatenatedStringBytes = "0x";

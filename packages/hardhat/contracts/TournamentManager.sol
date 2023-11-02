@@ -9,316 +9,365 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TournamentManager is Ownable(msg.sender) {
 	//------------------------------------------Storage-------------------------------------------------------------
-	// Struct tournament
-	struct Tournament {
+	// Struct TournamentData
+	struct TournamentData {
 		uint16 ID;
-		uint8 min_participants;
-		uint16 max_participants;
-		mapping(address => uint128) participants; // ! NEED TO BE ADDRESS TO BOOL
-		uint16 num_participants;
-		uint128 enrollment_amount; // in weis
-		address[] accepted_tokens;
-		uint128[] total_reward_amount; // !reward+initial inversion WRONG!!! WE NEED JUST REWARD
-		uint64 init_date;
-		uint64 end_date;
-		address DeFiBridge_address;
-		address[] DeFiProtocol_addresses;
-		bytes32 results_sponge_hash;
-		bytes32 merkle_root;
+		uint8 minParticipants;
+		uint16 maxParticipants;
+		mapping(address => bool) isParticipant;
+		uint16 numParticipants;
+		uint256 enrollmentAmount; // in Wei
+		address[] acceptedTokens;
+		uint256[] totalRewardAmount; // Only rewards
+		uint64 initDate;
+		uint64 endDate;
+		address deFiBridgeAddress;
+		address[] deFiProtocolAddresses;
+		bytes32 resultsSpongeHash;
+		bytes32 merkleRoot;
 		bool aborted;
 	}
 
 	// Tournament tournament;
 	// Array tournaments
-	Tournament[] public tournaments;
+	TournamentData[] public tournaments;
 	// ID IDcounter para el ID del torneo
-	uint16 IDcounter;
+	uint16 idCounter;
 
 	//--------------------------------------------Events------------------------------------------------------
-	event TournamentCreated(uint16 indexed tournamentID);
+	event TournamentCreated(
+		uint16 indexed tournamentID,
+		uint64 initData,
+		uint64 endDate,
+		address deFiBridgeAddress
+	);
 	event Enroll(
-		uint16 indexed tournament_id,
+		uint16 indexed tournamentID,
 		address indexed user,
-		uint16 num_participants,
-		uint128 collected_amount
+		uint16 numParticipants,
+		uint256 totalCollectedAmount
 	);
 	event ResultCreated(
-		uint16 indexed tournamentId,
+		uint16 indexed tournamentID,
 		address indexed player,
-		uint score_number
+		uint scoreNumber
 	);
 
 	//------------------------------------------Functions-----------------------------------------------------
 
 	function createTournament(
-		uint16 _max_participants,
-		uint8 _min_participants,
-		uint128 _enrollment_amount,
-		address[] calldata _accepted_tokens,
-		uint64 _init_date,
-		uint64 _end_date,
-		address _DeFiBridge_to_clone,
-		address[] calldata _DeFiProtocol_addresses
+		uint16 _maxParticipants,
+		uint8 _minParticipants,
+		uint256 _enrollmentAmount,
+		address[] calldata _acceptedTokens,
+		uint64 _initDate,
+		uint64 _endDate,
+		address _deFiBridgeToClone,
+		address[] calldata _deFiProtocolAddresses
 	) external onlyOwner {
 		tournaments.push();
-		Tournament storage newTournament = tournaments[IDcounter];
+		TournamentData storage newTournament = tournaments[idCounter];
 
-		newTournament.ID = IDcounter;
+		newTournament.ID = idCounter;
 
-		newTournament.min_participants = _min_participants;
-		newTournament.max_participants = _max_participants;
+		newTournament.minParticipants = _minParticipants;
+		newTournament.maxParticipants = _maxParticipants;
 
-		newTournament.enrollment_amount = _enrollment_amount;
-		for (uint8 i = 0; i < _accepted_tokens.length; i++) {
-			newTournament.accepted_tokens.push(_accepted_tokens[i]);
+		newTournament.enrollmentAmount = _enrollmentAmount;
+		for (uint8 i = 0; i < _acceptedTokens.length; i++) {
+			newTournament.acceptedTokens.push(_acceptedTokens[i]);
 		}
 
-		newTournament.init_date = _init_date;
-		newTournament.end_date = _end_date;
+		newTournament.initDate = _initDate;
+		newTournament.endDate = _endDate;
 
-		newTournament.DeFiBridge_address = Clones.clone(_DeFiBridge_to_clone);
-		IDefiBridge(newTournament.DeFiBridge_address).initialize(address(this));
+		newTournament.deFiBridgeAddress = Clones.clone(_deFiBridgeToClone);
+		IDeFiBridge(newTournament.deFiBridgeAddress).initialize(address(this));
 
-		for (uint8 i = 0; i < _DeFiProtocol_addresses.length; i++) {
-			newTournament.DeFiProtocol_addresses.push(
-				_DeFiProtocol_addresses[i]
-			);
+		for (uint8 i = 0; i < _deFiProtocolAddresses.length; i++) {
+			newTournament.deFiProtocolAddresses.push(_deFiProtocolAddresses[i]);
 		}
-		IDcounter++;
+		idCounter++;
 
-		emit TournamentCreated(newTournament.ID);
+		emit TournamentCreated(
+			newTournament.ID,
+			newTournament.initDate,
+			newTournament.endDate,
+			newTournament.deFiBridgeAddress
+		);
 	}
 
 	function enrollWithERC20(uint16 idTournament) external {
-		Tournament storage enrolling = tournaments[idTournament];
+		TournamentData storage selectedTournament = tournaments[idTournament];
+
+		// Ensure that the enrollment period is still open.
 		require(
-			enrolling.participants[msg.sender] == 0,
-			"This address is already in the tournament."
-		);
-		require(
-			enrolling.num_participants < enrolling.max_participants,
-			"Tournament full"
+			block.timestamp <= selectedTournament.initDate,
+			"Enrollment period has ended."
 		);
 
-		for (uint8 i = 0; i < enrolling.accepted_tokens.length; i++) {
+		require(
+			selectedTournament.isParticipant[msg.sender] == false,
+			"Address is already enrolled in this tournament."
+		);
+		require(
+			selectedTournament.numParticipants <
+				selectedTournament.maxParticipants,
+			"Tournament full."
+		);
+
+		for (uint8 i = 0; i < selectedTournament.acceptedTokens.length; i++) {
 			require(
-				ERC20(enrolling.accepted_tokens[i]).balanceOf(msg.sender) >=
-					enrolling.enrollment_amount,
+				ERC20(selectedTournament.acceptedTokens[i]).balanceOf(
+					msg.sender
+				) >= selectedTournament.enrollmentAmount,
 				"Insufficient balance."
 			);
-			ERC20(enrolling.accepted_tokens[i]).transferFrom(
+			ERC20(selectedTournament.acceptedTokens[i]).transferFrom(
 				msg.sender,
 				address(this),
-				enrolling.enrollment_amount
+				selectedTournament.enrollmentAmount
 			);
 		}
 
-		enrolling.participants[msg.sender] = enrolling.enrollment_amount;
+		selectedTournament.isParticipant[msg.sender] = true;
 
-		enrolling.num_participants++;
+		selectedTournament.numParticipants++;
 
-		uint128 collected_amount = enrolling.num_participants *
-			enrolling.enrollment_amount;
+		uint256 totalCollectedAmount = selectedTournament.numParticipants *
+			selectedTournament.enrollmentAmount;
 		emit Enroll(
-			enrolling.ID,
+			selectedTournament.ID,
 			msg.sender,
-			enrolling.num_participants,
-			collected_amount
+			selectedTournament.numParticipants,
+			totalCollectedAmount
 		);
 	}
 
 	function enrollWithETH(uint16 idTournament) external payable {
-		Tournament storage enrolling = tournaments[idTournament];
+		TournamentData storage selectedTournament = tournaments[idTournament];
 		require(
-			enrolling.participants[msg.sender] == 0,
-			"This address is already in the tournament."
+			block.timestamp <= selectedTournament.initDate,
+			"Enrollment period has ended."
 		);
 		require(
-			enrolling.num_participants < enrolling.max_participants,
-			"Tournament full"
+			selectedTournament.isParticipant[msg.sender] == false,
+			"Address is already enrolled in this tournament."
 		);
 		require(
-			msg.value == enrolling.enrollment_amount,
-			"Insufficient balance"
+			selectedTournament.numParticipants <
+				selectedTournament.maxParticipants,
+			"Tournament is full."
+		);
+		require(
+			msg.value == selectedTournament.enrollmentAmount,
+			"Incorrect or insufficient ETH value."
 		);
 
-		// enrolling.enrollment_amount = enrolling.participants[msg.sender];
-		enrolling.participants[msg.sender] = enrolling.enrollment_amount;
+		// Assign the enrollment amount to the participant.
+		selectedTournament.isParticipant[msg.sender] = true;
 
-		uint128 collected_amount = enrolling.num_participants *
-			enrolling.enrollment_amount;
-		enrolling.num_participants++;
+		uint256 totalCollectedAmount = selectedTournament.numParticipants *
+			selectedTournament.enrollmentAmount;
+		selectedTournament.numParticipants++;
+
 		emit Enroll(
-			enrolling.ID,
+			selectedTournament.ID,
 			msg.sender,
-			enrolling.num_participants,
-			collected_amount
+			selectedTournament.numParticipants,
+			totalCollectedAmount
 		);
 	}
 
 	function startERC20Tournament(uint16 idTournament) external onlyOwner {
-		Tournament storage tournamentToStart = tournaments[idTournament];
+		TournamentData storage selectedTournament = tournaments[idTournament];
+
+		// Ensure that the tournament can only start after the initiation date.
 		require(
-			block.timestamp > tournamentToStart.init_date,
-			"Still in enrollment period"
+			block.timestamp > selectedTournament.initDate,
+			"Tournament cannot start before the initiation date."
 		);
+
 		if (
-			tournamentToStart.num_participants <
-			tournamentToStart.min_participants
+			selectedTournament.numParticipants <
+			selectedTournament.minParticipants
 		) {
-			tournamentToStart.aborted = true;
+			selectedTournament.aborted = true;
 			return;
 		}
-		for (uint8 i = 0; i < tournamentToStart.accepted_tokens.length; i++) {
-			ERC20(tournamentToStart.accepted_tokens[i]).transfer(
-				tournamentToStart.DeFiBridge_address,
-				tournamentToStart.enrollment_amount *
-					tournamentToStart.num_participants
+
+		for (uint8 i = 0; i < selectedTournament.acceptedTokens.length; i++) {
+			ERC20(selectedTournament.acceptedTokens[i]).transfer(
+				selectedTournament.deFiBridgeAddress,
+				selectedTournament.enrollmentAmount *
+					selectedTournament.numParticipants
 			);
 		}
-		IDefiBridge(tournamentToStart.DeFiBridge_address).startERC20(
-			tournamentToStart.enrollment_amount *
-				tournamentToStart.num_participants,
-			tournamentToStart.accepted_tokens,
-			tournamentToStart.DeFiProtocol_addresses
+
+		IDeFiBridge(selectedTournament.deFiBridgeAddress).startERC20(
+			selectedTournament.enrollmentAmount *
+				selectedTournament.numParticipants,
+			selectedTournament.acceptedTokens,
+			selectedTournament.deFiProtocolAddresses
 		);
 	}
 
 	function startETHTournament(
 		uint16 idTournament
 	) external payable onlyOwner {
-		Tournament storage tournamentToStart = tournaments[idTournament];
+		TournamentData storage selectedTournament = tournaments[idTournament];
+
+		// Ensure that the tournament can only start after the initiation date.
 		require(
-			block.timestamp > tournamentToStart.init_date,
-			"Still in enrollment period"
+			block.timestamp > selectedTournament.initDate,
+			"Tournament cannot start before the initiation date."
 		);
+
 		if (
-			tournamentToStart.num_participants <
-			tournamentToStart.min_participants
+			selectedTournament.numParticipants <
+			selectedTournament.minParticipants
 		) {
-			tournamentToStart.aborted = true;
+			selectedTournament.aborted = true;
 		} else {
-			(bool success, ) = tournamentToStart.DeFiBridge_address.call{
-				value: tournamentToStart.num_participants *
-					tournamentToStart.enrollment_amount
+			(bool success, ) = selectedTournament.deFiBridgeAddress.call{
+				value: selectedTournament.numParticipants *
+					selectedTournament.enrollmentAmount
 			}(
 				abi.encodeWithSignature(
 					"startETH(uint256,address[] calldata)",
-					tournamentToStart.num_participants *
-						tournamentToStart.enrollment_amount,
-					tournamentToStart.DeFiProtocol_addresses
+					selectedTournament.numParticipants *
+						selectedTournament.enrollmentAmount,
+					selectedTournament.deFiProtocolAddresses
 				)
 			);
-			require(success, "Call failed");
+			require(success, "Call to DeFiBridge failed.");
 		}
 	}
 
 	function abortERC20(uint16 idTournament) external {
-		Tournament storage abortedTournament = tournaments[idTournament];
-		require(abortedTournament.aborted == true);
-		// require(block.timestamp > abortedTournament.end_date); TODO falta require
-		for (uint8 i = 0; i < abortedTournament.accepted_tokens.length; i++) {
-			ERC20(abortedTournament.accepted_tokens[i]).transfer(
+		TournamentData storage abortedTournament = tournaments[idTournament];
+		require(abortedTournament.aborted, "Tournament must be aborted.");
+
+		for (uint8 i = 0; i < abortedTournament.acceptedTokens.length; i++) {
+			ERC20(abortedTournament.acceptedTokens[i]).transfer(
 				address(msg.sender),
-				abortedTournament.enrollment_amount
+				abortedTournament.enrollmentAmount
 			);
 		}
-		abortedTournament.participants[msg.sender] = 0;
+
+		// Set the participant's balance to zero.
+		abortedTournament.isParticipant[msg.sender] = false;
 	}
 
 	function abortETH(uint16 idTournament) external payable {
-		Tournament storage abortedTournament = tournaments[idTournament];
-		require(abortedTournament.aborted == true);
-		require(block.timestamp > abortedTournament.end_date);
-		(bool os, ) = payable(msg.sender).call{
-			value: abortedTournament.enrollment_amount
+		TournamentData storage abortedTournament = tournaments[idTournament];
+		require(abortedTournament.aborted, "Tournament must be aborted.");
+
+		// Attempt to transfer any remaining ETH to the user.
+		(bool transferSuccess, ) = payable(msg.sender).call{
+			value: abortedTournament.enrollmentAmount
 		}("");
-		require(os);
-		abortedTournament.participants[msg.sender] = 0;
+		require(transferSuccess, "ETH transfer failed.");
+
+		// Set the participant's balance to zero.
+		abortedTournament.isParticipant[msg.sender] = false;
 	}
 
 	function endERC20Tournament(
 		uint16 idTournament,
-		bytes calldata _results_bytes, // each element is 52 bytes: 20 for the address and 32 for the score.
-		uint16[] calldata _positions
+		bytes calldata resultsBytes, // Each element is 52 bytes: 20 for the address and 32 for the score.
+		uint16[] calldata positions
 	) public onlyOwner {
-		createLeaderBoardMerkleTree(idTournament, _results_bytes, _positions);
+		TournamentData storage selectedTournament = tournaments[idTournament];
+		require(
+			block.timestamp > selectedTournament.endDate,
+			"Tournament cannot be finished before the end date."
+		);
+		createLeaderBoardMerkleTree(idTournament, resultsBytes, positions);
 
-		Tournament storage tournamentToEnd = tournaments[idTournament];
-
-		uint128[] memory DeFiBridgeReward = IDefiBridge(
-			tournamentToEnd.DeFiBridge_address
+		// End the tournament with the DeFi Bridge and get the rewards.
+		uint256[] memory deFiBridgeRewards = IDeFiBridge(
+			selectedTournament.deFiBridgeAddress
 		).endERC20(
-				tournamentToEnd.num_participants *
-					tournamentToEnd.enrollment_amount,
-				tournamentToEnd.accepted_tokens,
-				tournamentToEnd.DeFiProtocol_addresses
+				selectedTournament.numParticipants *
+					selectedTournament.enrollmentAmount,
+				selectedTournament.acceptedTokens,
+				selectedTournament.deFiProtocolAddresses
 			);
-		// !TODO fer els returns dels bridges i calcular be els diners !DeFiBridgeReward- invertit
-		for (uint i = 0; i < tournamentToEnd.accepted_tokens.length; i++) {
-			uint128 playersReward = (DeFiBridgeReward[i] * 8) / 10;
-			tournamentToEnd.total_reward_amount[i] = playersReward;
-			ERC20(tournamentToEnd.accepted_tokens[i]).transfer(
+
+		for (uint8 i = 0; i < selectedTournament.acceptedTokens.length; i++) {
+			// Calculate and set the player's rewards.
+			uint256 tournamentReward = (deFiBridgeRewards[i] * 8) / 10;
+			selectedTournament.totalRewardAmount.push(tournamentReward);
+
+			// Transfer the remaining rewards to the owner.
+			ERC20(selectedTournament.acceptedTokens[i]).transfer(
 				msg.sender,
-				(DeFiBridgeReward[i] * 2) / 10
+				(deFiBridgeRewards[i] * 2) / 10
 			);
 		}
 	}
 
 	function endETHTournament(
 		uint16 idTournament,
-		bytes calldata _results_bytes, // each element is 52 bytes: 20 for the address and 32 for the score.
-		uint16[] calldata _positions
+		bytes calldata resultsBytes, // Each element is 52 bytes: 20 for the address and 32 for the score.
+		uint16[] calldata positions
 	) public onlyOwner {
-		// 1- Recuperar dinero del defi bridge y conocer
-		createLeaderBoardMerkleTree(idTournament, _results_bytes, _positions);
-		Tournament storage tournamentToEnd = tournaments[idTournament];
+		TournamentData storage selectedTournament = tournaments[idTournament];
 
-		uint128 DeFiBridgeReward = IDefiBridge(
-			tournamentToEnd.DeFiBridge_address
+		require(
+			block.timestamp > selectedTournament.endDate,
+			"Tournament cannot be finished before the end date."
+		);
+
+		createLeaderBoardMerkleTree(idTournament, resultsBytes, positions);
+
+		uint256 deFiBridgeReward = IDeFiBridge(
+			selectedTournament.deFiBridgeAddress
 		).endETH(
-				tournamentToEnd.num_participants *
-					tournamentToEnd.enrollment_amount,
-				tournamentToEnd.DeFiProtocol_addresses
+				selectedTournament.numParticipants *
+					selectedTournament.enrollmentAmount,
+				selectedTournament.deFiProtocolAddresses
 			);
 
-		tournamentToEnd.total_reward_amount[0] = (DeFiBridgeReward * 8) / 10;
-		(bool os, ) = payable(msg.sender).call{
-			value: (DeFiBridgeReward * 2) / 10
+		selectedTournament.totalRewardAmount.push((deFiBridgeReward * 8) / 10);
+
+		(bool callSuccess, ) = payable(msg.sender).call{
+			value: (deFiBridgeReward * 2) / 10
 		}("");
-		require(os);
+		require(callSuccess, "ETH transfer failed.");
 	}
 
 	function verifyAndClaim(
-		uint16 _IDtourn,
+		uint16 idTournament,
 		bool[] calldata isLeft,
 		uint16 position,
-		bytes32[] calldata _merkleProof /* hashes merkle proof */
+		bytes32[] calldata merkleProof
 	) public {
-		Tournament storage endedTournament = tournaments[_IDtourn];
+		TournamentData storage endedTournament = tournaments[idTournament];
 
 		require(
-			endedTournament.participants[msg.sender] == 0,
-			"You already claimed your award!!!"
+			endedTournament.isParticipant[msg.sender],
+			"You are not participating in this tournament, or you already claimed your reward."
 		);
 
 		if (position == 2 ** 16 - 1) {
-			if (endedTournament.accepted_tokens.length == 0) {
+			if (endedTournament.acceptedTokens.length == 0) {
 				(bool success, ) = msg.sender.call{
-					value: endedTournament.enrollment_amount
+					value: endedTournament.enrollmentAmount
 				}("");
-				require(success, "Failed to claim Ether");
-				endedTournament.participants[msg.sender] = 0;
+				require(success, "Failed to claim Ether.");
+				endedTournament.isParticipant[msg.sender] = false;
 				return;
 			}
-			for (uint i = 0; endedTournament.accepted_tokens.length < i; i++) {
-				ERC20(endedTournament.accepted_tokens[i]).transfer(
+
+			for (uint i = 0; i < endedTournament.acceptedTokens.length; i++) {
+				ERC20(endedTournament.acceptedTokens[i]).transfer(
 					msg.sender,
-					endedTournament.enrollment_amount
+					endedTournament.enrollmentAmount
 				);
 			}
-			endedTournament.participants[msg.sender] = 0;
-
+			endedTournament.isParticipant[msg.sender] = false;
 			return;
 		}
 
@@ -326,47 +375,44 @@ contract TournamentManager is Ownable(msg.sender) {
 		for (uint256 i = 0; i < isLeft.length; i++) {
 			if (isLeft[i]) {
 				merkleLeaf = keccak256(
-					abi.encodePacked(_merkleProof[i], merkleLeaf)
+					abi.encodePacked(merkleProof[i], merkleLeaf)
 				);
 			} else {
 				merkleLeaf = keccak256(
-					abi.encodePacked(merkleLeaf, _merkleProof[i])
+					abi.encodePacked(merkleLeaf, merkleProof[i])
 				);
 			}
 		}
 
 		require(
-			merkleLeaf == endedTournament.merkle_root,
-			"You are not participating in this tournament!"
+			merkleLeaf == endedTournament.merkleRoot,
+			"Merkle proof verification failed."
 		);
 
-		if (endedTournament.accepted_tokens.length == 0) {
-			uint256[] memory payouts = getPayoutStructure(
-				endedTournament.num_participants
-			);
-			uint256 reward = (endedTournament.total_reward_amount[0] *
+		uint256[] memory payouts = getPayoutStructure(
+			endedTournament.numParticipants
+		);
+
+		if (endedTournament.acceptedTokens.length == 0) {
+			uint256 reward = (endedTournament.totalRewardAmount[0] *
 				payouts[position]) / 100;
 
 			(bool success, ) = msg.sender.call{
-				value: reward + endedTournament.enrollment_amount
+				value: reward + endedTournament.enrollmentAmount
 			}("");
-			require(success, "Failed to send Ether");
-			endedTournament.participants[msg.sender] = 0;
-			return;
-		}
-		for (uint i = 0; endedTournament.accepted_tokens.length < i; i++) {
-			uint256[] memory payouts = getPayoutStructure(
-				endedTournament.num_participants
-			);
-			uint256 reward = (endedTournament.total_reward_amount[i] *
-				payouts[position]) / 100;
+			require(success, "Failed to send Ether.");
+		} else {
+			for (uint i = 0; i < endedTournament.acceptedTokens.length; i++) {
+				uint256 reward = (endedTournament.totalRewardAmount[i] *
+					payouts[position]) / 100;
 
-			ERC20(endedTournament.accepted_tokens[i]).transfer(
-				msg.sender,
-				reward + endedTournament.enrollment_amount
-			);
+				ERC20(endedTournament.acceptedTokens[i]).transfer(
+					msg.sender,
+					reward + endedTournament.enrollmentAmount
+				);
+			}
 		}
-		endedTournament.participants[msg.sender] = 0;
+		endedTournament.isParticipant[msg.sender] = false;
 	}
 
 	function getPayoutStructure(
@@ -413,154 +459,156 @@ contract TournamentManager is Ownable(msg.sender) {
 
 	// Results are the concatenation of the BYTES of (address, score) for each player
 	function setResult(
-		uint16 _IDtournament,
-		address _player,
-		uint _new_score
+		uint16 idTournament,
+		address player,
+		uint256 newScore
 	) external {
-		// Sponge Hash with previous results_sponge_hash and new result (bytes(addressPlayer, scorePlayer)) -> hash(historic_results,new_results)
+		// Sponge Hash with previous resultsSpongeHash and new result (bytes(addressPlayer, scorePlayer)) -> hash(historic_results,new_results)
 		require(
-			block.timestamp >= tournaments[_IDtournament].init_date,
-			"Tournament hasn't started yet"
+			block.timestamp >= tournaments[idTournament].initDate,
+			"Tournament hasn't started yet."
 		);
-		tournaments[_IDtournament].results_sponge_hash = keccak256(
+		tournaments[idTournament].resultsSpongeHash = keccak256(
 			abi.encodePacked(
-				tournaments[_IDtournament].results_sponge_hash,
-				_player,
-				_new_score
+				tournaments[idTournament].resultsSpongeHash,
+				player,
+				newScore
 			)
 		);
 
-		emit ResultCreated(_IDtournament, _player, _new_score);
+		emit ResultCreated(idTournament, player, newScore);
 	}
 
 	function createLeaderBoardMerkleTree(
-		uint16 _IDtournament,
-		bytes calldata _results_bytes, // each element is 52 bytes: 20 for the address and 32 for the score.
-		uint16[] calldata _positions
+		uint16 idTournament,
+		bytes calldata bytesResultsData, // Each element is 52 bytes: 20 for the address and 32 for the score.
+		uint16[] calldata positions
 	) private {
 		require(
-			block.timestamp >= tournaments[_IDtournament].end_date,
-			"Tournament hasn't end yet"
+			block.timestamp >= tournaments[idTournament].endDate,
+			"Tournament hasn't ended yet."
 		);
-		uint16 initial_length = uint16(_positions.length);
-		// Used to ordenate the addresses and scores, and then push all merkle hashes until root.
-		bytes32[] memory leaderboard_hash = new bytes32[](initial_length);
 
-		// Check that the leaderboard ordening is correct
-		bytes32 lastScore = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // initialize the largest score posible
-		bytes32 backendSpongeHash; // With the input data we will generate another sponge hash to verify that no corrupted data has been introduced in the backend.
-		// Remember: 20 bytes for the addresses and 32 bytes for the scores.
-		for (uint16 i = 0; i < initial_length; i++) {
+		uint16 initialLength = uint16(positions.length);
+		bytes32[] memory leaderboardHash = new bytes32[](initialLength);
+		bytes32 lastScore = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF; // Initialize with the largest possible score.
+		bytes32 backendSpongeHash;
+
+		for (uint16 i = 0; i < initialLength; i++) {
 			backendSpongeHash = keccak256(
 				abi.encodePacked(
 					backendSpongeHash,
-					_results_bytes[i * 52:(i + 1) * 52]
+					bytesResultsData[i * 52:(i + 1) * 52]
 				)
 			);
-			leaderboard_hash[i] = keccak256(
+			leaderboardHash[i] = keccak256(
 				abi.encodePacked(
-					_results_bytes[_positions[i] * 52:_positions[i] * 52 + 20],
+					bytesResultsData[positions[i] * 52:positions[i] * 52 + 20],
 					i
 				)
 			);
+
 			require(
 				bytes32(
-					_results_bytes[_positions[i] * 52 + 20:(_positions[i] + 1) *
+					bytesResultsData[positions[i] * 52 + 20:(positions[i] + 1) *
 						52]
 				) <= lastScore,
-				"Data corrupted: incorrect players classification."
-			); // if  tie, caller decides order.
+				"Data corrupted: incorrect player classification."
+			);
 			lastScore = bytes32(
-				_results_bytes[_positions[i] * 52 + 20:(_positions[i] + 1) * 52]
+				bytesResultsData[positions[i] * 52 + 20:(positions[i] + 1) * 52]
 			);
 		}
+
 		require(
-			backendSpongeHash == tournaments[_IDtournament].results_sponge_hash,
+			backendSpongeHash == tournaments[idTournament].resultsSpongeHash,
 			"Data corrupted: bad spongeHash recreation."
 		);
 
-		// Get Merkle Root with the already onrdenated leaderboard_hash
-		uint16 level_leaves = initial_length; // number of leaves per level
-		while (level_leaves > 1) {
+		uint16 levelLeaves = initialLength;
+		while (levelLeaves > 1) {
 			uint16 j = 0;
-			for (uint16 i = 0; i < level_leaves; i += 2) {
-				if (i + 1 == level_leaves) {
-					leaderboard_hash[j] = leaderboard_hash[i];
+			for (uint16 i = 0; i < levelLeaves; i += 2) {
+				if (i + 1 == levelLeaves) {
+					leaderboardHash[j] = leaderboardHash[i];
 				} else {
-					leaderboard_hash[j] = keccak256(
+					leaderboardHash[j] = keccak256(
 						abi.encodePacked(
-							leaderboard_hash[i],
-							leaderboard_hash[i + 1]
+							leaderboardHash[i],
+							leaderboardHash[i + 1]
 						)
 					);
 				}
 				j++;
 			}
-			level_leaves = (level_leaves / 2) + (level_leaves % 2);
+			levelLeaves = (levelLeaves / 2) + (levelLeaves % 2);
 		}
-		// Store Merkle Root (last position of the leaderboard_hash)
-		tournaments[_IDtournament].merkle_root = leaderboard_hash[0];
+
+		tournaments[idTournament].merkleRoot = leaderboardHash[0];
 	}
 
 	// Getter function for participants of a tournament
 	function getParticipants(
-		uint16 tournamentId,
+		uint16 idTournament,
 		address participantAddress
-	) public view returns (uint128) {
-		require(tournamentId < tournaments.length, "Invalid tournament ID");
-		return tournaments[tournamentId].participants[participantAddress];
+	) public view returns (bool) {
+		require(idTournament < tournaments.length, "Invalid tournament ID");
+		return tournaments[idTournament].isParticipant[participantAddress];
 	}
 
 	// Getter function for accepted tokens of a tournament
 	function getAcceptedTokens(
-		uint16 tournamentId
+		uint16 idTournament
 	) public view returns (address[] memory) {
-		require(tournamentId < tournaments.length, "Invalid tournament ID");
-		return tournaments[tournamentId].accepted_tokens;
+		require(idTournament < tournaments.length, "Invalid tournament ID");
+		return tournaments[idTournament].acceptedTokens;
 	}
 
 	// Getter function for retrieve the Positions of the structs for ERC20 and ETH tournaments
-	function getIDSArray()
+	function getTournamentIds()
 		public
 		view
-		returns (uint[] memory ETHArray, uint[] memory ERC20Array)
+		returns (
+			uint[] memory ethereumTournamentIDs,
+			uint[] memory erc20TournamentIDs
+		)
 	{
-		uint[] memory tempETHArray = new uint[](tournaments.length);
-		uint[] memory tempERC20Array = new uint[](tournaments.length);
-		uint ethArrayCount = 0;
-		uint erc20ArrayCount = 0;
+		uint[] memory ethereumIDs = new uint[](tournaments.length);
+		uint[] memory erc20IDs = new uint[](tournaments.length);
+		uint ethereumCount = 0;
+		uint erc20Count = 0;
 
 		for (uint16 i = 0; i < tournaments.length; i++) {
-			if (tournaments[i].accepted_tokens.length == 0) {
-				tempETHArray[ethArrayCount] = tournaments[i].ID;
-				ethArrayCount++;
+			if (tournaments[i].acceptedTokens.length == 0) {
+				ethereumIDs[ethereumCount] = tournaments[i].ID;
+				ethereumCount++;
 			} else {
-				tempERC20Array[erc20ArrayCount] = tournaments[i].ID;
-				erc20ArrayCount++;
+				erc20IDs[erc20Count] = tournaments[i].ID;
+				erc20Count++;
 			}
 		}
 
-		// Resize the arrays to their actual size
-		ETHArray = new uint[](ethArrayCount);
-		ERC20Array = new uint[](erc20ArrayCount);
+		// Return the correctly sized arrays
+		ethereumTournamentIDs = new uint[](ethereumCount);
+		erc20TournamentIDs = new uint[](erc20Count);
 
-		for (uint i = 0; i < ethArrayCount; i++) {
-			ETHArray[i] = tempETHArray[i];
+		for (uint i = 0; i < ethereumCount; i++) {
+			ethereumTournamentIDs[i] = ethereumIDs[i];
 		}
 
-		for (uint i = 0; i < erc20ArrayCount; i++) {
-			ERC20Array[i] = tempERC20Array[i];
+		for (uint i = 0; i < erc20Count; i++) {
+			erc20TournamentIDs[i] = erc20IDs[i];
 		}
 
-		return (ETHArray, ERC20Array);
+		return (ethereumTournamentIDs, erc20TournamentIDs);
 	}
 
-	function getMerkleRoot(uint16 tournamentId) public view returns (bytes32) {
-		return tournaments[tournamentId].merkle_root;
+	function getMerkleRoot(uint16 idTournament) public view returns (bytes32) {
+		return tournaments[idTournament].merkleRoot;
 	}
 
 	// Getter function for participants of a tournament
-	function getSpongeHash(uint16 tournamentId) public view returns (bytes32) {
-		return tournaments[tournamentId].results_sponge_hash;
+	function getSpongeHash(uint16 idTournament) public view returns (bytes32) {
+		return tournaments[idTournament].resultsSpongeHash;
 	}
 }

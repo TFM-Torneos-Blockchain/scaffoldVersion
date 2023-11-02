@@ -118,23 +118,29 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "uint128",
-                  name: "_amount_of_tokens",
-                  type: "uint128",
+                  internalType: "uint256",
+                  name: "amountOfTokens",
+                  type: "uint256",
                 },
                 {
                   internalType: "address[]",
-                  name: "_0xERC20Addresses",
+                  name: "erc20Addresses",
                   type: "address[]",
                 },
                 {
                   internalType: "address[]",
-                  name: "_defiProtocolAddress",
+                  name: "defiProtocolAddresses",
                   type: "address[]",
                 },
               ],
-              name: "end",
-              outputs: [],
+              name: "endERC20",
+              outputs: [
+                {
+                  internalType: "uint256[]",
+                  name: "",
+                  type: "uint256[]",
+                },
+              ],
               stateMutability: "nonpayable",
               type: "function",
             },
@@ -142,7 +148,7 @@ const contracts = {
               inputs: [
                 {
                   internalType: "address",
-                  name: "tournament_manager_address",
+                  name: "tournamentManagerAddress",
                   type: "address",
                 },
               ],
@@ -174,18 +180,18 @@ const contracts = {
             {
               inputs: [
                 {
-                  internalType: "uint128",
-                  name: "_amount_of_tokens",
-                  type: "uint128",
+                  internalType: "uint256",
+                  name: "amountOfTokens",
+                  type: "uint256",
                 },
                 {
                   internalType: "address[]",
-                  name: "_0xERC20Addresses",
+                  name: "erc20Addresses",
                   type: "address[]",
                 },
                 {
                   internalType: "address[]",
-                  name: "_defiProtocolAddress",
+                  name: "defiProtocolAddresses",
                   type: "address[]",
                 },
               ],
@@ -846,13 +852,13 @@ const contracts = {
           ],
         },
         MajorHashGame: {
-          address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+          address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
           abi: [
             {
               inputs: [
                 {
                   internalType: "address",
-                  name: "tournament_manager_address",
+                  name: "tournamentManagerAddress",
                   type: "address",
                 },
               ],
@@ -860,21 +866,8 @@ const contracts = {
               type: "constructor",
             },
             {
-              inputs: [
-                {
-                  internalType: "uint16",
-                  name: "_IDtournament",
-                  type: "uint16",
-                },
-              ],
-              name: "play",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
               inputs: [],
-              name: "tournamentManager",
+              name: "TournamentManager",
               outputs: [
                 {
                   internalType: "contract ITournamentManager",
@@ -885,10 +878,23 @@ const contracts = {
               stateMutability: "view",
               type: "function",
             },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
+                  name: "idTournament",
+                  type: "uint16",
+                },
+              ],
+              name: "play",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
           ],
         },
         RocketProtocol: {
-          address: "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853",
+          address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
           abi: [
             {
               inputs: [],
@@ -958,17 +964,23 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint256",
-                  name: "_amount",
+                  name: "amountOfETH",
                   type: "uint256",
                 },
                 {
                   internalType: "address[]",
-                  name: "_defiProtocolAddress",
+                  name: "defiProtocolAddress",
                   type: "address[]",
                 },
               ],
               name: "endETH",
-              outputs: [],
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
               stateMutability: "nonpayable",
               type: "function",
             },
@@ -976,7 +988,7 @@ const contracts = {
               inputs: [
                 {
                   internalType: "address",
-                  name: "tournament_manager_address",
+                  name: "tournamentManagerAddress",
                   type: "address",
                 },
               ],
@@ -1009,12 +1021,12 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint256",
-                  name: "_amount_of_ETH",
+                  name: "amountOfETH",
                   type: "uint256",
                 },
                 {
                   internalType: "address[]",
-                  name: "_defiProtocolAddress",
+                  name: "defiProtocolAddress",
                   type: "address[]",
                 },
               ],
@@ -1039,7 +1051,7 @@ const contracts = {
           ],
         },
         TournamentManager: {
-          address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+          address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
           abi: [
             {
               inputs: [],
@@ -1074,7 +1086,7 @@ const contracts = {
                 {
                   indexed: true,
                   internalType: "uint16",
-                  name: "tournament_id",
+                  name: "tournamentID",
                   type: "uint16",
                 },
                 {
@@ -1086,14 +1098,14 @@ const contracts = {
                 {
                   indexed: false,
                   internalType: "uint16",
-                  name: "num_participants",
+                  name: "numParticipants",
                   type: "uint16",
                 },
                 {
                   indexed: false,
-                  internalType: "uint128",
-                  name: "collected_amount",
-                  type: "uint128",
+                  internalType: "uint256",
+                  name: "totalCollectedAmount",
+                  type: "uint256",
                 },
               ],
               name: "Enroll",
@@ -1124,7 +1136,7 @@ const contracts = {
                 {
                   indexed: true,
                   internalType: "uint16",
-                  name: "tournamentId",
+                  name: "tournamentID",
                   type: "uint16",
                 },
                 {
@@ -1136,7 +1148,7 @@ const contracts = {
                 {
                   indexed: false,
                   internalType: "uint256",
-                  name: "score_number",
+                  name: "scoreNumber",
                   type: "uint256",
                 },
               ],
@@ -1151,6 +1163,24 @@ const contracts = {
                   internalType: "uint16",
                   name: "tournamentID",
                   type: "uint16",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint64",
+                  name: "initData",
+                  type: "uint64",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint64",
+                  name: "endDate",
+                  type: "uint64",
+                },
+                {
+                  indexed: false,
+                  internalType: "address",
+                  name: "deFiBridgeAddress",
+                  type: "address",
                 },
               ],
               name: "TournamentCreated",
@@ -1186,65 +1216,42 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint16",
-                  name: "_IDtournament",
-                  type: "uint16",
-                },
-                {
-                  internalType: "bytes",
-                  name: "_results_bytes",
-                  type: "bytes",
-                },
-                {
-                  internalType: "uint16[]",
-                  name: "_positions",
-                  type: "uint16[]",
-                },
-              ],
-              name: "createLeaderBoardMerkleTree",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [
-                {
-                  internalType: "uint16",
-                  name: "_max_participants",
+                  name: "_maxParticipants",
                   type: "uint16",
                 },
                 {
                   internalType: "uint8",
-                  name: "_min_participants",
+                  name: "_minParticipants",
                   type: "uint8",
                 },
                 {
-                  internalType: "uint128",
-                  name: "_enrollment_amount",
-                  type: "uint128",
+                  internalType: "uint256",
+                  name: "_enrollmentAmount",
+                  type: "uint256",
                 },
                 {
                   internalType: "address[]",
-                  name: "_accepted_tokens",
+                  name: "_acceptedTokens",
                   type: "address[]",
                 },
                 {
                   internalType: "uint64",
-                  name: "_init_date",
+                  name: "_initDate",
                   type: "uint64",
                 },
                 {
                   internalType: "uint64",
-                  name: "_end_date",
+                  name: "_endDate",
                   type: "uint64",
                 },
                 {
                   internalType: "address",
-                  name: "_DeFiBridge_to_clone",
+                  name: "_deFiBridgeToClone",
                   type: "address",
                 },
                 {
                   internalType: "address[]",
-                  name: "_DeFiProtocol_addresses",
+                  name: "_deFiProtocolAddresses",
                   type: "address[]",
                 },
               ],
@@ -1260,6 +1267,16 @@ const contracts = {
                   name: "idTournament",
                   type: "uint16",
                 },
+                {
+                  internalType: "bytes",
+                  name: "resultsBytes",
+                  type: "bytes",
+                },
+                {
+                  internalType: "uint16[]",
+                  name: "positions",
+                  type: "uint16[]",
+                },
               ],
               name: "endERC20Tournament",
               outputs: [],
@@ -1272,6 +1289,16 @@ const contracts = {
                   internalType: "uint16",
                   name: "idTournament",
                   type: "uint16",
+                },
+                {
+                  internalType: "bytes",
+                  name: "resultsBytes",
+                  type: "bytes",
+                },
+                {
+                  internalType: "uint16[]",
+                  name: "positions",
+                  type: "uint16[]",
                 },
               ],
               name: "endETHTournament",
@@ -1309,7 +1336,7 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint16",
-                  name: "tournamentId",
+                  name: "idTournament",
                   type: "uint16",
                 },
               ],
@@ -1325,28 +1352,10 @@ const contracts = {
               type: "function",
             },
             {
-              inputs: [],
-              name: "getIDSArray",
-              outputs: [
-                {
-                  internalType: "uint256[]",
-                  name: "ETHArray",
-                  type: "uint256[]",
-                },
-                {
-                  internalType: "uint256[]",
-                  name: "ERC20Array",
-                  type: "uint256[]",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
-            },
-            {
               inputs: [
                 {
                   internalType: "uint16",
-                  name: "tournamentId",
+                  name: "idTournament",
                   type: "uint16",
                 },
               ],
@@ -1365,7 +1374,7 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint16",
-                  name: "tournamentId",
+                  name: "idTournament",
                   type: "uint16",
                 },
                 {
@@ -1377,9 +1386,9 @@ const contracts = {
               name: "getParticipants",
               outputs: [
                 {
-                  internalType: "uint128",
+                  internalType: "bool",
                   name: "",
-                  type: "uint128",
+                  type: "bool",
                 },
               ],
               stateMutability: "view",
@@ -1389,7 +1398,7 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint16",
-                  name: "tournamentId",
+                  name: "idTournament",
                   type: "uint16",
                 },
               ],
@@ -1399,6 +1408,24 @@ const contracts = {
                   internalType: "bytes32",
                   name: "",
                   type: "bytes32",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "getTournamentIds",
+              outputs: [
+                {
+                  internalType: "uint256[]",
+                  name: "ethereumTournamentIDs",
+                  type: "uint256[]",
+                },
+                {
+                  internalType: "uint256[]",
+                  name: "erc20TournamentIDs",
+                  type: "uint256[]",
                 },
               ],
               stateMutability: "view",
@@ -1428,17 +1455,17 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint16",
-                  name: "_IDtournament",
+                  name: "idTournament",
                   type: "uint16",
                 },
                 {
                   internalType: "address",
-                  name: "_player",
+                  name: "player",
                   type: "address",
                 },
                 {
                   internalType: "uint256",
-                  name: "_new_score",
+                  name: "newScore",
                   type: "uint256",
                 },
               ],
@@ -1490,47 +1517,47 @@ const contracts = {
                 },
                 {
                   internalType: "uint8",
-                  name: "min_participants",
+                  name: "minParticipants",
                   type: "uint8",
                 },
                 {
                   internalType: "uint16",
-                  name: "max_participants",
+                  name: "maxParticipants",
                   type: "uint16",
                 },
                 {
                   internalType: "uint16",
-                  name: "num_participants",
+                  name: "numParticipants",
                   type: "uint16",
                 },
                 {
-                  internalType: "uint128",
-                  name: "enrollment_amount",
-                  type: "uint128",
+                  internalType: "uint256",
+                  name: "enrollmentAmount",
+                  type: "uint256",
                 },
                 {
                   internalType: "uint64",
-                  name: "init_date",
+                  name: "initDate",
                   type: "uint64",
                 },
                 {
                   internalType: "uint64",
-                  name: "end_date",
+                  name: "endDate",
                   type: "uint64",
                 },
                 {
                   internalType: "address",
-                  name: "DeFiBridge_address",
+                  name: "deFiBridgeAddress",
                   type: "address",
                 },
                 {
                   internalType: "bytes32",
-                  name: "results_sponge_hash",
+                  name: "resultsSpongeHash",
                   type: "bytes32",
                 },
                 {
                   internalType: "bytes32",
-                  name: "merkle_root",
+                  name: "merkleRoot",
                   type: "bytes32",
                 },
                 {
@@ -1559,7 +1586,7 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint16",
-                  name: "_IDtourn",
+                  name: "idTournament",
                   type: "uint16",
                 },
                 {
@@ -1574,11 +1601,222 @@ const contracts = {
                 },
                 {
                   internalType: "bytes32[]",
-                  name: "_merkleProof",
+                  name: "merkleProof",
                   type: "bytes32[]",
                 },
               ],
               name: "verifyAndClaim",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+          ],
+        },
+        UniswapV2Protocol: {
+          address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+          abi: [
+            {
+              inputs: [],
+              name: "InvalidInitialization",
+              type: "error",
+            },
+            {
+              inputs: [],
+              name: "NotInitializing",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "owner",
+                  type: "address",
+                },
+              ],
+              name: "OwnableInvalidOwner",
+              type: "error",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "account",
+                  type: "address",
+                },
+              ],
+              name: "OwnableUnauthorizedAccount",
+              type: "error",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "amountToken1",
+                  type: "uint256",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "amountToken2",
+                  type: "uint256",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "liquidity",
+                  type: "uint256",
+                },
+              ],
+              name: "AddLiquidityPair",
+              type: "event",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: false,
+                  internalType: "uint64",
+                  name: "version",
+                  type: "uint64",
+                },
+              ],
+              name: "Initialized",
+              type: "event",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "previousOwner",
+                  type: "address",
+                },
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "newOwner",
+                  type: "address",
+                },
+              ],
+              name: "OwnershipTransferred",
+              type: "event",
+            },
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "amountToken1",
+                  type: "uint256",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "amountToken2",
+                  type: "uint256",
+                },
+              ],
+              name: "RemoveLiquidity",
+              type: "event",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint256",
+                  name: "amountOfTokens",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address[]",
+                  name: "erc20Addresses",
+                  type: "address[]",
+                },
+                {
+                  internalType: "address[]",
+                  name: "defiProtocolAddress",
+                  type: "address[]",
+                },
+              ],
+              name: "endERC20",
+              outputs: [
+                {
+                  internalType: "uint256[]",
+                  name: "",
+                  type: "uint256[]",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "tournamentManagerAddress",
+                  type: "address",
+                },
+              ],
+              name: "initialize",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "owner",
+              outputs: [
+                {
+                  internalType: "address",
+                  name: "",
+                  type: "address",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "renounceOwnership",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint256",
+                  name: "amountOfTokens",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address[]",
+                  name: "erc20Addresses",
+                  type: "address[]",
+                },
+                {
+                  internalType: "address[]",
+                  name: "defiProtocolAddress",
+                  type: "address[]",
+                },
+              ],
+              name: "startERC20",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "newOwner",
+                  type: "address",
+                },
+              ],
+              name: "transferOwnership",
               outputs: [],
               stateMutability: "nonpayable",
               type: "function",
