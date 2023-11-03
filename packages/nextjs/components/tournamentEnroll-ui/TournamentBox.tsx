@@ -100,12 +100,6 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
 
 
 
-
-  const dateParser = (date: string) => {
-    return date.split('/')[1] + '/' + date.split('/')[0] + '/' + date.split('/')[2]
-  ;
-  }
-
   
   const { data: deployedContractData, isLoading: deployedContractLoading } = useDeployedContractInfo('MajorHashGame');
 
@@ -127,7 +121,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
         </div>
         ) }
       </div>
-        {new Date(dateParser(tournamentInfo.init_date)) > new Date(Date.now()) &&  new Date(Date.now())  < new Date(dateParser(tournamentInfo.end_date))  ? 
+        {new Date((tournamentInfo.init_date)) > new Date(Date.now()) &&  new Date(Date.now())  < new Date((tournamentInfo.end_date))  ? 
         <div className="mb-2">
           {is_ETH ? (
             <EnrollButtonETH
