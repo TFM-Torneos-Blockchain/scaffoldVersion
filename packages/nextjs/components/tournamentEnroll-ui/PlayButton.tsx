@@ -21,7 +21,7 @@ export default function PlayButton({contract, id, txAmount, fn}: {contract: Cont
 
     // const provider = new ethers.providers.Web3Provider(window.ethereum); // Web3Provider o proveedor similar
        // listenOnQuoteUploadedEvent(deployedContractData?.abi, deployedContractData?.address as string, "wss://eth-mainnet.g.alchemy.com/v2/vWBspZ6zScCc8dGnEhMBggT3gKXnMzrv");
-   const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/'); // Sustituye 'URL_DE_TU_RED_ETHEREUM' por la URL de la red Ethereum que estás utilizando
+   const provider = new ethers.providers.JsonRpcProvider(process.env.GOERLI_LINK); // Sustituye 'URL_DE_TU_RED_ETHEREUM' por la URL de la red Ethereum que estás utilizando
    // listenOnQuoteUploadedEvent(deployedContractData?.abi, deployedContractData?.address as string, "wss://eth-mainnet.g.alchemy.com/v2/vWBspZ6zScCc8dGnEhMBggT3gKXnMzrv");
    console.log("provider:", provider);
    if(deployedContractData){
