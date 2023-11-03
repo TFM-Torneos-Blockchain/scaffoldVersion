@@ -38,7 +38,7 @@ export default function PlayButton({contract, id, txAmount, fn}: {contract: Cont
 
     const handleWriteJson = async (datatoWrtie: {}) => {
       try {
-        const response = await fetch('/api/results', {
+        const response = await fetch('https://defi-smart-tournaments-tfm.vercel.app/api/results', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
