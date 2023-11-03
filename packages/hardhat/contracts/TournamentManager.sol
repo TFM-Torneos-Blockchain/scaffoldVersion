@@ -247,6 +247,10 @@ contract TournamentManager is Ownable(msg.sender) {
 	function abortERC20(uint16 idTournament) external {
 		TournamentData storage abortedTournament = tournaments[idTournament];
 		require(abortedTournament.aborted, "Tournament must be aborted.");
+		require(
+			abortedTournament.isParticipant[msg.sender],
+			"You already claimed."
+		);
 
 		for (uint8 i = 0; i < abortedTournament.acceptedTokens.length; i++) {
 			ERC20(abortedTournament.acceptedTokens[i]).transfer(
@@ -262,6 +266,10 @@ contract TournamentManager is Ownable(msg.sender) {
 	function abortETH(uint16 idTournament) external payable {
 		TournamentData storage abortedTournament = tournaments[idTournament];
 		require(abortedTournament.aborted, "Tournament must be aborted.");
+		require(
+			abortedTournament.isParticipant[msg.sender],
+			"You already claimed."
+		);
 
 		// Attempt to transfer any remaining ETH to the user.
 		(bool transferSuccess, ) = payable(msg.sender).call{

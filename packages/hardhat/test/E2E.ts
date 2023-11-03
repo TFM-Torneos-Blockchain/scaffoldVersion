@@ -10,7 +10,7 @@ import contracts from "../../nextjs/generated/deployedContracts";
 describe("tournamentManager and MerkleTree", function () {
   // We define a fixture to reuse the same setup in every test.
 
-  const enrollmentAmount = ethers.utils.parseEther("0.001");
+  const enrollmentAmount = ethers.utils.parseEther("1");
 
   let tournamentManager: TournamentManager;
   let funToken: FunToken;
@@ -69,93 +69,129 @@ describe("tournamentManager and MerkleTree", function () {
     const FunToken2 = FunToken2Factory.attach(
       contracts[5][0].contracts.FunToken2.address, // The deployed contract address
     );
-      // const erc20 = new ethers.Contract(erc20.address,erc20.abi,owner)
-
+    // const erc20 = new ethers.Contract(erc20.address,erc20.abi,owner)
 
     const currentDate = new Date();
-    const tomorrow = new Date(currentDate.getTime() + 2* 60 * 1000); // Add 2 days
+    const tomorrow = new Date(currentDate.getTime() + 6 * 60 * 1000); // Add 2 days
     const init_date_UnixTimestampInSeconds = Math.floor(tomorrow.getTime() / 1000);
 
-    const afterTomorrow = new Date(tomorrow.getTime() + 2*60 * 1000); // Add another day
+    const afterTomorrow = new Date(tomorrow.getTime() + 6 * 60 * 1000); // Add another day
     const end_date_UnixTimestampInSeconds = Math.floor(afterTomorrow.getTime() / 1000);
-    console.log("creating tournament");
+    // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+
+    // console.log("creating tournament");
     // await tournamentManager
     //   .connect(owner)
     //   .createTournament(
-    //     10000,
+    //     90,
     //     1,
     //     enrollmentAmount,
-    //     ["0x42a71137C09AE83D8d05974960fd607d40033499"],
+    //     [FunToken.address, FunToken2.address],
     //     init_date_UnixTimestampInSeconds,
     //     end_date_UnixTimestampInSeconds,
-    //     CompoundProtocol.address,
-    //     ["0x9A539EEc489AAA03D588212a164d0abdB5F08F5F", "0xef9e070044d62C38D2e316146dDe92AD02CF2c2c"],
+    //     "0xc66ca6AF2b63Ab620559F4220B3F55804D6130f1",
+    //     ["0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", "0x43e94ce53938AAeBC0731969ADc0d923A1e11579"],
     //   );
     // console.log("tournament created");
 
-    // filterTournaments = tournamentManager.filters.TournamentCreated();
-    // mintTournamentsCreated = await tournamentManager.queryFilter(filterTournaments);
+    // const abi = [
+    //   // Read-Only Functions
+    //   "function balanceOf(address owner) view returns (uint256)",
+    //   "function decimals() view returns (uint8)",
+    //   "function symbol() view returns (string)",
+    //   "function approve(address spender, uint256 amount) external returns (bool)",
 
-    // let greatestTournamentID = 0;
+    //   // Authenticated Functions
+    //   "function transfer(address to, uint amount) returns (bool)",
+    //   "function allowance(address owner, address spender) external view returns (uint256)",
 
-    // for (const event of mintTournamentsCreated) {
-    //   if (event.args && event.args && event.args.tournamentID > greatestTournamentID) {
-    //     greatestTournamentID = event.args.tournamentID;
-    //   }
-    // }
+    //   // Events
+    //   "event Transfer(address indexed from, address indexed to, uint amount)",
+    // ];
 
-    // console.log({ greatestTournamentID }, "to enroll");
+    // // const address1 = "0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844";
+    // // const address2 = "0xfad6367E97217cC51b4cd838Cc086831f81d38C2";
+    // // const dai = new ethers.Contract(address1, abi, owner);
+    // // const usdt = new ethers.Contract(address2, abi, owner);
+    // // await dai.connect(owner).approve(tournamentManager.address,enrollmentAmount)
+    // // await usdt.connect(owner).approve(tournamentManager.address,enrollmentAmount)
+    // // console.log("approve fet")
+    // // const usdAllow=await usdt.connect(owner).allowance(owner.getAddress(),tournamentManager.address)
+    // console.log("approve fet");
+    // await FunToken.approve(tournamentManager.address, enrollmentAmount);
+    // await FunToken2.approve(tournamentManager.address, enrollmentAmount);
+    // const allow = await FunToken.allowance(owner.getAddress(), tournamentManager.address);
+    // // console.log("allowance fet");
 
-    // await funToken.connect(participant1).approve(leaderBoard.address, enrollmentAmount);
+    // const newTournament = await tournamentManager.tournaments(32);
 
+    // console.log("enrolled to ", 31, "num parts", newTournament.maxParticipants, "allow", allow, newTournament.initDate.toBigInt());
 
-    // await tournamentManager.connect(owner).enrollWithERC20(greatestTournamentID);
+    // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    // await tournamentManager.connect(owner).enrollWithERC20(32);
 
-    // const newTournament = await tournamentManager.tournaments(greatestTournamentID);
-    // console.log("enrolled to ", greatestTournamentID,"num parts",newTournament.numParticipants);
+    // const newTournament = await tournamentManager.tournaments(32);
+    // console.log("enrolled to ", 31, "num parts", newTournament.numParticipants, newTournament.initDate.toBigInt());
+
+    // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
     // console.log("waiting 1 minute to allow enrolls");
 
-    // await tournamentManager.connect(owner).startETHTournament(17);
+    // await tournamentManager.connect(owner).startERC20Tournament(32);
+    // console.log("played!");
+
+    // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+
 
     // console.log("played!");
 
-    // await MajorHashGame.connect(owner).play(greatestTournamentID);
+    // await MajorHashGame.connect(owner).play(32);
 
-    const newTournament1 = await tournamentManager.tournaments(17);
+    const newTournament1 = await tournamentManager.tournaments(32);
 
+    console.log(
+      "SPONGE",
+      newTournament1.resultsSpongeHash,
+      "players",
+      newTournament1.endDate.toBigInt(),
+      newTournament1.deFiBridgeAddress,
+      newTournament1.enrollmentAmount,
+    );
 
-    console.log("SPONGE", newTournament1.resultsSpongeHash, "players",  (newTournament1.initDate).toBigInt(),newTournament1.deFiBridgeAddress,newTournament1.enrollmentAmount);
+    filterResults = tournamentManager.filters.ResultCreated();
+    mintResultCreated = await tournamentManager.queryFilter(filterResults);
+    console.log(mintResultCreated);
 
-    // filterResults = tournamentManager.filters.ResultCreated();
-    // mintResultCreated = await tournamentManager.queryFilter(filterResults);
-    // console.log(mintResultCreated);
+    eventsResultCreated = [];
 
-    // eventsResultCreated = [];
+    for (let i = 0; i < mintResultCreated.length; i++) {
+      const player = mintResultCreated[i].args.player;
+      const scoreNumber = mintResultCreated[i].args.scoreNumber.toBigInt();
 
-    // for (let i = 0; i < mintResultCreated.length; i++) {
-    //   const player = mintResultCreated[i].args.player;
-    //   const scoreNumber = mintResultCreated[i].args.scoreNumber.toBigInt();
+      eventsResultCreated.push({ player, score_number: scoreNumber });
+    }
+    console.log(eventsResultCreated);
+    const backendLeaderBoard = getLeaderboard(32n, eventsResultCreated);
+    // console.log(backendLeaderBoard.positions);
+    const index = backendLeaderBoard.positions.indexOf(0);
+    const backendMerkleTree = getMerkleRoot(
+      60,
+      backendLeaderBoard.concatenatedStringBytes,
+      backendLeaderBoard.positions,
+      index,
+    );
+    console.log(backendLeaderBoard.spongeHash);
 
-    //   eventsResultCreated.push({ player, score_number: scoreNumber });
-    // }
-    // console.log(eventsResultCreated);
-    // const backendLeaderBoard = getLeaderboard(60n, eventsResultCreated);
-    // // console.log(backendLeaderBoard.positions);
-    // const index = backendLeaderBoard.positions.indexOf(0);
-    // const backendMerkleTree = getMerkleRoot(
-    //   60,
-    //   backendLeaderBoard.concatenatedStringBytes,
-    //   backendLeaderBoard.positions,
-    //   index,
-    // );
-    //   console.log(backendLeaderBoard.spongeHash)
-    // const end = tournamentManager.endERC20Tournament(
+    // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+
+    // await tournamentManager.endERC20Tournament(
     //   greatestTournamentID,
     //   backendLeaderBoard.concatenatedStringBytes,
     //   backendLeaderBoard.positions,
     // );
-    // await new Promise(end => setTimeout(end, 5000));
+
     // console.log("tournament finished");
+
+    // await tournamentManager.connect(owner).verifyAndClaim(greatestTournamentID,backendMerkleTree.isLeft,0,backendMerkleTree.inputProof)
   });
 });
