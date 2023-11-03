@@ -120,7 +120,6 @@ export const NewTournament = () => {
               Enter
               <ArrowSmallRightIcon className="w-3 h-3 mt-0.5" />
             </button>
-            <button onClick={() => endTournament()}>End tournaments</button>
           </div>
         </div>
       </div>
