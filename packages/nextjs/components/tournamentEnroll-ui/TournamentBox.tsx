@@ -108,6 +108,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
   if (isFetching || !tournamentInfo.init_date || !tournamentInfo.end_date) return <div>Loading...</div>;
 
   console.log(leaderboardState);
+  console.log("HOLAAAAAAAAAAAAAAAAAAAAAAAA",new Date(tournamentInfo.init_date) , new Date(Date.now()))
   return (
     <div className="bg-slate-900 w-fit p-4 rounded-md shadow-md shadow-black ">
       <div>
@@ -134,7 +135,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
             </div>
           )}
       </div>
-      {new Date(tournamentInfo.init_date) > new Date(Date.now()) &&
+      {new Date(tournamentInfo.init_date) > new Date(Date.now())  &&
       new Date(Date.now()) < new Date(tournamentInfo.end_date) ? (
         <div className="mb-2 flex items-center justify-center">
           {is_ETH ? (
