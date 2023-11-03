@@ -22,12 +22,11 @@ const deployMajorHashGame: DeployFunction = async function (hre: HardhatRuntimeE
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  console.log("TournamentManager address input:", contracts[5][0].contracts.TournamentManager.address)
 
   await deploy("MajorHashGame", {
     from: deployer,
     // Contract constructor arguments
-    args: [contracts[5][0].contracts.TournamentManager.address],
+    args: ["0x983744aA8f3827A712E1562530BE739D3B1fAD7B"],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
