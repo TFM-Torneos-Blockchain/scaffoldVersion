@@ -119,7 +119,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
         </div>
         {(address === process.env.NEXT_PUBLIC_ADMIN1 || address === process.env.NEXT_PUBLIC_ADMIN2) &&
           leaderboardState.concatenatedStringBytes && (
-            <div className="mb-2">
+            <div className="mb-2 flex items-center justify-center">
               {is_ETH ? (
                 <div>
                   <StartButton tournament_id={tournamentInfo.id} />
@@ -136,7 +136,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
       </div>
       {new Date(tournamentInfo.init_date) > new Date(Date.now()) &&
       new Date(Date.now()) < new Date(tournamentInfo.end_date) ? (
-        <div className="mb-2">
+        <div className="mb-2 flex items-center justify-center">
           {is_ETH ? (
             <EnrollButtonETH
               key={`boxETH-${contract}-${tournament_id}}`}
