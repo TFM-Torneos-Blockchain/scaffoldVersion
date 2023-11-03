@@ -20,8 +20,8 @@ describe("tournamentManager and MerkleTree", function () {
   let owner: Signer, participant1: Signer, participant2: Signer;
 
   type EventsResultCreated = {
-    player: string;
-    score_number: bigint;
+    address: string;
+    score: bigint;
   };
 
   let filterTournaments;
@@ -158,29 +158,30 @@ describe("tournamentManager and MerkleTree", function () {
       newTournament1.enrollmentAmount,
     );
 
-    filterResults = tournamentManager.filters.ResultCreated();
+    filterResults = tournamentManager.filters.ResultCreated(32);
     mintResultCreated = await tournamentManager.queryFilter(filterResults);
-    console.log(mintResultCreated);
+    // console.log(mintResultCreated);
 
     eventsResultCreated = [];
 
     for (let i = 0; i < mintResultCreated.length; i++) {
-      const player = mintResultCreated[i].args.player;
+      if (mintResultCreated[i].args.tournamentID===32)
+      {const player = mintResultCreated[i].args.player;
       const scoreNumber = mintResultCreated[i].args.scoreNumber.toBigInt();
+      // console.log({player})
 
-      eventsResultCreated.push({ player, score_number: scoreNumber });
+      eventsResultCreated.push({ address:player, score: scoreNumber });}
     }
-    console.log(eventsResultCreated);
+    console.log("events good",eventsResultCreated);
     const backendLeaderBoard = getLeaderboard(32n, eventsResultCreated);
-    // console.log(backendLeaderBoard.positions);
-    const index = backendLeaderBoard.positions.indexOf(0);
+    // // console.log(backendLeaderBoard.positions);
     const backendMerkleTree = getMerkleRoot(
-      60,
+      32,
       backendLeaderBoard.concatenatedStringBytes,
       backendLeaderBoard.positions,
-      index,
+      0,
     );
-    console.log(backendLeaderBoard.spongeHash);
+    console.log("backend recreated sponge hash",backendLeaderBoard.spongeHash);
 
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
