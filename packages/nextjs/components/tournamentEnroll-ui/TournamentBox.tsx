@@ -121,12 +121,12 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
           leaderboardState.concatenatedStringBytes && (
             <div className="mb-2 flex items-center justify-center">
               {is_ETH ? (
-                <div>
+                <div className="mb-2 flex items-center justify-center">
                   <StartButton tournament_id={tournamentInfo.id} />
                   <EndButton tournament_id={tournamentInfo.id} leaderboardState={leaderboardState} />
                 </div>
               ) : (
-                <div>
+                <div className="mb-2 flex items-center justify-center">
                   <StartERC20Button tournament_id={tournamentInfo.id} />
                   <EndERC20Button tournament_id={tournamentInfo.id} leaderboardState={leaderboardState} />
                 </div>
