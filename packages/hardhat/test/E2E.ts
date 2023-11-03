@@ -5,11 +5,12 @@ import { TournamentManager, FunToken, FunToken2, CompoundProtocol, MajorHashGame
 import { getLeaderboard } from "../../nextjs/utils/leader-board/leaderboard";
 import { getMerkleRoot } from "../../nextjs/utils/leader-board/merkle_tree_proof";
 import type { Signer } from "ethers";
+import contracts from "../../nextjs/generated/deployedContracts";
 
 describe("tournamentManager and MerkleTree", function () {
   // We define a fixture to reuse the same setup in every test.
 
-  const enrollmentAmount = ethers.utils.parseEther("1");
+  const enrollmentAmount = ethers.utils.parseEther("0.02");
 
   let tournamentManager: TournamentManager;
   let funToken: FunToken;
@@ -23,97 +24,107 @@ describe("tournamentManager and MerkleTree", function () {
     score_number: bigint;
   };
 
-  let filter;
+  let filterTournaments;
+  let filterResults;
+  let mintTournamentsCreated;
   let mintResultCreated;
   let eventsResultCreated: EventsResultCreated[];
   let badEventsResultCreated: EventsResultCreated[];
 
-  before("Deploy contracts", async () => {
-    // Initialize some signers
-    // [owner, participant1, participant2] = await ethers.getSigners();
+  it("E2E", async () => {
+    // this.timeout(400000); // Initialize some signers
+    [owner, participant1, participant2] = await ethers.getSigners();
+    const provider = ethers.provider;
+    console.log(await provider.getBalance(await owner.getAddress()));
+    console.log(await owner.getAddress());
 
-    // // Compound protocol contract
-    // const tournamentManagerFactory = await ethers.getContractFactory("TournamentManager");
-    // tournamentManager = (await tournamentManagerFactory.deploy(owner.getAddress())) as TournamentManager;
-    // await tournamentManager.deployed();
-    // // Compound protocol contract
-    // const CompoundProtocolFactory = await ethers.getContractFactory("CompoundProtocol");
-    // compoundProtocol = (await CompoundProtocolFactory.deploy(owner.getAddress())) as CompoundProtocol;
-    // await compoundProtocol.deployed();
-    // // Major hash game contract
-    // const MajorHashGameFactory = await ethers.getContractFactory("MajorHashGame");
-    // majorHashGame = (await MajorHashGameFactory.deploy(tournamentManager.address)) as MajorHashGame;
-    // await majorHashGame.deployed();
-    // // FunToken contract
-    // const FunTokenFactory = await ethers.getContractFactory("FunToken");
-    // funToken = (await FunTokenFactory.deploy(owner.getAddress())) as FunToken;
-    // await funToken.deployed();
-    // // FunToken2 contract
-    // const FunToken2Factory = await ethers.getContractFactory("FunToken2");
-    // funToken2 = (await FunToken2Factory.deploy(owner.getAddress())) as FunToken2;
-    // await funToken2.deployed();
+    // TournamentManager contract
+    const tournamentManagerFactory = await ethers.getContractFactory("TournamentManager");
+    const tournamentManager = tournamentManagerFactory.attach(
+      contracts[5][0].contracts.TournamentManager.address, // The deployed contract address
+    );
+    // Compound protocol contract
+    const CompoundProtocolFactory = await ethers.getContractFactory("CompoundProtocol");
+    const CompoundProtocol = CompoundProtocolFactory.attach(
+      contracts[5][0].contracts.CompoundProtocol.address, // The deployed contract address
+    );
 
-    // const currentDate = new Date();
-    // const tomorrow = new Date(currentDate.getTime() + 2 * 24 * 60 * 60 * 1000); // Add 24 hours
-    // const init_date_UnixTimestampInSeconds = Math.floor(tomorrow.getTime() / 1000);
+    // Compound protocol contract
+    const RocketProtocolFactory = await ethers.getContractFactory("RocketProtocol");
+    const RocketProtocol = RocketProtocolFactory.attach(
+      contracts[5][0].contracts.RocketProtocol.address, // The deployed contract address
+    );
+    // Major hash game contract
+    const MajorHashGameFactory = await ethers.getContractFactory("MajorHashGame");
+    const MajorHashGame = MajorHashGameFactory.attach(
+      contracts[5][0].contracts.MajorHashGame.address, // The deployed contract address
+    );
+    // FunToken contract
+    const FunTokenFactory = await ethers.getContractFactory("FunToken");
+    const FunToken = FunTokenFactory.attach(
+      contracts[5][0].contracts.FunToken.address, // The deployed contract address
+    );
+    // FunToken2 contract
+    const FunToken2Factory = await ethers.getContractFactory("FunToken2");
+    const FunToken2 = FunToken2Factory.attach(
+      contracts[5][0].contracts.FunToken2.address, // The deployed contract address
+    );
 
-    // const afterTomorrow = new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000); // Add another 24 hours
-    // const end_date_UnixTimestampInSeconds = Math.floor(afterTomorrow.getTime() / 1000);
+    const currentDate = new Date();
+    const tomorrow = new Date(currentDate.getTime() + 20 * 60 * 1000); // Add 2 days
+    const init_date_UnixTimestampInSeconds = Math.floor(tomorrow.getTime() / 1000);
 
+    const afterTomorrow = new Date(tomorrow.getTime() + 60 * 1000); // Add another day
+    const end_date_UnixTimestampInSeconds = Math.floor(afterTomorrow.getTime() / 1000);
+    // console.log("creating tournament");
     // await tournamentManager
     //   .connect(owner)
     //   .createTournament(
     //     10000,
     //     1,
     //     enrollmentAmount,
-    //     [funToken.address],
+    //     [],
     //     init_date_UnixTimestampInSeconds,
     //     end_date_UnixTimestampInSeconds,
-    //     compoundProtocol.address,
-    //     ["0xF09F0369aB0a875254fB565E52226c88f10Bc839"],
+    //     RocketProtocol.address,
+    //     ["0xd8Cd47263414aFEca62d6e2a3917d6600abDceB3", "0xa9A6A14A3643690D0286574976F45abBDAD8f505"],
     //   );
+    console.log("tournament created");
 
-    //   await tournamentManager
-    //   .connect(owner)
-    //   .createTournament(
-    //     10000,
-    //     1,
-    //     enrollmentAmount,
-    //     [funToken.address],
-    //     init_date_UnixTimestampInSeconds,
-    //     end_date_UnixTimestampInSeconds,
-    //     compoundProtocol.address,
-    //     ["0xF09F0369aB0a875254fB565E52226c88f10Bc839"],
-    //   );
+    filterTournaments = tournamentManager.filters.TournamentCreated();
+    mintTournamentsCreated = await tournamentManager.queryFilter(filterTournaments);
 
-    // await funToken.transfer(participant1.getAddress(), ethers.utils.parseEther("15"));
-    // await funToken2.transfer(participant1.getAddress(), ethers.utils.parseEther("15"));
-    // await funToken.transfer(participant2.getAddress(), ethers.utils.parseEther("15"));
-    // await funToken2.transfer(participant2.getAddress(), ethers.utils.parseEther("15"));
+    let greatestTournamentID = 0;
 
-    // await funToken.connect(owner).approve(tournamentManager.address, enrollmentAmount);
-    // await tournamentManager.enrollWithERC20(0);
-    // await funToken.connect(participant1).approve(tournamentManager.address, enrollmentAmount);
-    // await tournamentManager.connect(participant1).enrollWithERC20(0);
-    // await funToken.connect(participant2).approve(tournamentManager.address, enrollmentAmount);
-    // await tournamentManager.connect(participant2).enrollWithERC20(0);
+    for (const event of mintTournamentsCreated) {
+      if (event.args && event.args && event.args.tournamentID > greatestTournamentID) {
+        greatestTournamentID = event.args.tournamentID;
+      }
+    }
 
-    // // advance time by one hour and mine a new block
-    // await time.increase(3600 * 50);
-    // await majorHashGame.connect(owner).play(0);
-    // const blockNumBefore1 = await ethers.provider.getBlockNumber();
-    // const blockBefore1 = await ethers.provider.getBlock(blockNumBefore1);
-    // const timestampBefore1 = blockBefore1.timestamp;
-    // // console.log("temps owner", timestampBefore1);
-    // await majorHashGame.connect(participant1).play(0);
-    // await majorHashGame.connect(participant2).play(0);
-    // const blockNumBefore = await ethers.provider.getBlockNumber();
-    // const blockBefore = await ethers.provider.getBlock(blockNumBefore);
-    // const timestampBefore = blockBefore.timestamp;
-    // // console.log("temps player1", timestampBefore);
+    console.log({ greatestTournamentID }, "to enroll");
 
-    // filter = tournamentManager.filters.ResultCreated(0);
-    // mintResultCreated = await tournamentManager.queryFilter(filter);
+    // await tournamentManager.connect(owner).enrollWithETH(greatestTournamentID, { value: enrollmentAmount });
+
+    // const newTournament = await tournamentManager.tournaments(greatestTournamentID);
+    // console.log("enrolled to ", greatestTournamentID,"num parts",newTournament.numParticipants);
+
+    console.log("waiting 1 minute to allow enrolls");
+
+    await tournamentManager.connect(owner).startETHTournament(greatestTournamentID);
+
+    console.log("played!");
+
+    await MajorHashGame.connect(owner).play(greatestTournamentID);
+
+    const newTournament1 = await tournamentManager.tournaments(greatestTournamentID);
+
+
+    console.log("SPONGE", newTournament1.resultsSpongeHash, "players",  (newTournament1.initDate).toBigInt(),newTournament1.deFiBridgeAddress,newTournament1.enrollmentAmount);
+
+    // filterResults = tournamentManager.filters.ResultCreated();
+    // mintResultCreated = await tournamentManager.queryFilter(filterResults);
+    // console.log(mintResultCreated);
 
     // eventsResultCreated = [];
 
@@ -123,11 +134,23 @@ describe("tournamentManager and MerkleTree", function () {
 
     //   eventsResultCreated.push({ player, score_number: scoreNumber });
     // }
-
+    // console.log(eventsResultCreated);
+    // const backendLeaderBoard = getLeaderboard(60n, eventsResultCreated);
+    // // console.log(backendLeaderBoard.positions);
+    // const index = backendLeaderBoard.positions.indexOf(0);
+    // const backendMerkleTree = getMerkleRoot(
+    //   60,
+    //   backendLeaderBoard.concatenatedStringBytes,
+    //   backendLeaderBoard.positions,
+    //   index,
+    // );
+    //   console.log(backendLeaderBoard.spongeHash)
+    // const end = tournamentManager.endERC20Tournament(
+    //   greatestTournamentID,
+    //   backendLeaderBoard.concatenatedStringBytes,
+    //   backendLeaderBoard.positions,
+    // );
+    // await new Promise(end => setTimeout(end, 5000));
+    // console.log("tournament finished");
   });
-
-  it("E2E", async () => {
-    console.log("ts giew")
-  });
-
 });
