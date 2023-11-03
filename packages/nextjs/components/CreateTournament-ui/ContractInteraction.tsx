@@ -30,7 +30,7 @@ export const NewTournament = () => {
        init_date ? BigInt(Math.floor((new Date(init_date)).getTime()/1000)) : BigInt(0),
        end_date ? BigInt(Math.floor((new Date(end_date)).getTime()/1000)) : BigInt(0),
        DeFiBridge_address,
-       [DeFiProtocol_address]],
+       DeFiProtocol_address.split(',')],
     onBlockConfirmation: txnReceipt => {
       console.log("📦 approve Transaction blockHash", txnReceipt.blockHash);
     },
