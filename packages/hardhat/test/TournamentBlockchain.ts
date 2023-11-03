@@ -118,11 +118,12 @@ describe("Tournament Management", function () {
     expect(newTournament.initDate).to.equal(init_date_UnixTimestampInSeconds);
     expect(newTournament.endDate).to.equal(end_date_UnixTimestampInSeconds);
 
-    // expect(newTournament.DeFiBridge_address).to.equal(compoundProtocol.address);
-    // expect(newTournament.DeFiProtocol_address).to.equal("0xF09F0369aB0a875254fB565E52226c88f10Bc839");
 
     expect(newTournament.aborted).to.equal(false);
     expect(newTournament.numParticipants).to.equal(2);
+
+    expect(newTournament.deFiBridgeAddress).to.equal(clone.address);
+    expect(await clone.owner()).to.equal(tournamentManager.address);
 
     expect(await tournamentManager.getAcceptedTokens(0)).to.deep.equal([funToken.address]);
   });
@@ -152,16 +153,20 @@ describe("Tournament Management", function () {
     // Check if the first participant's enrollment check is set correctly
     const participant1Enrollment = await tournamentManager.getParticipants(1, participant1.getAddress());
     expect(participant1Enrollment).to.equal(true);
+
+    const provider = ethers.provider;
+    expect(await provider.getBalance(tournamentManager.address)).to.equal(enrollmentAmount.toBigInt()*BigInt(newTournament.numParticipants))
   });
 
   it("should allow participants to enroll with ERC20 tokens", async () => {
     // Get the updated tournament data
-    const updatedTournament = await tournamentManager.tournaments(0);
+    const newTournament = await tournamentManager.tournaments(0);
     // Check if the number of participants increased
-    expect(updatedTournament.numParticipants).to.equal(2);
+    expect(newTournament.numParticipants).to.equal(2);
     // Check if the first participant's enrollment check is set correctly
     const participant1Enrollment = await tournamentManager.getParticipants(0, participant1.getAddress());
     expect(participant1Enrollment).to.equal(true);
+    expect(await funToken.balanceOf(tournamentManager.address)).to.equal(enrollmentAmount.toBigInt()*BigInt(newTournament.numParticipants))
   });
 
   it("should allow Admins to start an ETH tournament", async () => {

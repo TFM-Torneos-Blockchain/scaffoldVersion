@@ -1,19 +1,23 @@
 import { useState } from "react";
 import { parseEther } from "viem";
 import { ArrowSmallRightIcon } from "@heroicons/react/24/outline";
-import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { getLeaderboard } from "~~/utils/leader-board/leaderboard";
+import { useContractWrite } from "wagmi";
+import { getTargetNetwork, notification } from "~~/utils/scaffold-eth";
+import { getParsedError } from "../scaffold-eth";
 
 export const NewTournament = () => {
   const [max_participants, set_max_participants] = useState(0);
   const [min_participants, set_min_participants] = useState(0);
   const [enrollment_amount, set_enrollment_amount] = useState(0n);
-  const [accepted_tokens, set_accepted_tokens] = useState<string[]>([]);
+  const [accepted_tokens, set_accepted_tokens] = useState<string>("");
 
-  const [init_date, set_init_date] = useState(0n);
-  const [end_date, set_end_date] = useState(0n);
+  const [init_date, set_init_date] = useState(0);
+  const [end_date, set_end_date] = useState(0);
   const [DeFiBridge_address, set_DeFiBridge_address] = useState("");
   const [DeFiProtocol_address, set_DeFiProtocol_address] = useState("");
-  
+
 
   const { isLoading:loadingapprove, isSuccess, writeAsync: approve } = useScaffoldContractWrite({
     contractName: "TournamentManager",
@@ -22,16 +26,15 @@ export const NewTournament = () => {
        max_participants,
        min_participants,
        enrollment_amount,
-       accepted_tokens,
-       init_date,
-       end_date,
+       accepted_tokens ? accepted_tokens.split(',') : [],
+       init_date ? BigInt(Math.floor((new Date(init_date)).getTime()/1000)) : BigInt(0),
+       end_date ? BigInt(Math.floor((new Date(end_date)).getTime()/1000)) : BigInt(0),
        DeFiBridge_address,
-       DeFiProtocol_address],
+       [DeFiProtocol_address]],
     onBlockConfirmation: txnReceipt => {
       console.log("📦 approve Transaction blockHash", txnReceipt.blockHash);
     },
   });
-
 
 
   const handleFormSubmit = () => {
@@ -75,7 +78,7 @@ export const NewTournament = () => {
                 type="text"
                 placeholder="Accepted Tokens (address[])"
                 className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
-                onChange={e => set_accepted_tokens(e.target.value.split(','))}
+                onChange={e => set_accepted_tokens(e.target.value)}
               />
             </div>
             <div className="mb-3">
@@ -83,7 +86,7 @@ export const NewTournament = () => {
                 type="text"
                 placeholder="The date of the start of the tournament"
                 className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
-                onChange={e => set_init_date(BigInt(Math.floor((new Date(e.target.value)).getTime()/1000)))}
+                onChange={e => set_init_date(e.target.value)}
               />
             </div>
             <div className="mb-3">
@@ -91,7 +94,7 @@ export const NewTournament = () => {
                 type="text"
                 placeholder="The date of the end of the tournament"
                 className="input font-bai-jamjuree w-full px-5 py-2 h-12 bg-white bg-[length:100%_100%] border border-primary text-black text-lg sm:text-2xl placeholder-gray-600"
-                onChange={e => set_end_date(BigInt(Math.floor((new Date(e.target.value)).getTime()/1000)))}
+                onChange={e => set_end_date(e.target.value)}
               />
             </div>
             <div className="mb-3">

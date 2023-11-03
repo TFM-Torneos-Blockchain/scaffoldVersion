@@ -7,14 +7,16 @@ import { erc20ABI, useContractRead, useContractWrite, useNetwork, useWaitForTran
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import { getTargetNetwork, notification } from "~~/utils/scaffold-eth";
 import { Contract } from "~~/utils/scaffold-eth/contract";
+import { ethers } from "ethers";
 
 type TReadOnlyFunctionFormProps = {
   tournament_id: number;
   contract: Contract<"TournamentManager">;
   txAmount: string;
+  setEnrolled: any;
 };
 // import  TokensApprove  from "../scaffold-eth/Contract/TokensApprove";
-export default function EnrollButtonERC20({ tournament_id, contract, txAmount }: TReadOnlyFunctionFormProps) {
+export default function EnrollButtonERC20({ tournament_id, contract, txAmount, setEnrolled }: TReadOnlyFunctionFormProps) {
   const { chain } = useNetwork();
   const writeEnrollTxn = useTransactor();
   const writeApproveTxn = useTransactor();
@@ -27,6 +29,35 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
   const [playerAddress, setPlayerAddress] = useState<any>("");
   // const [infoReaded, setInfoReaded] = useState(false);
   const { address: player_address } = getAccount();
+
+  const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/'); // Sustituye 'URL_DE_TU_RED_ETHEREUM' por la URL de la red Ethereum que estás utilizando
+  // listenOnQuoteUploadedEvent(deployedContractData?.abi, deployedContractData?.address as string, "wss://eth-mainnet.g.alchemy.com/v2/vWBspZ6zScCc8dGnEhMBggT3gKXnMzrv");
+  console.log("provider:", provider);
+   const contract2 = new ethers.Contract(contract.address,contract.abi, provider);
+   console.log(contract2);
+   contract2.on('Enroll', (param:any,param2:any, param3: any, param4: any) => {
+     //useScaffoldEventHistory
+     // Maneja el evento
+     console.log("enroll creado");
+     handleWriteJson({id: param, name: param2, amount: param3, date: param4})
+   });
+   console.log("index.js")  
+
+   const handleWriteJson = async (datatoWrtie: {}) => {
+     try {
+       const response = await fetch('/api/tournaments', {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json'
+         },
+         body: JSON.stringify(datatoWrtie)
+       });
+       const data = await response.json();
+       console.log(data.message);
+     } catch (error) {
+       console.log('Error al escribir en el archivo JSON.');
+     }
+   };
 
   const {
     data: dataAcceptedTokens,
@@ -124,6 +155,7 @@ export default function EnrollButtonERC20({ tournament_id, contract, txAmount }:
         console.log;
         const makeWriteWithParams = () => writeEnroll();
         await writeEnrollTxn(makeWriteWithParams);
+        setEnrolled(true);
       } catch (e: any) {
         const message = getParsedError(e);
         notification.error(message);

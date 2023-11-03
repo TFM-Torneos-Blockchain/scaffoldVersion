@@ -6,7 +6,7 @@ import "./interfaces/ITournamentManager.sol";
 
 contract MajorHashGame {
 	ITournamentManager public TournamentManager;
-	mapping(address => bool) hasPlayed;
+	mapping(uint16 => mapping(address => bool)) hasPlayed;
 
 	constructor(address tournamentManagerAddress) {
 		TournamentManager = ITournamentManager(tournamentManagerAddress);
@@ -19,7 +19,7 @@ contract MajorHashGame {
 			"You're not participating in this tournament."
 		);
 		require(
-			hasPlayed[msg.sender] == false,
+		!hasPlayed[idTournament][msg.sender],
 			"You have already played this tournament"
 		);
 
@@ -29,6 +29,7 @@ contract MajorHashGame {
 		);
 		uint256 scoreNumber = uint256(score);
 		TournamentManager.setResult(idTournament, msg.sender, scoreNumber);
-		hasPlayed[msg.sender] = true;
+
+		hasPlayed[idTournament][msg.sender] = true;
 	}
 }
