@@ -27,7 +27,7 @@ export default function EnrollButtonERC20({
   const writeApproveTxn = useTransactor();
   const writeDisabled = !chain || chain?.id !== getTargetNetwork().id;
   const enrollFunction = "enrollWithERC20";
-
+  
   const [ERC20addresses, setERC20addresses] = useState<any>([]);
   const [currentTokenIndex, setCurrentTokenIndex] = useState(0);
   const [isApproving, setIsApproving] = useState(true);
@@ -51,7 +51,7 @@ export default function EnrollButtonERC20({
 
   const handleWriteJson = async (datatoWrtie: {}) => {
     try {
-      const response = await fetch("https://defi-smart-tournaments-tfm.vercel.app/api/tournaments", {
+      const response = await fetch("/api/tournaments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -10,7 +10,7 @@ import contracts from "../../nextjs/generated/deployedContracts";
 describe("tournamentManager and MerkleTree", function () {
   // We define a fixture to reuse the same setup in every test.
 
-  const enrollmentAmount = ethers.utils.parseEther("0.02");
+  const enrollmentAmount = ethers.utils.parseEther("0.001");
 
   let tournamentManager: TournamentManager;
   let funToken: FunToken;
@@ -69,55 +69,60 @@ describe("tournamentManager and MerkleTree", function () {
     const FunToken2 = FunToken2Factory.attach(
       contracts[5][0].contracts.FunToken2.address, // The deployed contract address
     );
+      // const erc20 = new ethers.Contract(erc20.address,erc20.abi,owner)
+
 
     const currentDate = new Date();
-    const tomorrow = new Date(currentDate.getTime() + 20 * 60 * 1000); // Add 2 days
+    const tomorrow = new Date(currentDate.getTime() + 2* 60 * 1000); // Add 2 days
     const init_date_UnixTimestampInSeconds = Math.floor(tomorrow.getTime() / 1000);
 
-    const afterTomorrow = new Date(tomorrow.getTime() + 60 * 1000); // Add another day
+    const afterTomorrow = new Date(tomorrow.getTime() + 2*60 * 1000); // Add another day
     const end_date_UnixTimestampInSeconds = Math.floor(afterTomorrow.getTime() / 1000);
-    // console.log("creating tournament");
+    console.log("creating tournament");
     // await tournamentManager
     //   .connect(owner)
     //   .createTournament(
     //     10000,
     //     1,
     //     enrollmentAmount,
-    //     [],
+    //     ["0x42a71137C09AE83D8d05974960fd607d40033499"],
     //     init_date_UnixTimestampInSeconds,
     //     end_date_UnixTimestampInSeconds,
-    //     RocketProtocol.address,
-    //     ["0xd8Cd47263414aFEca62d6e2a3917d6600abDceB3", "0xa9A6A14A3643690D0286574976F45abBDAD8f505"],
+    //     CompoundProtocol.address,
+    //     ["0x9A539EEc489AAA03D588212a164d0abdB5F08F5F", "0xef9e070044d62C38D2e316146dDe92AD02CF2c2c"],
     //   );
-    console.log("tournament created");
+    // console.log("tournament created");
 
-    filterTournaments = tournamentManager.filters.TournamentCreated();
-    mintTournamentsCreated = await tournamentManager.queryFilter(filterTournaments);
+    // filterTournaments = tournamentManager.filters.TournamentCreated();
+    // mintTournamentsCreated = await tournamentManager.queryFilter(filterTournaments);
 
-    let greatestTournamentID = 0;
+    // let greatestTournamentID = 0;
 
-    for (const event of mintTournamentsCreated) {
-      if (event.args && event.args && event.args.tournamentID > greatestTournamentID) {
-        greatestTournamentID = event.args.tournamentID;
-      }
-    }
+    // for (const event of mintTournamentsCreated) {
+    //   if (event.args && event.args && event.args.tournamentID > greatestTournamentID) {
+    //     greatestTournamentID = event.args.tournamentID;
+    //   }
+    // }
 
-    console.log({ greatestTournamentID }, "to enroll");
+    // console.log({ greatestTournamentID }, "to enroll");
 
-    // await tournamentManager.connect(owner).enrollWithETH(greatestTournamentID, { value: enrollmentAmount });
+    // await funToken.connect(participant1).approve(leaderBoard.address, enrollmentAmount);
+
+
+    // await tournamentManager.connect(owner).enrollWithERC20(greatestTournamentID);
 
     // const newTournament = await tournamentManager.tournaments(greatestTournamentID);
     // console.log("enrolled to ", greatestTournamentID,"num parts",newTournament.numParticipants);
 
-    console.log("waiting 1 minute to allow enrolls");
+    // console.log("waiting 1 minute to allow enrolls");
 
-    await tournamentManager.connect(owner).startETHTournament(greatestTournamentID);
+    // await tournamentManager.connect(owner).startETHTournament(17);
 
-    console.log("played!");
+    // console.log("played!");
 
-    await MajorHashGame.connect(owner).play(greatestTournamentID);
+    // await MajorHashGame.connect(owner).play(greatestTournamentID);
 
-    const newTournament1 = await tournamentManager.tournaments(greatestTournamentID);
+    const newTournament1 = await tournamentManager.tournaments(17);
 
 
     console.log("SPONGE", newTournament1.resultsSpongeHash, "players",  (newTournament1.initDate).toBigInt(),newTournament1.deFiBridgeAddress,newTournament1.enrollmentAmount);
