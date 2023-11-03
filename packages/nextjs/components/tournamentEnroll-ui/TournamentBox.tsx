@@ -146,7 +146,7 @@ export default function TournamentBox({ tournament_id, contract, is_ETH }: TRead
               setEnrolled={setEnrolled}
             />
           )}
-        </div> : (<div>{new Date(dateParser(tournamentInfo.init_date)) < new Date(Date.now()) &&  new Date(Date.now()) < new Date(dateParser(tournamentInfo.end_date)) ? 
+        </div> : (<div>{new Date((tournamentInfo.init_date)) < new Date(Date.now()) &&  new Date(Date.now()) < new Date((tournamentInfo.end_date)) ? 
         (<div className="mb-2 flex items-center justify-center">
           {deployedContractData && (
             <PlayButton
