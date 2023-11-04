@@ -63,6 +63,17 @@ The project consists of the following components:
     - **Create Tournament**: Is the view that if you are admin, allows you to create many tournaments as you want
     - **Tournaments**: Is the view that shows all the tournaments of the website and allows you to enroll, play, and claim the tournament reward.
 
+
+## Project Flow Diagram
+<br>
+
+![alt text](./AppFlowSchema.drawio.png "Title")
+
+<br>
+
+![alt text](./GameFlowSchema.drawio.png "Title")
+
+
 ## Getting Started
 
 To get started with the Blockchain Tournaments FMP Project, follow these steps:
@@ -96,15 +107,6 @@ yarn deploy
 ```
 
 6. **Explore**: Open your web browser and visit http://localhost:3000 to explore and interact with the DApp.
-
-## Project Flow Diagram
-<br>
-
-![alt text](./AppFlowSchema.drawio.png "Title")
-
-<br>
-
-![alt text](./GameFlowSchema.drawio.png "Title")
 
 
 
