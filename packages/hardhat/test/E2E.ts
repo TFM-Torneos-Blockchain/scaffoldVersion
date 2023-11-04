@@ -36,11 +36,11 @@ describe("tournamentManager and MerkleTree", function () {
   it("E2E", async () => {
     // this.timeout(400000); // Initialize some signers
     [owner] = await ethers.getSigners();
-    const provider = ethers.provider; 
-    const signer1 = new ethers.Wallet('0x2cfda362c267f3a20867934fb70ca6a139af282b820fbf1efec8839d303d3d7b');
-    const signer2 = new ethers.Wallet('0x7a49e0ff147a2919d3f04b96bcd8dbdc255b6eeb175420f4be3d4f5109406901');
+    const provider = ethers.provider;
+    const signer1 = new ethers.Wallet("0x2cfda362c267f3a20867934fb70ca6a139af282b820fbf1efec8839d303d3d7b", provider);
+    const signer2 = new ethers.Wallet("0x7a49e0ff147a2919d3f04b96bcd8dbdc255b6eeb175420f4be3d4f5109406901", provider);
     console.log(await provider.getBalance(await owner.getAddress()));
-    console.log(await owner.getAddress());
+    console.log(await signer1.getAddress());
     // console.log(await participant1.getAddress());
 
     // TournamentManager contract
@@ -123,12 +123,12 @@ describe("tournamentManager and MerkleTree", function () {
     // // console.log("approve fet")
     // // const usdAllow=await usdt.connect(owner).allowance(owner.getAddress(),tournamentManager.address)
     // console.log("approve fet");
-    await FunToken.approve(tournamentManager.address, enrollmentAmount);
-    await FunToken2.approve(tournamentManager.address, enrollmentAmount);
-    await FunToken.connect(signer1).approve(tournamentManager.address, enrollmentAmount);
-    await FunToken2.connect(signer1).approve(tournamentManager.address, enrollmentAmount);
-    await FunToken.connect(signer2).approve(tournamentManager.address, enrollmentAmount);
-    await FunToken2.connect(signer2).approve(tournamentManager.address, enrollmentAmount);
+    // await FunToken.approve(tournamentManager.address, enrollmentAmount);
+    // await FunToken2.approve(tournamentManager.address, enrollmentAmount);
+    // await FunToken.connect(signer1).approve(tournamentManager.address, enrollmentAmount);
+    // await FunToken2.connect(signer1).approve(tournamentManager.address, enrollmentAmount);
+    // await FunToken.connect(signer2).approve(tournamentManager.address, enrollmentAmount);
+    // await FunToken2.connect(signer2).approve(tournamentManager.address, enrollmentAmount);
     // const allow = await FunToken.allowance(owner.getAddress(), tournamentManager.address);
     // // console.log("allowance fet");
 
@@ -159,7 +159,7 @@ describe("tournamentManager and MerkleTree", function () {
     // await MajorHashGame.connect(signer1).play(33);
     // await MajorHashGame.connect(signer2).play(33);
 
-    // const newTournament1 = await tournamentManager.tournaments(33);
+    const newTournament1 = await tournamentManager.tournaments(33);
 
     // console.log(
     //   "SPONGE",
@@ -171,43 +171,57 @@ describe("tournamentManager and MerkleTree", function () {
     // );
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
-    // filterResults = tournamentManager.filters.ResultCreated(33);
-    // mintResultCreated = await tournamentManager.queryFilter(filterResults);
-    // // console.log(mintResultCreated);
+    filterResults = tournamentManager.filters.ResultCreated(33);
+    mintResultCreated = await tournamentManager.queryFilter(filterResults);
+    // console.log(mintResultCreated);
 
-    // eventsResultCreated = [];
+    eventsResultCreated = [];
 
-    // for (let i = 0; i < mintResultCreated.length; i++) {
-    //   if (mintResultCreated[i].args.tournamentID===33)
-    //   {const player = mintResultCreated[i].args.player;
-    //   const scoreNumber = mintResultCreated[i].args.scoreNumber.toBigInt();
-    //   // console.log({player})
+    for (let i = 0; i < mintResultCreated.length; i++) {
+      if (mintResultCreated[i].args.tournamentID === 33) {
+        const player = mintResultCreated[i].args.player;
+        const scoreNumber = mintResultCreated[i].args.scoreNumber.toBigInt();
+        // console.log({player})
 
-    //   eventsResultCreated.push({ address:player, score: scoreNumber });}
-    // }
-    // console.log("events good",eventsResultCreated);
-    // const backendLeaderBoard = getLeaderboard(33n, eventsResultCreated);
-    // // // console.log(backendLeaderBoard.positions);
-    // const backendMerkleTree = getMerkleRoot(
-    //   33,
-    //   backendLeaderBoard.concatenatedStringBytes,
-    //   backendLeaderBoard.positions,
-    //   0,
-    // );
-    // console.log("backend recreated sponge hash",backendLeaderBoard.spongeHash,backendLeaderBoard.concatenatedStringBytes,backendLeaderBoard.positions);
+        eventsResultCreated.push({ address: player, score: scoreNumber });
+      }
+    }
+    console.log("events good", eventsResultCreated);
+    const backendLeaderBoard = getLeaderboard(33n, eventsResultCreated);
+    // // console.log(backendLeaderBoard.positions);
+    const index = backendLeaderBoard.positions.indexOf(0);
+
+    const backendMerkleTree = getMerkleRoot(
+      33,
+      backendLeaderBoard.concatenatedStringBytes,
+      backendLeaderBoard.positions,
+      index,
+    );
+    console.log(
+      "backend recreated sponge hash",
+      backendLeaderBoard.spongeHash,
+      "bytes",
+      backendLeaderBoard.concatenatedStringBytes,
+      backendLeaderBoard.positions,
+      index,
+      backendMerkleTree.inputProof,
+      backendMerkleTree.isLeft,
+      backendMerkleTree.root,
+      newTournament1.merkleRoot
+      
+    );
 
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
-    // await tournamentManager.endERC20Tournament(
-    //   33,
-    //   backendLeaderBoard.concatenatedStringBytes,
-    //   backendLeaderBoard.positions,
-    // );
+    await tournamentManager.endERC20Tournament(
+      33,
+      backendLeaderBoard.concatenatedStringBytes,
+      backendLeaderBoard.positions,
+    );
 
-    // console.log("tournament finished");
+    console.log("tournament finished");
+    // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
-    // await tournamentManager.connect(owner).verifyAndClaim(33,backendMerkleTree.isLeft,0,backendMerkleTree.inputProof)
-    // await tournamentManager.connect(signer1).verifyAndClaim(33,backendMerkleTree.isLeft,0,backendMerkleTree.inputProof)
-    // await tournamentManager.connect(signer2).verifyAndClaim(33,backendMerkleTree.isLeft,0,backendMerkleTree.inputProof)
+    // await tournamentManager.connect(owner).verifyAndClaim(33,backendMerkleTree.isLeft,index,backendMerkleTree.inputProof)
   });
 });
