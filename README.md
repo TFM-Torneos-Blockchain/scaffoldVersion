@@ -106,15 +106,6 @@ yarn deploy
 
 ![alt text](./GameFlowSchema.drawio.png "Title")
 
-### Contributors
-
-This project welcomes contributions from the open-source community. If you'd like to contribute, please fork the repository, make your changes, and submit a pull request.
-
-### License
-
-The Blockchain Tournaments FMP Project is open-source software licensed under the MIT License.
-
-Thank you for your interest in the Blockchain Tournaments FMP Project. We hope you find it both educational and useful for your blockchain journey!
 
 
 
