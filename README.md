@@ -63,6 +63,8 @@ The project consists of the following components:
     - **Create Tournament**: Is the view that if you are admin, allows you to create many tournaments as you want
     - **Tournaments**: Is the view that shows all the tournaments of the website and allows you to enroll, play, and claim the tournament reward.
 
+## Demo
+[LINK](https://defi-smart-tournaments-tfm.vercel.app/)
 
 ## Project Flow Diagram
 <br>
