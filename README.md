@@ -21,6 +21,12 @@ The Blockchain Tournaments FMP Project is a decentralized application (DApp) bui
 
 - **Tournament Enrollment**: Participants pay the entry fee and meet the tournament's requirements to enroll.
 
+- **Tournament Play**: Generate a spongehash: hash(hash(address+score)+hash(address+score))
+
+- **Tournament Start**: The admin set the tournament started to let players play.
+
+- **Tournament End**: The admin set the tournament ended to let players claim.
+
 - **DeFi Investment**: Collected fees are invested in DeFi protocols to generate interest.
 
 - **Tournament Progress**: Users can track the progress of tournaments and see the increasing prize pool.
@@ -29,13 +35,34 @@ The Blockchain Tournaments FMP Project is a decentralized application (DApp) bui
 
 - **Claiming Rewards**: Winners can claim their rewards from the prize pool.
 
+## Technologies
+
+The technologies used by this project:
+- **Web**
+    - Next.js
+    - TailwindCSS
+    - TypeScript
+    - Scaffold
+    - Vercel
+- **Solidity**
+    - Hardhat
+    - Goerli
+
+
 ## Project Structure
 
 The project consists of the following components:
 
 - **Smart Contracts**: Ethereum smart contracts written in Solidity to manage tournaments, investments, and user interactions.
+    - **TournamentManager.sol**: Is the base contract, which manages all the tournaments information and the logic.
+    - **MajorHashGame.sol**: Is the contract which manages the start of the major hash game.
+    - **UniswapV2Protocol.sol**: Is the contract of the bridge between our contracts and the Uniswap protocol.
+    - **RocketProtocol.sol**: Is the contract of the bridge between our contracts and the Rocket protocol.
+    - **CompoundProtocol**: Is the contract of the bridge between our contracts and the Compound Protocol.
 
 - **Frontend**: A web-based user interface built using web technologies like React.js to interact with the smart contracts and provide a user-friendly experience.
+    - **Create Tournament**: Is the view that if you are admin, allows you to create many tournaments as you want
+    - **Tournaments**: Is the view that shows all the tournaments of the website and allows you to enroll, play, and claim the tournament reward.
 
 ## Getting Started
 
@@ -51,7 +78,7 @@ git clone https://github.com/your-username/blockchain-tournaments-fmp.git
 
 ```shell
 cd blockchain-tournaments-fmp
-npm install
+yarn install
 ```
 
 3. **Compile and Deploy**: Compile the smart contracts and deploy them to your preferred Ethereum testnet or network.
@@ -59,10 +86,17 @@ npm install
 4. **Start the Frontend**: Run the frontend application to interact with the smart contracts.
 
 ```shell
-npm start
+yarn start
 ```
 
-5. **Explore**: Open your web browser and visit http://localhost:3000 to explore and interact with the DApp.
+5. **Run hardhat and deploy contracts**: Run the hardhat network and deploy the smart contracts.
+
+```shell
+yarn chain
+yarn deploy
+```
+
+6. **Explore**: Open your web browser and visit http://localhost:3000 to explore and interact with the DApp.
 
 ## Project Flow Diagram
 <br>
