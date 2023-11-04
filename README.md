@@ -5,6 +5,9 @@ Welcome to the Blockchain Tournaments FMP (Final Master's Project) Project! This
 ## Overview
 The Blockchain Tournaments FMP Project is a decentralized application (DApp) built using Solidity, Ethereum, and web technologies. It's designed to create and manage blockchain-based tournaments where participants can enroll by paying an entry fee. These tournaments accept various ERC20 tokens, which are then invested in different DeFi (Decentralized Finance) protocols to generate interest. The interest generated serves as the prize pool for tournament winners.
 
+![alt text](./esquema_jorge.jpeg "Title")
+
+
 ## Technologies
 
 The technologies used by this project:
