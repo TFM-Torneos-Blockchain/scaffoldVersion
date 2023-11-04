@@ -39,7 +39,7 @@ export default function EnrollButtonETH({
 
    const handleWriteJson = async (datatoWrtie: {}) => {
      try {
-       const response = await fetch('/api/tournaments', {
+       const response = await fetch('https://defi-smart-tournaments-tfm.vercel.app/api/tournaments', {
          method: 'POST',
          headers: {
            'Content-Type': 'application/json'
