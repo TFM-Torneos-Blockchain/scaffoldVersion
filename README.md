@@ -5,6 +5,19 @@ Welcome to the Blockchain Tournaments FMP (Final Master's Project) Project! This
 ## Overview
 The Blockchain Tournaments FMP Project is a decentralized application (DApp) built using Solidity, Ethereum, and web technologies. It's designed to create and manage blockchain-based tournaments where participants can enroll by paying an entry fee. These tournaments accept various ERC20 tokens, which are then invested in different DeFi (Decentralized Finance) protocols to generate interest. The interest generated serves as the prize pool for tournament winners.
 
+## Technologies
+
+The technologies used by this project:
+- **Web**
+    - Next.js
+    - TailwindCSS
+    - TypeScript
+    - Scaffold
+    - Vercel
+- **Solidity**
+    - Hardhat
+    - Goerli
+
 ## Features
 
 - **Tournament Creation**: Users can create new tournaments by specifying parameters like maximum and minimum participants, entry fee, acceptable ERC20 tokens, and more.
@@ -21,7 +34,7 @@ The Blockchain Tournaments FMP Project is a decentralized application (DApp) bui
 
 - **Tournament Enrollment**: Participants pay the entry fee and meet the tournament's requirements to enroll.
 
-- **Tournament Play**: Generate a spongehash: hash(hash(address+score)+hash(address+score))
+- **Tournament Play**: Generate a spongehash: hash(hash(address+score)+hash(address+score)) to be the cryptographic proof.
 
 - **Tournament Start**: The admin set the tournament started to let players play.
 
@@ -34,20 +47,6 @@ The Blockchain Tournaments FMP Project is a decentralized application (DApp) bui
 - **Tournament Completion**: Tournaments are completed, and winners are determined based on predefined rules.
 
 - **Claiming Rewards**: Winners can claim their rewards from the prize pool.
-
-## Technologies
-
-The technologies used by this project:
-- **Web**
-    - Next.js
-    - TailwindCSS
-    - TypeScript
-    - Scaffold
-    - Vercel
-- **Solidity**
-    - Hardhat
-    - Goerli
-
 
 ## Project Structure
 
