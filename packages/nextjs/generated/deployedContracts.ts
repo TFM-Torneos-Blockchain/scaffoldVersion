@@ -852,7 +852,7 @@ const contracts = {
           ],
         },
         MajorHashGame: {
-          address: "0x2e1829Df76fc6a50B7520Bb4AC75b727c25522Be",
+          address: "0x8ba8c141564DcAe726ebd59aAD779B918256002e",
           abi: [
             {
               inputs: [
@@ -1051,7 +1051,7 @@ const contracts = {
           ],
         },
         TournamentManager: {
-          address: "0x983744aA8f3827A712E1562530BE739D3B1fAD7B",
+          address: "0x01B1978636ebc23377F35FA72b5aec2d7E7B311C",
           abi: [
             {
               inputs: [],
@@ -1216,6 +1216,29 @@ const contracts = {
               inputs: [
                 {
                   internalType: "uint16",
+                  name: "idTournament",
+                  type: "uint16",
+                },
+                {
+                  internalType: "bytes",
+                  name: "bytesResultsData",
+                  type: "bytes",
+                },
+                {
+                  internalType: "uint16[]",
+                  name: "positions",
+                  type: "uint16[]",
+                },
+              ],
+              name: "createLeaderBoardMerkleTree",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "uint16",
                   name: "_maxParticipants",
                   type: "uint16",
                 },
@@ -1267,16 +1290,6 @@ const contracts = {
                   name: "idTournament",
                   type: "uint16",
                 },
-                {
-                  internalType: "bytes",
-                  name: "resultsBytes",
-                  type: "bytes",
-                },
-                {
-                  internalType: "uint16[]",
-                  name: "positions",
-                  type: "uint16[]",
-                },
               ],
               name: "endERC20Tournament",
               outputs: [],
@@ -1289,16 +1302,6 @@ const contracts = {
                   internalType: "uint16",
                   name: "idTournament",
                   type: "uint16",
-                },
-                {
-                  internalType: "bytes",
-                  name: "resultsBytes",
-                  type: "bytes",
-                },
-                {
-                  internalType: "uint16[]",
-                  name: "positions",
-                  type: "uint16[]",
                 },
               ],
               name: "endETHTournament",

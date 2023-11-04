@@ -282,16 +282,13 @@ contract TournamentManager is Ownable(msg.sender) {
 	}
 
 	function endERC20Tournament(
-		uint16 idTournament,
-		bytes calldata resultsBytes, // Each element is 52 bytes: 20 for the address and 32 for the score.
-		uint16[] calldata positions
-	) public onlyOwner {
+		uint16 idTournament
+	) external onlyOwner {
 		TournamentData storage selectedTournament = tournaments[idTournament];
 		require(
 			block.timestamp > selectedTournament.endDate,
 			"Tournament cannot be finished before the end date."
 		);
-		createLeaderBoardMerkleTree(idTournament, resultsBytes, positions);
 
 		// End the tournament with the DeFi Bridge and get the rewards.
 		uint256[] memory deFiBridgeRewards = IDeFiBridge(
@@ -317,18 +314,14 @@ contract TournamentManager is Ownable(msg.sender) {
 	}
 
 	function endETHTournament(
-		uint16 idTournament,
-		bytes calldata resultsBytes, // Each element is 52 bytes: 20 for the address and 32 for the score.
-		uint16[] calldata positions
-	) public onlyOwner {
+		uint16 idTournament
+	) external onlyOwner {
 		TournamentData storage selectedTournament = tournaments[idTournament];
 
 		require(
 			block.timestamp > selectedTournament.endDate,
 			"Tournament cannot be finished before the end date."
 		);
-
-		createLeaderBoardMerkleTree(idTournament, resultsBytes, positions);
 
 		uint256 deFiBridgeReward = IDeFiBridge(
 			selectedTournament.deFiBridgeAddress
@@ -491,7 +484,7 @@ contract TournamentManager is Ownable(msg.sender) {
 		uint16 idTournament,
 		bytes calldata bytesResultsData, // Each element is 52 bytes: 20 for the address and 32 for the score.
 		uint16[] calldata positions
-	) private {
+	) public {
 		require(
 			block.timestamp >= tournaments[idTournament].endDate,
 			"Tournament hasn't ended yet."

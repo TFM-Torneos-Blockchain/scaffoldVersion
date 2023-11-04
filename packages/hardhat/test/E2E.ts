@@ -55,9 +55,9 @@ describe("tournamentManager and MerkleTree", function () {
     );
 
     // Compound protocol contract
-    const RocketProtocolFactory = await ethers.getContractFactory("RocketProtocol");
-    const RocketProtocol = RocketProtocolFactory.attach(
-      contracts[5][0].contracts.RocketProtocol.address, // The deployed contract address
+    const UniswapV2ProtocolFactory = await ethers.getContractFactory("UniswapV2Protocol");
+    const UniswapV2Protocol = UniswapV2ProtocolFactory.attach(
+      contracts[5][0].contracts.UniswapV2Protocol.address, // The deployed contract address
     );
     // Major hash game contract
     const MajorHashGameFactory = await ethers.getContractFactory("MajorHashGame");
@@ -77,10 +77,10 @@ describe("tournamentManager and MerkleTree", function () {
     // const erc20 = new ethers.Contract(erc20.address,erc20.abi,owner)
 
     const currentDate = new Date();
-    const tomorrow = new Date(currentDate.getTime() + 6 * 60 * 1000); // Add 2 days
+    const tomorrow = new Date(currentDate.getTime() + 3 * 60 * 1000); // Add 2 days
     const init_date_UnixTimestampInSeconds = Math.floor(tomorrow.getTime() / 1000);
 
-    const afterTomorrow = new Date(tomorrow.getTime() + 6 * 60 * 1000); // Add another day
+    const afterTomorrow = new Date(tomorrow.getTime() + 3 * 60 * 1000); // Add another day
     const end_date_UnixTimestampInSeconds = Math.floor(afterTomorrow.getTime() / 1000);
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
@@ -88,40 +88,19 @@ describe("tournamentManager and MerkleTree", function () {
     // await tournamentManager
     //   .connect(owner)
     //   .createTournament(
-    //     90,
+    //     55,
     //     1,
     //     enrollmentAmount,
     //     [FunToken.address, FunToken2.address],
     //     init_date_UnixTimestampInSeconds,
     //     end_date_UnixTimestampInSeconds,
-    //     "0xc66ca6AF2b63Ab620559F4220B3F55804D6130f1",
+    //     UniswapV2Protocol.address,
     //     ["0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", "0x43e94ce53938AAeBC0731969ADc0d923A1e11579"],
     //   );
     // console.log("tournament created");
 
-    // const abi = [
-    //   // Read-Only Functions
-    //   "function balanceOf(address owner) view returns (uint256)",
-    //   "function decimals() view returns (uint8)",
-    //   "function symbol() view returns (string)",
-    //   "function approve(address spender, uint256 amount) external returns (bool)",
+    // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
-    //   // Authenticated Functions
-    //   "function transfer(address to, uint amount) returns (bool)",
-    //   "function allowance(address owner, address spender) external view returns (uint256)",
-
-    //   // Events
-    //   "event Transfer(address indexed from, address indexed to, uint amount)",
-    // ];
-
-    // // const address1 = "0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844";
-    // // const address2 = "0xfad6367E97217cC51b4cd838Cc086831f81d38C2";
-    // // const dai = new ethers.Contract(address1, abi, owner);
-    // // const usdt = new ethers.Contract(address2, abi, owner);
-    // // await dai.connect(owner).approve(tournamentManager.address,enrollmentAmount)
-    // // await usdt.connect(owner).approve(tournamentManager.address,enrollmentAmount)
-    // // console.log("approve fet")
-    // // const usdAllow=await usdt.connect(owner).allowance(owner.getAddress(),tournamentManager.address)
     // console.log("approve fet");
     // await FunToken.approve(tournamentManager.address, enrollmentAmount);
     // await FunToken2.approve(tournamentManager.address, enrollmentAmount);
@@ -130,36 +109,36 @@ describe("tournamentManager and MerkleTree", function () {
     // await FunToken.connect(signer2).approve(tournamentManager.address, enrollmentAmount);
     // await FunToken2.connect(signer2).approve(tournamentManager.address, enrollmentAmount);
     // const allow = await FunToken.allowance(owner.getAddress(), tournamentManager.address);
-    // // console.log("allowance fet");
+    // console.log("allowance fet");
 
-    // const newTournament = await tournamentManager.tournaments(33);
+    // // const newTournament = await tournamentManager.tournaments(33);
 
-    // console.log("enrolled to ", 31, "num parts", newTournament.maxParticipants, "allow", allow, newTournament.initDate.toBigInt());
+    // // console.log("enrolled to ", 31, "num parts", newTournament.maxParticipants, "allow", allow, newTournament.initDate.toBigInt());
 
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    // await tournamentManager.connect(owner).enrollWithERC20(33);
-    // await tournamentManager.connect(signer1).enrollWithERC20(33);
-    // await tournamentManager.connect(signer2).enrollWithERC20(33);
+    // await tournamentManager.connect(owner).enrollWithERC20(0);
+    // await tournamentManager.connect(signer1).enrollWithERC20(0);
+    // await tournamentManager.connect(signer2).enrollWithERC20(0);
 
-    // const newTournament = await tournamentManager.tournaments(33);
+    // const newTournament = await tournamentManager.tournaments(0);
     // console.log("enrolled to ", 31, "num parts", newTournament.numParticipants, newTournament.initDate.toBigInt());
 
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
     // console.log("waiting 1 minute to allow enrolls");
 
-    // await tournamentManager.connect(owner).startERC20Tournament(33);
+    // await tournamentManager.connect(owner).startERC20Tournament(0);
     // console.log("played!");
 
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
     // console.log("played!");
 
-    // await MajorHashGame.connect(owner).play(33);
-    // await MajorHashGame.connect(signer1).play(33);
-    // await MajorHashGame.connect(signer2).play(33);
+    // await MajorHashGame.connect(owner).play(0);
+    // await MajorHashGame.connect(signer1).play(0);
+    // await MajorHashGame.connect(signer2).play(0);
 
-    const newTournament1 = await tournamentManager.tournaments(33);
+    // const newTournament1 = await tournamentManager.tournaments(0);
 
     // console.log(
     //   "SPONGE",
@@ -171,14 +150,14 @@ describe("tournamentManager and MerkleTree", function () {
     // );
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
-    filterResults = tournamentManager.filters.ResultCreated(33);
+    filterResults = tournamentManager.filters.ResultCreated(0);
     mintResultCreated = await tournamentManager.queryFilter(filterResults);
     // console.log(mintResultCreated);
 
     eventsResultCreated = [];
 
     for (let i = 0; i < mintResultCreated.length; i++) {
-      if (mintResultCreated[i].args.tournamentID === 33) {
+      if (mintResultCreated[i].args.tournamentID === 0) {
         const player = mintResultCreated[i].args.player;
         const scoreNumber = mintResultCreated[i].args.scoreNumber.toBigInt();
         // console.log({player})
@@ -187,16 +166,17 @@ describe("tournamentManager and MerkleTree", function () {
       }
     }
     console.log("events good", eventsResultCreated);
-    const backendLeaderBoard = getLeaderboard(33n, eventsResultCreated);
+    const backendLeaderBoard = getLeaderboard(0n, eventsResultCreated);
     // // console.log(backendLeaderBoard.positions);
     const index = backendLeaderBoard.positions.indexOf(0);
 
     const backendMerkleTree = getMerkleRoot(
-      33,
+      0,
       backendLeaderBoard.concatenatedStringBytes,
       backendLeaderBoard.positions,
       index,
     );
+
     console.log(
       "backend recreated sponge hash",
       backendLeaderBoard.spongeHash,
@@ -207,21 +187,32 @@ describe("tournamentManager and MerkleTree", function () {
       backendMerkleTree.inputProof,
       backendMerkleTree.isLeft,
       backendMerkleTree.root,
-      newTournament1.merkleRoot
-      
     );
 
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    // const gasLimit = 4000000; // Set your desired gas limit
 
-    await tournamentManager.endERC20Tournament(
-      33,
-      backendLeaderBoard.concatenatedStringBytes,
-      backendLeaderBoard.positions,
+    // await tournamentManager.createLeaderBoardMerkleTree(
+    //   0,
+    //   backendLeaderBoard.concatenatedStringBytes,
+    //   backendLeaderBoard.positions,
+    //   { gasLimit }
+    // );
+    const Tournament1 = await tournamentManager.tournaments(0);
+
+    console.log(
+      "tournament  sponge hash",
+      Tournament1.resultsSpongeHash,
+      Tournament1.merkleRoot,
+      Tournament1.numParticipants,
     );
-
-    console.log("tournament finished");
+    // console.log("tournament finished");
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    const gasLimit = 4000000; // Set your desired gas limit
 
-    // await tournamentManager.connect(owner).verifyAndClaim(33,backendMerkleTree.isLeft,index,backendMerkleTree.inputProof)
+    await tournamentManager
+      .connect(owner)
+      .verifyAndClaim(33, backendMerkleTree.isLeft, index, backendMerkleTree.inputProof, { gasLimit });
+    console.log("verified");
   });
 });
