@@ -1,11 +1,13 @@
 # Blockchain Tournaments FMP Project
 
-Welcome to the Blockchain Tournaments FMP (Final Master's Project) Project! This project is a culmination of the BlockChain Technologies Master's Degree at the UPC Tech School.
+Welcome to the Blockchain Tournaments FMP (Final Master's Project) Project! This project represents the culmination of the Blockchain Technologies Master's Degree at the UPC Tech School.
 
 ## Overview
-The Blockchain Tournaments FMP Project is a decentralized application (DApp) built using Solidity, Ethereum, and web technologies. It's designed to create and manage blockchain-based tournaments where participants can enroll by paying an entry fee. These tournaments accept various ERC20 tokens, which are then invested in different DeFi (Decentralized Finance) protocols to generate interest. The interest generated serves as the prize pool for tournament winners.
+The Blockchain Tournaments FMP Project is a decentralized application (DApp) built using Solidity and web technologies. It is designed for creating and managing blockchain-based tournaments where participants can enroll by paying an entry fee. These tournaments accept various ERC20 tokens, which are then invested in different DeFi (Decentralized Finance) protocols to generate interest. The interest generated serves as the prize pool for tournament winners. This project prioritizes trustless operations and has been implemented with modularity in mind.
 
-![alt text](./esquema_jorge.jpeg "Title")
+<div style="text-align:center;">
+  <img src="./schema.jpeg" alt="Alt Text" title="Title" />
+</div>
 
 
 ## Technologies
@@ -17,66 +19,49 @@ The technologies used by this project:
     - TypeScript
     - Scaffold
     - Vercel
-- **Solidity**
+- **Blockchain**
+    - Solidity 
     - Hardhat
     - Goerli
 
-## Features
-
-- **Tournament Creation**: Users can create new tournaments by specifying parameters like maximum and minimum participants, entry fee, acceptable ERC20 tokens, and more.
-
-- **Tournament Enrollment**: Participants can enroll in tournaments by paying the specified entry fee and meeting the tournament's criteria.
-
-- **DeFi Investment**: The project integrates with DeFi protocols to invest the funds collected from participants. This investment generates interest, which forms the tournament's prize pool.
-
-- **Frontend Interface**: The project includes a user-friendly frontend web application where users can view, enroll in, and monitor tournaments.
-
-## How It Works
-
-- **Tournament Creation**: Users create new tournaments by specifying tournament parameters.
-
-- **Tournament Enrollment**: Participants pay the entry fee and meet the tournament's requirements to enroll.
-
-- **Tournament Play**: Generate a spongehash: hash(hash(address+score)+hash(address+score)) to be the cryptographic proof.
-
-- **Tournament Start**: The admin set the tournament started to let players play.
-
-- **Tournament End**: The admin set the tournament ended to let players claim.
-
-- **DeFi Investment**: Collected fees are invested in DeFi protocols to generate interest.
-
-- **Tournament Progress**: Users can track the progress of tournaments and see the increasing prize pool.
-
-- **Tournament Completion**: Tournaments are completed, and winners are determined based on predefined rules.
-
-- **Claiming Rewards**: Winners can claim their rewards from the prize pool.
 
 ## Project Structure
 
 The project consists of the following components:
 
-- **Smart Contracts**: Ethereum smart contracts written in Solidity to manage tournaments, investments, and user interactions.
-    - **TournamentManager.sol**: Is the base contract, which manages all the tournaments information and the logic.
-    - **MajorHashGame.sol**: Is the contract which manages the start of the major hash game.
-    - **UniswapV2Protocol.sol**: Is the contract of the bridge between our contracts and the Uniswap protocol.
-    - **RocketProtocol.sol**: Is the contract of the bridge between our contracts and the Rocket protocol.
-    - **CompoundProtocol**: Is the contract of the bridge between our contracts and the Compound Protocol.
+- **Smart Contracts**: The Ethereum smart contracts, written in Solidity, are responsible for managing tournaments, investments, and user interactions. Here are the main contract components:
+    - **TournamentManager**: Main contract of the project, governs all tournaments, facilitates the collection of tokens, and enables tournament participants to claim their rewards.
+    - **DeFi bridges**: Pre-deployed implementation smart contracts containing the logic to link our tournament manager with one accepted DeFi protocol.
+    - **Clones**: These are OpenZeppelin Minimal Proxies that are used to connect to the DeFi Bridges and manage investments separately for each tournament.
+    - **MajorHashGame**: A sample game created for explanatory purposes, illustrating the project's workflow.
 
-- **Frontend**: A web-based user interface built using web technologies like React.js to interact with the smart contracts and provide a user-friendly experience.
-    - **Create Tournament**: Is the view that if you are admin, allows you to create many tournaments as you want
-    - **Tournaments**: Is the view that shows all the tournaments of the website and allows you to enroll, play, and claim the tournament reward.
+- **Frontend**: The user interface, developed using web technologies such as React.js, allows users to interact with the smart contracts and provides an intuitive user experience. The frontend includes the following key views:
+    - **Create Tournament**: Admin users can create an unlimited number of tournaments.
+    - **Tournaments**: This view displays all available tournaments and allows users to enroll, play, and claim their tournament rewards. The frontend fetches data directly from the blockchain, ensuring transparency and real-time updates.
+- **Backdend**: The backend component recreates the on-chain Merkle tree and manages other essential functions of the project.
+## How It Works
 
-## Demo
-[LINK](https://defi-smart-tournaments-tfm.vercel.app/)
+- **Tournament Creation**:  Admins can create new tournaments by specifying parameters like maximum and minimum participants, entry fees, acceptable ERC20 tokens, and more. During the tournament's creation, a contract clone pointing to a "DeFi Bridge Smart Contract" is deployed. This clone manages the interaction with the DeFi protocol, providing two significant features. First, it allows for the independent management of investments for each tournament, and second, it enables the deployment of new DeFi Bridges to interact with other DeFi protocols.
 
-## Project Flow Diagram
-<br>
+- **Tournament Enrollment**: Participants can enroll in tournaments by paying the specified entry fee and meeting the tournament's criteria. A detailed explanation of the used protocols and investment timings will be provided.
+ 
+- **Tournament Start**: When the enrollment period has finished, all the collected tokens are invested in the pre-set DeFi protocol.
+  
+-  **DeFi Investment**: The project integrates with DeFi protocols to invest the funds collected from participants. This investment generates interest, which forms the tournament's prize pool.
 
 ![alt text](./AppFlowSchema.drawio.png "Title")
 
-<br>
+- **Tournament Play**: The game of the tournament could be either off-chain or on-chain. The project is designed to demonstrate and validate the classification by setting the game results for each player (just one play per player). Each accepted game should provide the player's address and a score, with the largest score determining the tournament winner. A hash of every result (address + score) is generated and hashed with the previous results to create and store a unique cryptographic summary of the tournament, which we called SpongeHash.
 
+- **Tournament End**: When the end date arrives, the invested tokens are withdrawn, along with the rewards generated during the stake period. These are then sent to the main contract to enable users to claim their rewards. With all the results taken from the events a merkle root ordenated with the tournament clasification order would be stored. The input data will be verified by recreating the stored SpongeHash.
+
+- **Claim**: Using the player's address, their position will be retrieved from the backend, and a merkle proof will be generated for the player to claim their reward. The claim will be enabled when the merkle proof is verified on-chain.
+  
 ![alt text](./GameFlowSchema.drawio.png "Title")
+
+
+## Demo
+[LINK](https://defi-smart-tournaments-tfm.vercel.app/)
 
 
 ## Getting Started
@@ -86,13 +71,12 @@ To get started with the Blockchain Tournaments FMP Project, follow these steps:
 1. **Clone the Repository**: Clone this GitHub repository to your local machine.
 
 ``` shell
-git clone https://github.com/your-username/blockchain-tournaments-fmp.git
+git clone https://github.com/TFM-Torneos-Blockchain/scaffoldVersion
 ```
 
 2. **Install Dependencies**: Navigate to the project directory and install the necessary dependencies for both the smart contracts and frontend.
 
 ```shell
-cd blockchain-tournaments-fmp
 yarn install
 ```
 
@@ -111,8 +95,16 @@ yarn chain
 yarn deploy
 ```
 
-6. **Explore**: Open your web browser and visit http://localhost:3000 to explore and interact with the DApp.
 
+### Contributors
+
+This project welcomes contributions from the open-source community. If you'd like to contribute, please fork the repository, make your changes, and submit a pull request.
+
+### License
+
+The Blockchain Tournaments FMP Project is open-source software licensed under the MIT License.
+
+Thank you for your interest in the Blockchain Tournaments FMP Project. We hope you find it both educational and useful for your blockchain journey!
 
 
 

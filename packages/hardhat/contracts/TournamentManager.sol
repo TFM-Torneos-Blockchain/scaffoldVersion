@@ -464,6 +464,7 @@ contract TournamentManager is Ownable(msg.sender) {
 		uint256 newScore
 	) external {
 		// Sponge Hash with previous resultsSpongeHash and new result (bytes(addressPlayer, scorePlayer)) -> hash(historic_results,new_results)
+		// TODO require accepted source 
 		require(
 			block.timestamp >= tournaments[idTournament].initDate,
 			"Tournament hasn't started yet."
