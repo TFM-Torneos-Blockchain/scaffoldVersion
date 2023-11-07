@@ -36,7 +36,7 @@ export default function EnrollButtonERC20({
   // const [infoReaded, setInfoReaded] = useState(false);
   const { address: player_address } = getAccount();
 
-  const provider = new ethers.providers.JsonRpcProvider(process.env.GOERLI_LINK); // Sustituye 'URL_DE_TU_RED_ETHEREUM' por la URL de la red Ethereum que estás utilizando
+  const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/'); // Sustituye 'URL_DE_TU_RED_ETHEREUM' por la URL de la red Ethereum que estás utilizando
   // listenOnQuoteUploadedEvent(deployedContractData?.abi, deployedContractData?.address as string, "wss://eth-mainnet.g.alchemy.com/v2/vWBspZ6zScCc8dGnEhMBggT3gKXnMzrv");
   console.log("provider:", provider);
   const contract2 = new ethers.Contract(contract.address, contract.abi, provider);

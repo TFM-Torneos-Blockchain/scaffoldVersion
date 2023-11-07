@@ -184,9 +184,8 @@ describe("tournamentManager and MerkleTree", function () {
       backendLeaderBoard.concatenatedStringBytes,
       backendLeaderBoard.positions,
       index,
+      'wyyyyyyyyyyyyyy',
       backendMerkleTree.inputProof,
-      backendMerkleTree.isLeft,
-      backendMerkleTree.root,
     );
 
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -205,14 +204,19 @@ describe("tournamentManager and MerkleTree", function () {
       Tournament1.resultsSpongeHash,
       Tournament1.merkleRoot,
       Tournament1.numParticipants,
+
     );
-    // console.log("tournament finished");
+    console.log("owner",await tournamentManager.getParticipants(0,owner.getAddress()) );
     // !ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-    const gasLimit = 4000000; // Set your desired gas limit
+    // const gasLimit = 8000000; // Set your desired gas limit
+    await tournamentManager.endERC20Tournament(0)
+    console.log('tour ended')
 
     await tournamentManager
-      .connect(owner)
-      .verifyAndClaim(33, backendMerkleTree.isLeft, index, backendMerkleTree.inputProof, { gasLimit });
+      .connect(signer1)
+      .verifyAndClaim(0, backendMerkleTree.isLeft, index, backendMerkleTree.inputProof);
     console.log("verified");
+
+  
   });
 });
