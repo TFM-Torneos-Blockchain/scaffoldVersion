@@ -1051,7 +1051,7 @@ const contracts = {
           ],
         },
         TournamentManager: {
-          address: "0x983744aA8f3827A712E1562530BE739D3B1fAD7B",
+          address: "0x01B1978636ebc23377F35FA72b5aec2d7E7B311C",
           abi: [
             {
               inputs: [],
