@@ -14,9 +14,10 @@
     "vercel:yolo": "vercel --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true"
   },
   "dependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@aragon/sdk-client": "^1.21.0",
     "@ethersproject/providers": "^5.7.2",
     "@heroicons/react": "^2.0.11",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@rainbow-me/rainbowkit": "1.0.8",
     "@scure/bip39": "^1.2.0",
     "@uniswap/sdk-core": "^4.0.1",
