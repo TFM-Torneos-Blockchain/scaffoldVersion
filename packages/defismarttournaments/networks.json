@@ -1,8 +1,0 @@
-{
-  "goerli": {
-    "TournamentManager": {
-      "address": "0x01b1978636ebc23377f35fa72b5aec2d7e7b311c",
-      "startBlock": 9982211
-    }
-  }
-}
