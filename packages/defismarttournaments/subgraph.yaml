@@ -1,0 +1,33 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: TournamentManager
+    network: goerli
+    source:
+      address: "0x01b1978636ebc23377f35fa72b5aec2d7e7b311c"
+      abi: TournamentManager
+      startBlock: 9982211
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Enroll
+        - OwnershipTransferred
+        - ResultCreated
+        - TournamentCreated
+      abis:
+        - name: TournamentManager
+          file: ./abis/TournamentManager.json
+      eventHandlers:
+        - event: Enroll(indexed uint16,indexed address,uint16,uint256)
+          handler: handleEnroll
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: ResultCreated(indexed uint16,indexed address,uint256)
+          handler: handleResultCreated
+        - event: TournamentCreated(indexed uint16,uint64,uint64,address)
+          handler: handleTournamentCreated
+      file: ./src/tournament-manager.ts

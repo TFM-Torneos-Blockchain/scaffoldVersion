@@ -1,0 +1,40 @@
+type Enroll @entity(immutable: true) {
+  id: Bytes!
+  tournamentID: Int! # uint16
+  user: Bytes! # address
+  numParticipants: Int! # uint16
+  totalCollectedAmount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ResultCreated @entity(immutable: true) {
+  id: Bytes!
+  tournamentID: Int! # uint16
+  player: Bytes! # address
+  scoreNumber: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TournamentCreated @entity(immutable: true) {
+  id: Bytes!
+  tournamentID: Int! # uint16
+  initData: BigInt! # uint64
+  endDate: BigInt! # uint64
+  deFiBridgeAddress: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
