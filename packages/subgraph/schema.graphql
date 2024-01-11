@@ -36,5 +36,5 @@ type TournamentCreated @entity(immutable: true) {
   deFiBridgeAddress: Bytes! # address
   blockNumber: BigInt!
   blockTimestamp: BigInt!
-  transactionHash: Bytes!
+  transactionHash: Bytes! 
 }
