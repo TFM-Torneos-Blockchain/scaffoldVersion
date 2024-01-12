@@ -1,40 +1,32 @@
-type Enroll @entity(immutable: true) {
-  id: Bytes!
-  tournamentID: Int! # uint16
-  user: Bytes! # address
-  numParticipants: Int! # uint16
-  totalCollectedAmount: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type OwnershipTransferred @entity(immutable: true) {
-  id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type ResultCreated @entity(immutable: true) {
-  id: Bytes!
-  tournamentID: Int! # uint16
-  player: Bytes! # address
-  scoreNumber: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TournamentCreated @entity(immutable: true) {
-  id: Bytes!
-  tournamentID: Int! # uint16
+type Tournament @entity(immutable: true) {
+  id: ID! # use tournamentID
   initData: BigInt! # uint64
   endDate: BigInt! # uint64
   deFiBridgeAddress: Bytes! # address
-  blockNumber: BigInt!
+  players: [TournamentPlayer!]! @derivedFrom(field: "tournament") # one tournament can have many players
+  results: [TournamentPlayerResult!]! @derivedFrom(field: "tournament")
+}
+
+type TournamentPlayer @entity(immutable: true) {
+  id: ID! #use TourID + player address
+  tournament: Tournament!
+  player: Players!
+  numParticipants: Int! # uint16
+  totalCollectedAmount: BigInt! # uint256
   blockTimestamp: BigInt!
-  transactionHash: Bytes!  
+  result: [TournamentPlayerResult!]! @derivedFrom(field: "player")
+  tournaments: [TournamentPlayerResult!]! @derivedFrom(field: "tournament") # many players can have many tournaments
+}
+
+type Players @entity(immutable: true) {
+  id: ID! # use EOA
+  tournaments: [TournamentPlayer!]! @derivedFrom(field: "player")
+}
+
+type TournamentPlayerResult @entity(immutable: true) {
+  id: ID! #use TourID + player address +  score
+  tournament: Tournament! # uint16
+  player: Players! # tourID + player
+  scoreNumber: BigInt! # uint256
+  blockTimestamp: BigInt!
 }

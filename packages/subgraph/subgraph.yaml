@@ -15,7 +15,6 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Enroll
-        - OwnershipTransferred
         - ResultCreated
         - TournamentCreated
       abis:
