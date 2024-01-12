@@ -1,32 +1,24 @@
 type Tournament @entity(immutable: true) {
-  id: ID! # use tournamentID
+  tournamentID: tournamentID! #! mbe Int? uint16
   initData: BigInt! # uint64
   endDate: BigInt! # uint64
   deFiBridgeAddress: Bytes! # address
-  players: [TournamentPlayer!]! @derivedFrom(field: "tournament") # one tournament can have many players
-  results: [TournamentPlayerResult!]! @derivedFrom(field: "tournament")
+  players: [TournamentPlayerResult!]! @derivedFrom(field: "tournamentID") # one tournament can have many players
 }
 
 type TournamentPlayer @entity(immutable: true) {
-  id: ID! #use TourID + player address
-  tournament: Tournament!
-  player: Players!
+  id: ID! #player address + TourID
   numParticipants: Int! # uint16
   totalCollectedAmount: BigInt! # uint256
   blockTimestamp: BigInt!
   result: [TournamentPlayerResult!]! @derivedFrom(field: "player")
-  tournaments: [TournamentPlayerResult!]! @derivedFrom(field: "tournament") # many players can have many tournaments
-}
-
-type Players @entity(immutable: true) {
-  id: ID! # use EOA
-  tournaments: [TournamentPlayer!]! @derivedFrom(field: "player")
+  tournamentID: [TournamentPlayerResult!]! @derivedFrom(field: "tournamentID") # many players can have many tournaments
 }
 
 type TournamentPlayerResult @entity(immutable: true) {
-  id: ID! #use TourID + player address +  score
-  tournament: Tournament! # uint16
-  player: Players! # tourID + player
+  id: ID! #player address +  score
+  tournamentID: Tournament! # uint16
+  player: TournamentPlayer! # one result can have one user enrolled per tournament
   scoreNumber: BigInt! # uint256
   blockTimestamp: BigInt!
 }
