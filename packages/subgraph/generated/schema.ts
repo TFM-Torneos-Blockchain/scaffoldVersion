@@ -50,8 +50,8 @@ export class Tournament extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get initData(): BigInt {
-    let value = this.get("initData");
+  get initDate(): BigInt {
+    let value = this.get("initDate");
     if (!value || value.kind == ValueKind.NULL) {
       throw new Error("Cannot return null for a required field.");
     } else {
@@ -59,8 +59,8 @@ export class Tournament extends Entity {
     }
   }
 
-  set initData(value: BigInt) {
-    this.set("initData", Value.fromBigInt(value));
+  set initDate(value: BigInt) {
+    this.set("initDate", Value.fromBigInt(value));
   }
 
   get endDate(): BigInt {
@@ -102,20 +102,59 @@ export class Tournament extends Entity {
     this.set("maxParticipants", Value.fromI32(value));
   }
 
-  get players(): TournamentPlayerResultLoader {
-    return new TournamentPlayerResultLoader(
+  get enrollmentAmount(): BigInt {
+    let value = this.get("enrollmentAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set enrollmentAmount(value: BigInt) {
+    this.set("enrollmentAmount", Value.fromBigInt(value));
+  }
+
+  get players(): TournamentPlayerLoader {
+    return new TournamentPlayerLoader(
       "Tournament",
       this.get("id")!.toString(),
       "players",
     );
   }
 
-  get results(): TournamentPlayerResultLoader {
-    return new TournamentPlayerResultLoader(
+  get results(): TournamentPlayerLoader {
+    return new TournamentPlayerLoader(
       "Tournament",
       this.get("id")!.toString(),
       "results",
     );
+  }
+
+  get totalCollectedAmount(): BigInt {
+    let value = this.get("totalCollectedAmount");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalCollectedAmount(value: BigInt) {
+    this.set("totalCollectedAmount", Value.fromBigInt(value));
+  }
+
+  get numParticipant(): i32 {
+    let value = this.get("numParticipant");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set numParticipant(value: i32) {
+    this.set("numParticipant", Value.fromI32(value));
   }
 }
 
@@ -158,21 +197,8 @@ export class Player extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get blockTimestamp(): BigInt {
-    let value = this.get("blockTimestamp");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set blockTimestamp(value: BigInt) {
-    this.set("blockTimestamp", Value.fromBigInt(value));
-  }
-
-  get tournaments(): TournamentPlayerResultLoader {
-    return new TournamentPlayerResultLoader(
+  get tournaments(): TournamentPlayerLoader {
+    return new TournamentPlayerLoader(
       "Player",
       this.get("id")!.toString(),
       "tournaments",
@@ -223,96 +249,6 @@ export class TournamentPlayer extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get numParticipant(): i32 {
-    let value = this.get("numParticipant");
-    if (!value || value.kind == ValueKind.NULL) {
-      return 0;
-    } else {
-      return value.toI32();
-    }
-  }
-
-  set numParticipant(value: i32) {
-    this.set("numParticipant", Value.fromI32(value));
-  }
-
-  get totalCollectedAmount(): BigInt {
-    let value = this.get("totalCollectedAmount");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set totalCollectedAmount(value: BigInt) {
-    this.set("totalCollectedAmount", Value.fromBigInt(value));
-  }
-
-  get playerScore(): string | null {
-    let value = this.get("playerScore");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set playerScore(value: string | null) {
-    if (!value) {
-      this.unset("playerScore");
-    } else {
-      this.set("playerScore", Value.fromString(<string>value));
-    }
-  }
-}
-
-export class TournamentPlayerResult extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(
-      id != null,
-      "Cannot save TournamentPlayerResult entity without an ID",
-    );
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type TournamentPlayerResult must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
-      );
-      store.set("TournamentPlayerResult", id.toString(), this);
-    }
-  }
-
-  static loadInBlock(id: string): TournamentPlayerResult | null {
-    return changetype<TournamentPlayerResult | null>(
-      store.get_in_block("TournamentPlayerResult", id),
-    );
-  }
-
-  static load(id: string): TournamentPlayerResult | null {
-    return changetype<TournamentPlayerResult | null>(
-      store.get("TournamentPlayerResult", id),
-    );
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toString();
-    }
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
   get tournamentID(): string {
     let value = this.get("tournamentID");
     if (!value || value.kind == ValueKind.NULL) {
@@ -337,19 +273,6 @@ export class TournamentPlayerResult extends Entity {
 
   set player(value: string) {
     this.set("player", Value.fromString(value));
-  }
-
-  get tournamentPlayer(): string {
-    let value = this.get("tournamentPlayer");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toString();
-    }
-  }
-
-  set tournamentPlayer(value: string) {
-    this.set("tournamentPlayer", Value.fromString(value));
   }
 
   get scoreNumber(): BigInt {
@@ -379,7 +302,7 @@ export class TournamentPlayerResult extends Entity {
   }
 }
 
-export class TournamentPlayerResultLoader extends Entity {
+export class TournamentPlayerLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -391,8 +314,8 @@ export class TournamentPlayerResultLoader extends Entity {
     this._field = field;
   }
 
-  load(): TournamentPlayerResult[] {
+  load(): TournamentPlayer[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<TournamentPlayerResult[]>(value);
+    return changetype<TournamentPlayer[]>(value);
   }
 }

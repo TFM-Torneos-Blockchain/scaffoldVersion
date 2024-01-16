@@ -1,40 +1,25 @@
-type Enroll @entity(immutable: true) {
-  id: Bytes!
-  tournamentID: Int! # uint16
-  user: Bytes! # address
-  numParticipants: Int! # uint16
-  totalCollectedAmount: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type OwnershipTransferred @entity(immutable: true) {
-  id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type ResultCreated @entity(immutable: true) {
-  id: Bytes!
-  tournamentID: Int! # uint16
-  player: Bytes! # address
-  scoreNumber: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type TournamentCreated @entity(immutable: true) {
-  id: Bytes!
-  tournamentID: Int! # uint16
-  initData: BigInt! # uint64
+type Tournament @entity {
+  id: ID! # uint16 tournamentID
+  initDate: BigInt! # uint64
   endDate: BigInt! # uint64
   deFiBridgeAddress: Bytes! # address
-  blockNumber: BigInt!
+  maxParticipants: Int! # get it from struct filtered by ID
+  enrollmentAmount: BigInt! # get it from struct filtered by ID
+  players: [TournamentPlayer!]! @derivedFrom(field: "tournamentID") # ? is this usual to have same relation so as to make queries more understandable?
+  results: [TournamentPlayer!]! @derivedFrom(field: "tournamentID") #! makes more sense a playersInfo field so I can query the address and the results
+  totalCollectedAmount: BigInt! # TODO update everytime Enroll happens (set to 0 at the beginning)
+  numParticipant: Int! # uint16
+}
+
+type Player @entity(immutable: true) {
+  id: ID! # player address
+  tournaments: [TournamentPlayer!]! @derivedFrom(field: "player")
+}
+
+type TournamentPlayer @entity {
+  id: ID! # TourID + player address
+  tournamentID: Tournament!
+  player: Player! # player address
+  scoreNumber: BigInt! # uint256
   blockTimestamp: BigInt!
-  transactionHash: Bytes!
 }

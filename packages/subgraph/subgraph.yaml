@@ -15,16 +15,16 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Tournament
+        - Player
         - TournamentPlayer
-        - TournamentPlayerResult
       abis:
         - name: TournamentManager
           file: ./abis/TournamentManager.json
       eventHandlers:
         - event: Enroll(indexed uint16,indexed address,uint16,uint256)
           handler: handleEnroll
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
+        # - event: OwnershipTransferred(indexed address,indexed address)
+        #   handler: handleOwnershipTransferred
         - event: ResultCreated(indexed uint16,indexed address,uint256)
           handler: handleResultCreated
         - event: TournamentCreated(indexed uint16,uint64,uint64,address)

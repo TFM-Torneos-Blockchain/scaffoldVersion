@@ -1,40 +1,25 @@
 type Tournament @entity {
-  #! the totalCollectedAmount will make Tournament MUTABLE!
   id: ID! # uint16 tournamentID
-  initData: BigInt! # uint64
+  initDate: BigInt! # uint64
   endDate: BigInt! # uint64
   deFiBridgeAddress: Bytes! # address
-  maxParticipants: Int! #? should get it from struct filtered by ID
-  enrollmentAmount: BigInt! #? should get it from struct filtered by ID
-  players: [TournamentPlayerResult!]! @derivedFrom(field: "tournamentID")
-  results: [TournamentPlayerResult!]! @derivedFrom(field: "tournamentID")
+  maxParticipants: Int! # get it from struct filtered by ID
+  enrollmentAmount: BigInt! # get it from struct filtered by ID
+  players: [TournamentPlayer!]! @derivedFrom(field: "tournamentID") # ? is this usual to have same relation so as to make queries more understandable?
+  results: [TournamentPlayer!]! @derivedFrom(field: "tournamentID") #! makes more sense a playersInfo field so I can query the address and the results
   totalCollectedAmount: BigInt! # TODO update everytime Enroll happens (set to 0 at the beginning)
   numParticipant: Int! # uint16
 }
 
 type Player @entity(immutable: true) {
   id: ID! # player address
-  # results: [TournamentPlayerResult!]! @derivedFrom(field: "player")
-  tournaments: [TournamentPlayerResult!]! @derivedFrom(field: "player") #? why would you link to TournamentPlayerResult and not just to Tournament itself,
-  #? just because we're making the more performant way of the many-to-many right?
-  #? could have a results, but you would only want them from specific tournaments just having an array of results feels pointless
+  tournaments: [TournamentPlayer!]! @derivedFrom(field: "player")
 }
-
-#? that's why I have TournamentPlayer to have specific info of a player in a tournament....
-#! i will just put TournamentPlayer into TournamentPlayerResult but info came from diferent events!
-#! Actually just introduces numParticipant and totalCollectedAmount which may be absolutely useless!
-# type TournamentPlayer @entity(immutable: true) {
-#   id: ID! # TourID + player address
-#   numParticipant: Int! # uint16
-#   totalCollectedAmount: BigInt! # uint256
-#   playerScore: TournamentPlayerResult # TourID + player address, null until player makes a play
-# }
 
 type TournamentPlayer @entity {
   id: ID! # TourID + player address
   tournamentID: Tournament!
   player: Player! # player address
-  tournamentPlayer: TournamentPlayer! # TourID + player address
   scoreNumber: BigInt! # uint256
   blockTimestamp: BigInt!
 }
