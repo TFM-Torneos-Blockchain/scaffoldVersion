@@ -55,6 +55,8 @@ export function handleEnroll(event: EnrollEvent): void {
     );
     tournamentPlayerEntity.tournamentID = event.params.tournamentID.toString();
     tournamentPlayerEntity.player = event.params.user.toString();
+    tournamentPlayerEntity.scoreNumber = new BigInt(0);
+    tournamentPlayerEntity.blockTimestamp = new BigInt(0);
   }
   tournamentPlayerEntity.save();
   // ? you asked me here to already create a TournamentPlayer, is this because as TournamentPlayer is also an auxiliar table, right?
