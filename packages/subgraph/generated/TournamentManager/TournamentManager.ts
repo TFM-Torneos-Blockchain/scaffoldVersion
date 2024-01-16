@@ -40,6 +40,28 @@ export class Enroll__Params {
   }
 }
 
+export class OwnershipTransferred extends ethereum.Event {
+  get params(): OwnershipTransferred__Params {
+    return new OwnershipTransferred__Params(this);
+  }
+}
+
+export class OwnershipTransferred__Params {
+  _event: OwnershipTransferred;
+
+  constructor(event: OwnershipTransferred) {
+    this._event = event;
+  }
+
+  get previousOwner(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get newOwner(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
 export class ResultCreated extends ethereum.Event {
   get params(): ResultCreated__Params {
     return new ResultCreated__Params(this);
@@ -145,7 +167,7 @@ export class TournamentManager__tournamentsResult {
     value7: Address,
     value8: Bytes,
     value9: Bytes,
-    value10: boolean
+    value10: boolean,
   ) {
     this.value0 = value0;
     this.value1 = value1;
@@ -164,19 +186,19 @@ export class TournamentManager__tournamentsResult {
     let map = new TypedMap<string, ethereum.Value>();
     map.set(
       "value0",
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value0))
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value0)),
     );
     map.set(
       "value1",
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value1))
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value1)),
     );
     map.set(
       "value2",
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value2))
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value2)),
     );
     map.set(
       "value3",
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value3))
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value3)),
     );
     map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
     map.set("value5", ethereum.Value.fromUnsignedBigInt(this.value5));
@@ -242,19 +264,19 @@ export class TournamentManager extends ethereum.SmartContract {
     let result = super.call(
       "getAcceptedTokens",
       "getAcceptedTokens(uint16):(address[])",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))],
     );
 
     return result[0].toAddressArray();
   }
 
   try_getAcceptedTokens(
-    idTournament: i32
+    idTournament: i32,
   ): ethereum.CallResult<Array<Address>> {
     let result = super.tryCall(
       "getAcceptedTokens",
       "getAcceptedTokens(uint16):(address[])",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -267,7 +289,7 @@ export class TournamentManager extends ethereum.SmartContract {
     let result = super.call(
       "getMerkleRoot",
       "getMerkleRoot(uint16):(bytes32)",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))],
     );
 
     return result[0].toBytes();
@@ -277,7 +299,7 @@ export class TournamentManager extends ethereum.SmartContract {
     let result = super.tryCall(
       "getMerkleRoot",
       "getMerkleRoot(uint16):(bytes32)",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -293,7 +315,7 @@ export class TournamentManager extends ethereum.SmartContract {
       [
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament)),
         ethereum.Value.fromAddress(participantAddress),
-      ]
+      ],
     );
 
     return result[0].toBoolean();
@@ -301,7 +323,7 @@ export class TournamentManager extends ethereum.SmartContract {
 
   try_getParticipants(
     idTournament: i32,
-    participantAddress: Address
+    participantAddress: Address,
   ): ethereum.CallResult<boolean> {
     let result = super.tryCall(
       "getParticipants",
@@ -309,7 +331,7 @@ export class TournamentManager extends ethereum.SmartContract {
       [
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament)),
         ethereum.Value.fromAddress(participantAddress),
-      ]
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -322,7 +344,7 @@ export class TournamentManager extends ethereum.SmartContract {
     let result = super.call(
       "getSpongeHash",
       "getSpongeHash(uint16):(bytes32)",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))],
     );
 
     return result[0].toBytes();
@@ -332,7 +354,7 @@ export class TournamentManager extends ethereum.SmartContract {
     let result = super.tryCall(
       "getSpongeHash",
       "getSpongeHash(uint16):(bytes32)",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(idTournament))],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -345,12 +367,12 @@ export class TournamentManager extends ethereum.SmartContract {
     let result = super.call(
       "getTournamentIds",
       "getTournamentIds():(uint256[],uint256[])",
-      []
+      [],
     );
 
     return new TournamentManager__getTournamentIdsResult(
       result[0].toBigIntArray(),
-      result[1].toBigIntArray()
+      result[1].toBigIntArray(),
     );
   }
 
@@ -358,7 +380,7 @@ export class TournamentManager extends ethereum.SmartContract {
     let result = super.tryCall(
       "getTournamentIds",
       "getTournamentIds():(uint256[],uint256[])",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -367,16 +389,31 @@ export class TournamentManager extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       new TournamentManager__getTournamentIdsResult(
         value[0].toBigIntArray(),
-        value[1].toBigIntArray()
-      )
+        value[1].toBigIntArray(),
+      ),
     );
+  }
+
+  owner(): Address {
+    let result = super.call("owner", "owner():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_owner(): ethereum.CallResult<Address> {
+    let result = super.tryCall("owner", "owner():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   tournaments(param0: BigInt): TournamentManager__tournamentsResult {
     let result = super.call(
       "tournaments",
       "tournaments(uint256):(uint16,uint8,uint16,uint16,uint256,uint64,uint64,address,bytes32,bytes32,bool)",
-      [ethereum.Value.fromUnsignedBigInt(param0)]
+      [ethereum.Value.fromUnsignedBigInt(param0)],
     );
 
     return new TournamentManager__tournamentsResult(
@@ -390,17 +427,17 @@ export class TournamentManager extends ethereum.SmartContract {
       result[7].toAddress(),
       result[8].toBytes(),
       result[9].toBytes(),
-      result[10].toBoolean()
+      result[10].toBoolean(),
     );
   }
 
   try_tournaments(
-    param0: BigInt
+    param0: BigInt,
   ): ethereum.CallResult<TournamentManager__tournamentsResult> {
     let result = super.tryCall(
       "tournaments",
       "tournaments(uint256):(uint16,uint8,uint16,uint16,uint256,uint64,uint64,address,bytes32,bytes32,bool)",
-      [ethereum.Value.fromUnsignedBigInt(param0)]
+      [ethereum.Value.fromUnsignedBigInt(param0)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -418,8 +455,8 @@ export class TournamentManager extends ethereum.SmartContract {
         value[7].toAddress(),
         value[8].toBytes(),
         value[9].toBytes(),
-        value[10].toBoolean()
-      )
+        value[10].toBoolean(),
+      ),
     );
   }
 }
@@ -700,6 +737,32 @@ export class EnrollWithETHCall__Outputs {
   }
 }
 
+export class RenounceOwnershipCall extends ethereum.Call {
+  get inputs(): RenounceOwnershipCall__Inputs {
+    return new RenounceOwnershipCall__Inputs(this);
+  }
+
+  get outputs(): RenounceOwnershipCall__Outputs {
+    return new RenounceOwnershipCall__Outputs(this);
+  }
+}
+
+export class RenounceOwnershipCall__Inputs {
+  _call: RenounceOwnershipCall;
+
+  constructor(call: RenounceOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class RenounceOwnershipCall__Outputs {
+  _call: RenounceOwnershipCall;
+
+  constructor(call: RenounceOwnershipCall) {
+    this._call = call;
+  }
+}
+
 export class SetResultCall extends ethereum.Call {
   get inputs(): SetResultCall__Inputs {
     return new SetResultCall__Inputs(this);
@@ -794,6 +857,36 @@ export class StartETHTournamentCall__Outputs {
   _call: StartETHTournamentCall;
 
   constructor(call: StartETHTournamentCall) {
+    this._call = call;
+  }
+}
+
+export class TransferOwnershipCall extends ethereum.Call {
+  get inputs(): TransferOwnershipCall__Inputs {
+    return new TransferOwnershipCall__Inputs(this);
+  }
+
+  get outputs(): TransferOwnershipCall__Outputs {
+    return new TransferOwnershipCall__Outputs(this);
+  }
+}
+
+export class TransferOwnershipCall__Inputs {
+  _call: TransferOwnershipCall;
+
+  constructor(call: TransferOwnershipCall) {
+    this._call = call;
+  }
+
+  get newOwner(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class TransferOwnershipCall__Outputs {
+  _call: TransferOwnershipCall;
+
+  constructor(call: TransferOwnershipCall) {
     this._call = call;
   }
 }

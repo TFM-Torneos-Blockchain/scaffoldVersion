@@ -5,7 +5,25 @@ import {
 } from "../generated/TournamentManager/TournamentManager";
 import { Enroll, ResultCreated, TournamentCreated } from "../generated/schema";
 
+export function handleTournamentCreated(event: TournamentCreatedEvent): void {
+  let tournamentEntity = new Tournament(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  tournamentEntity.tournamentID = event.params.tournamentID;
+  tournamentEntity.initData = event.params.initData;
+  tournamentEntity.endDate = event.params.endDate;
+  tournamentEntity.deFiBridgeAddress = event.params.deFiBridgeAddress;
+
+  // Todo
+
+  tournamentEntity.save();
+}
+
 export function handleEnroll(event: EnrollEvent): void {
+  // TODO
+  // create player
+  // create player result
+  // load the tournament and update the totalcollectedamount and number of participants load.Tournament
   let entity = new Enroll(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
@@ -28,18 +46,6 @@ export function handleResultCreated(event: ResultCreatedEvent): void {
   entity.scoreNumber = event.params.scoreNumber;
 
   entity.blockTimestamp = event.block.timestamp;
-
-  entity.save();
-}
-
-export function handleTournamentCreated(event: TournamentCreatedEvent): void {
-  let entity = new TournamentCreated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.tournamentID = event.params.tournamentID;
-  entity.initData = event.params.initData;
-  entity.endDate = event.params.endDate;
-  entity.deFiBridgeAddress = event.params.deFiBridgeAddress;
 
   entity.save();
 }
