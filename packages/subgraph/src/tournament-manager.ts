@@ -1,4 +1,4 @@
-import { BigInt } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   Enroll as EnrollEvent,
   ResultCreated as ResultCreatedEvent,
@@ -22,6 +22,9 @@ export function handleTournamentCreated(event: TournamentCreatedEvent): void {
     .getEnrollmentAmount();
   tournamentEntity.totalCollectedAmount = new BigInt(0);
   tournamentEntity.numParticipant = 0;
+  tournamentEntity.acceptedTokens = changetype<Bytes[]>(
+    contractAddress.getAcceptedTokens(event.params.tournamentID)
+  );
 
   tournamentEntity.save();
 }
@@ -29,43 +32,37 @@ export function handleTournamentCreated(event: TournamentCreatedEvent): void {
 export function handleEnroll(event: EnrollEvent): void {
   //? it is necessary to do this distinction? or just better try create new and framework will know it already exists?
   // if user already registered but in another tournament, no need to create new instance
-  let playerEntity = Player.load(event.params.user.toString());
+  let playerEntity = Player.load(event.params.user.toHexString());
   if (!playerEntity) {
-    let playerEntity = new Player(event.params.user.toString());
+    let playerEntity = new Player(event.params.user.toHexString());
     playerEntity.save();
   }
 
   let tournamentEntity = Tournament.load(event.params.tournamentID.toString());
-  if (tournamentEntity) {
-    // ? I wouldn't have done the IF but it give me undefined errors... i guess it's standard protocol, but in this case I'm 100% sure that tournament will always exist
-    tournamentEntity.totalCollectedAmount = event.params.totalCollectedAmount;
-    tournamentEntity.numParticipant = event.params.numParticipants;
-    tournamentEntity.save();
+  if (!tournamentEntity) {
+    tournamentEntity = new Tournament(event.params.tournamentID.toString());
   }
+  tournamentEntity.totalCollectedAmount = event.params.totalCollectedAmount;
+  tournamentEntity.numParticipant = event.params.numParticipants;
+  tournamentEntity.save();
 
-  //? would you put this first and then the tournamentEntity?
-  //? as it's sure that this entry won't exist, should I just skip the load step + if ?
-  let tournamentPlayerEntity = TournamentPlayer.load(
-    event.params.tournamentID.toString().concat(event.params.user.toString())
+  // a user can't enroll twice in same Tournament therefor, for each enroll event a new TournamentPlayer will be done.
+  let tournamentPlayerEntity = new TournamentPlayer(
+    event.params.tournamentID.toString().concat(event.params.user.toHexString())
   );
-  // creation of the auxiliar table so Tournament and Player can relate when a new User is enrolled, NOT when he makes the play!
-  if (!tournamentPlayerEntity) {
-    tournamentPlayerEntity = new TournamentPlayer(
-      event.params.tournamentID.toString().concat(event.params.user.toString())
-    );
-    tournamentPlayerEntity.tournamentID = event.params.tournamentID.toString();
-    tournamentPlayerEntity.player = event.params.user.toString();
-    tournamentPlayerEntity.scoreNumber = new BigInt(0);
-    tournamentPlayerEntity.blockTimestamp = new BigInt(0);
-  }
+  tournamentPlayerEntity.tournamentID = event.params.tournamentID.toString();
+  tournamentPlayerEntity.player = event.params.user.toHexString();
+  tournamentPlayerEntity.scoreNumber = new BigInt(0);
+  tournamentPlayerEntity.blockTimestamp = new BigInt(0);
   tournamentPlayerEntity.save();
-  // ? you asked me here to already create a TournamentPlayer, is this because as TournamentPlayer is also an auxiliar table, right?
 }
 
 export function handleResultCreated(event: ResultCreatedEvent): void {
-  // the TournamentPlayer will mandatorily already have been created when creating player
+  // The TournamentPlayer will already have been created when creating a player.
   let tournamentPlayerEntity = TournamentPlayer.load(
-    event.params.tournamentID.toString().concat(event.params.player.toString())
+    event.params.tournamentID
+      .toString()
+      .concat(event.params.player.toHexString())
   );
   if (tournamentPlayerEntity) {
     tournamentPlayerEntity.scoreNumber = event.params.scoreNumber;

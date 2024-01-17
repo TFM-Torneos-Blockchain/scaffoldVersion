@@ -115,19 +115,28 @@ export class Tournament extends Entity {
     this.set("enrollmentAmount", Value.fromBigInt(value));
   }
 
-  get players(): TournamentPlayerLoader {
-    return new TournamentPlayerLoader(
-      "Tournament",
-      this.get("id")!.toString(),
-      "players",
-    );
+  get acceptedTokens(): Array<Bytes> | null {
+    let value = this.get("acceptedTokens");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytesArray();
+    }
   }
 
-  get results(): TournamentPlayerLoader {
+  set acceptedTokens(value: Array<Bytes> | null) {
+    if (!value) {
+      this.unset("acceptedTokens");
+    } else {
+      this.set("acceptedTokens", Value.fromBytesArray(<Array<Bytes>>value));
+    }
+  }
+
+  get playersInfo(): TournamentPlayerLoader {
     return new TournamentPlayerLoader(
       "Tournament",
       this.get("id")!.toString(),
-      "results",
+      "playersInfo",
     );
   }
 
