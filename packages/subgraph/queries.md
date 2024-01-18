@@ -26,9 +26,8 @@ tournaments{
 tournamentID{
 id }
 scoreNumber
-test
-
 }
+testkkl
 
 }
 }
