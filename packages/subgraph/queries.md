@@ -26,6 +26,7 @@ tournaments{
 tournamentID{
 id }
 scoreNumber
+test
 
 }
 
