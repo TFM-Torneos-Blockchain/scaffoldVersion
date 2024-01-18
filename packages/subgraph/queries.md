@@ -1,4 +1,5 @@
-#Tournaments_full_info:
+# Tournaments_full_info:
+
 {
 tournaments(first:100){
 id
@@ -7,11 +8,26 @@ endDate
 deFiBridgeAddress
 maxParticipants
 enrollmentAmount
-players{
+acceptedTokens
+playersInfo(orderBy: blockTimestamp, orderDirection: asc){
 player{id}
-}
-results(orderBy: blockTimestamp, orderDirection: asc){ scoreNumber }
+scoreNumber }
 totalCollectedAmount
 numParticipant
+}
+}
+
+# Played_tournaments
+
+{
+players(first:100){
+id
+tournaments{
+tournamentID{
+id }
+scoreNumber
+
+}
+
 }
 }
