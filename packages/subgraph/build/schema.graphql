@@ -5,11 +5,14 @@ type Tournament @entity {
   deFiBridgeAddress: Bytes! # address
   maxParticipants: Int! # get it from struct filtered by ID
   enrollmentAmount: BigInt! # get it from struct filtered by ID
-  acceptedTokens: [Bytes!]
-  playersInfo: [TournamentPlayer!]! @derivedFrom(field: "tournamentID") # ? is this usual to have same relation so as to make queries more understandable?
-  # results: [TournamentPlayer!]! @derivedFrom(field: "tournamentID") #! makes more sense a playersInfo field so I can query the address and the results
-  totalCollectedAmount: BigInt! # TODO update everytime Enroll happens (set to 0 at the beginning)
+  acceptedTokens: [Token]!
+  playersInfo: [TournamentPlayer!]! @derivedFrom(field: "tournamentID")
+  totalCollectedAmount: BigInt!
   numParticipant: Int! # uint16
+}
+
+type Token @entity(immutable: true) {
+  id: Bytes!
 }
 
 type Player @entity(immutable: true) {

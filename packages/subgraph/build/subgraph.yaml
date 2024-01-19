@@ -17,6 +17,7 @@ dataSources:
         - Tournament
         - Player
         - TournamentPlayer
+        - Token
       abis:
         - name: TournamentManager
           file: TournamentManager/abis/TournamentManager.json
