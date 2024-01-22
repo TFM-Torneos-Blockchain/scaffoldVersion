@@ -8,7 +8,7 @@ endDate
 deFiBridgeAddress
 maxParticipants
 enrollmentAmount
-acceptedTokens
+acceptedTokens{id}
 playersInfo(orderBy: blockTimestamp, orderDirection: asc){
 player{id}
 scoreNumber }

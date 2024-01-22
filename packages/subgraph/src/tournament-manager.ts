@@ -1,31 +1,50 @@
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import {
   Enroll as EnrollEvent,
   ResultCreated as ResultCreatedEvent,
   TournamentCreated as TournamentCreatedEvent,
   TournamentManager,
 } from "../generated/TournamentManager/TournamentManager";
-import { Tournament, Player, TournamentPlayer } from "../generated/schema";
+import {
+  Tournament,
+  Player,
+  TournamentPlayer,
+  Token,
+} from "../generated/schema";
+
+const BIGINT_ZERO = new BigInt(0);
 
 export function handleTournamentCreated(event: TournamentCreatedEvent): void {
   let tournamentEntity = new Tournament(event.params.tournamentID.toString());
   let contractAddress = TournamentManager.bind(event.address);
 
+  let tournamentID = new BigInt(event.params.tournamentID);
+  let tournament = contractAddress.tournaments(tournamentID);
+
   tournamentEntity.initDate = event.params.initData;
   tournamentEntity.endDate = event.params.endDate;
   tournamentEntity.deFiBridgeAddress = event.params.deFiBridgeAddress;
-  tournamentEntity.maxParticipants = contractAddress
-    .tournaments(new BigInt(event.params.tournamentID))
-    .getMaxParticipants();
-  tournamentEntity.enrollmentAmount = contractAddress
-    .tournaments(new BigInt(event.params.tournamentID))
-    .getEnrollmentAmount();
-  tournamentEntity.totalCollectedAmount = new BigInt(0);
+  tournamentEntity.maxParticipants = tournament.getMaxParticipants();
+  tournamentEntity.enrollmentAmount = tournament.getEnrollmentAmount();
+  tournamentEntity.totalCollectedAmount = BIGINT_ZERO;
   tournamentEntity.numParticipant = 0;
-  tournamentEntity.acceptedTokens = changetype<Bytes[]>(
+
+  let acceptedTokensResult = changetype<Bytes[]>(
     contractAddress.getAcceptedTokens(event.params.tournamentID)
   );
+  if (acceptedTokensResult) {
+    let acceptedTokens: Bytes[] = acceptedTokensResult;
+    for (let i = 0; i < acceptedTokens.length; i++) {
+      let tokenAddress: Bytes = acceptedTokens[i];
+      let tokenEntity = Token.load(tokenAddress);
+      if (!tokenEntity) {
+        let tokenEntity = new Token(tokenAddress);
+        tokenEntity.save();
+      }
+    }
+  }
 
+  tournamentEntity.acceptedTokens = acceptedTokensResult;
   tournamentEntity.save();
 }
 
@@ -39,30 +58,34 @@ export function handleEnroll(event: EnrollEvent): void {
   }
 
   let tournamentEntity = Tournament.load(event.params.tournamentID.toString());
+  // As no one can enroll twice in a tournament it should never happen that a TournamentID doesn't exist when someone enrolls
   if (!tournamentEntity) {
-    tournamentEntity = new Tournament(event.params.tournamentID.toString());
+    log.critical("This should not happen", []);
+    return;
   }
   tournamentEntity.totalCollectedAmount = event.params.totalCollectedAmount;
   tournamentEntity.numParticipant = event.params.numParticipants;
   tournamentEntity.save();
 
+  let tournamentID = event.params.tournamentID.toString();
+  let userID = event.params.user.toHexString();
   // a user can't enroll twice in same Tournament therefor, for each enroll event a new TournamentPlayer will be done.
   let tournamentPlayerEntity = new TournamentPlayer(
-    event.params.tournamentID.toString().concat(event.params.user.toHexString())
+    [tournamentID, userID].join("_")
   );
-  tournamentPlayerEntity.tournamentID = event.params.tournamentID.toString();
-  tournamentPlayerEntity.player = event.params.user.toHexString();
-  tournamentPlayerEntity.scoreNumber = new BigInt(0);
-  tournamentPlayerEntity.blockTimestamp = new BigInt(0);
+  tournamentPlayerEntity.tournamentID = tournamentID;
+  tournamentPlayerEntity.player = userID;
+  tournamentPlayerEntity.scoreNumber = BIGINT_ZERO;
+  tournamentPlayerEntity.blockTimestamp = BIGINT_ZERO;
   tournamentPlayerEntity.save();
 }
 
 export function handleResultCreated(event: ResultCreatedEvent): void {
   // The TournamentPlayer will already have been created when creating a player.
+  let tournamentID = event.params.tournamentID.toString();
+  let userID = event.params.player.toHexString();
   let tournamentPlayerEntity = TournamentPlayer.load(
-    event.params.tournamentID
-      .toString()
-      .concat(event.params.player.toHexString())
+    [tournamentID, userID].join("_")
   );
   if (tournamentPlayerEntity) {
     tournamentPlayerEntity.scoreNumber = event.params.scoreNumber;
