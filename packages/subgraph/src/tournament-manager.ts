@@ -29,22 +29,23 @@ export function handleTournamentCreated(event: TournamentCreatedEvent): void {
   tournamentEntity.totalCollectedAmount = BIGINT_ZERO;
   tournamentEntity.numParticipant = 0;
 
-  let acceptedTokensResult = changetype<Bytes[]>(
-    contractAddress.getAcceptedTokens(event.params.tournamentID)
+  let callResult = contractAddress.try_getAcceptedTokens(
+    event.params.tournamentID
   );
-  if (acceptedTokensResult) {
-    let acceptedTokens: Bytes[] = acceptedTokensResult;
+  let acceptedTokens = callResult.value;
+  if (callResult.reverted) {
+    log.info("getAcceptedTokens reverted", []);
+  } else {
     for (let i = 0; i < acceptedTokens.length; i++) {
-      let tokenAddress: Bytes = acceptedTokens[i];
-      let tokenEntity = Token.load(tokenAddress);
+      let tokenEntity = Token.load(acceptedTokens[i]);
       if (!tokenEntity) {
-        let tokenEntity = new Token(tokenAddress);
+        let tokenEntity = new Token(acceptedTokens[i]);
         tokenEntity.save();
       }
     }
   }
 
-  tournamentEntity.acceptedTokens = acceptedTokensResult;
+  tournamentEntity.acceptedTokens = changetype<Bytes[]>(acceptedTokens);
   tournamentEntity.save();
 }
 

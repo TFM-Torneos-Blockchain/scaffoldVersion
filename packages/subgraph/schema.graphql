@@ -5,7 +5,7 @@ type Tournament @entity {
   deFiBridgeAddress: Bytes! # address
   maxParticipants: Int! # get it from struct filtered by ID
   enrollmentAmount: BigInt! # get it from struct filtered by ID
-  acceptedTokens: [Token]!
+  acceptedTokens: [Token!]!
   playersInfo: [TournamentPlayer!]! @derivedFrom(field: "tournamentID")
   totalCollectedAmount: BigInt!
   numParticipant: Int! # uint16

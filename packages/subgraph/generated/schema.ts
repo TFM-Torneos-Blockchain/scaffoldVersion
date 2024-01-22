@@ -115,21 +115,17 @@ export class Tournament extends Entity {
     this.set("enrollmentAmount", Value.fromBigInt(value));
   }
 
-  get acceptedTokens(): Array<Bytes> | null {
+  get acceptedTokens(): Array<Bytes> {
     let value = this.get("acceptedTokens");
     if (!value || value.kind == ValueKind.NULL) {
-      return null;
+      throw new Error("Cannot return null for a required field.");
     } else {
       return value.toBytesArray();
     }
   }
 
-  set acceptedTokens(value: Array<Bytes> | null) {
-    if (!value) {
-      this.unset("acceptedTokens");
-    } else {
-      this.set("acceptedTokens", Value.fromBytesArray(<Array<Bytes>>value));
-    }
+  set acceptedTokens(value: Array<Bytes>) {
+    this.set("acceptedTokens", Value.fromBytesArray(value));
   }
 
   get playersInfo(): TournamentPlayerLoader {
