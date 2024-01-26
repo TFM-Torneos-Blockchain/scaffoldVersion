@@ -5,14 +5,16 @@ type Tournament @entity {
   deFiBridgeAddress: Bytes! # address
   maxParticipants: Int! # get it from struct filtered by ID
   enrollmentAmount: BigInt! # get it from struct filtered by ID
-  acceptedTokens: [Token!]!
+  acceptedTokens: [Token!]! @derivedFrom(field: "tournamentID")
   playersInfo: [TournamentPlayer!]! @derivedFrom(field: "tournamentID")
   totalCollectedAmount: BigInt!
   numParticipant: Int! # uint16
 }
 
 type Token @entity(immutable: true) {
-  id: Bytes!
+  id: ID! # TourID + tokenAdd
+  tournamentID: Tournament!
+  tokenAddress: Bytes!
 }
 
 type Player @entity(immutable: true) {

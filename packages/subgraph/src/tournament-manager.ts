@@ -15,11 +15,12 @@ import {
 const BIGINT_ZERO = new BigInt(0);
 
 export function handleTournamentCreated(event: TournamentCreatedEvent): void {
-  let tournamentEntity = new Tournament(event.params.tournamentID.toString());
+  let tournamentID_string = event.params.tournamentID.toString();
+  let tournamentEntity = new Tournament(tournamentID_string);
   let contractAddress = TournamentManager.bind(event.address);
 
-  let tournamentID = new BigInt(event.params.tournamentID);
-  let tournament = contractAddress.tournaments(tournamentID);
+  let tournamentID_BigInt = new BigInt(event.params.tournamentID);
+  let tournament = contractAddress.tournaments(tournamentID_BigInt);
 
   tournamentEntity.initDate = event.params.initData;
   tournamentEntity.endDate = event.params.endDate;
@@ -28,48 +29,48 @@ export function handleTournamentCreated(event: TournamentCreatedEvent): void {
   tournamentEntity.enrollmentAmount = tournament.getEnrollmentAmount();
   tournamentEntity.totalCollectedAmount = BIGINT_ZERO;
   tournamentEntity.numParticipant = 0;
+  tournamentEntity.save();
 
-  let callResult = contractAddress.try_getAcceptedTokens(
+  let callAcceptedTokens = contractAddress.try_getAcceptedTokens(
     event.params.tournamentID
   );
-  let acceptedTokens = callResult.value;
-  if (callResult.reverted) {
+  let acceptedTokens = callAcceptedTokens.value;
+  if (callAcceptedTokens.reverted) {
     log.info("getAcceptedTokens reverted", []);
   } else {
     for (let i = 0; i < acceptedTokens.length; i++) {
-      let tokenEntity = Token.load(acceptedTokens[i]);
-      if (!tokenEntity) {
-        let tokenEntity = new Token(acceptedTokens[i]);
-        tokenEntity.save();
-      }
+      let tokensID = [
+        tournamentID_string,
+        acceptedTokens[i].toHexString(),
+      ].join("_");
+      let tokenEntity = new Token(tokensID);
+      tokenEntity.tournamentID = tournamentID_string;
+      tokenEntity.tokenAddress = acceptedTokens[i];
+      tokenEntity.save();
     }
   }
-
-  tournamentEntity.acceptedTokens = changetype<Bytes[]>(acceptedTokens);
-  tournamentEntity.save();
 }
 
 export function handleEnroll(event: EnrollEvent): void {
-  //? it is necessary to do this distinction? or just better try create new and framework will know it already exists?
   // if user already registered but in another tournament, no need to create new instance
-  let playerEntity = Player.load(event.params.user.toHexString());
+  let userID = event.params.user.toHexString();
+  let playerEntity = Player.load(userID);
   if (!playerEntity) {
-    let playerEntity = new Player(event.params.user.toHexString());
+    let playerEntity = new Player(userID);
     playerEntity.save();
   }
 
-  let tournamentEntity = Tournament.load(event.params.tournamentID.toString());
-  // As no one can enroll twice in a tournament it should never happen that a TournamentID doesn't exist when someone enrolls
+  let tournamentID = event.params.tournamentID.toString();
+  let tournamentEntity = Tournament.load(tournamentID);
+  // it should never happen that a TournamentID doesn't exist when someone enrolls
   if (!tournamentEntity) {
-    log.critical("This should not happen", []);
+    log.critical("No one could enroll to a non existing tournament", []);
     return;
   }
   tournamentEntity.totalCollectedAmount = event.params.totalCollectedAmount;
   tournamentEntity.numParticipant = event.params.numParticipants;
   tournamentEntity.save();
 
-  let tournamentID = event.params.tournamentID.toString();
-  let userID = event.params.user.toHexString();
   // a user can't enroll twice in same Tournament therefor, for each enroll event a new TournamentPlayer will be done.
   let tournamentPlayerEntity = new TournamentPlayer(
     [tournamentID, userID].join("_")
@@ -82,7 +83,7 @@ export function handleEnroll(event: EnrollEvent): void {
 }
 
 export function handleResultCreated(event: ResultCreatedEvent): void {
-  // The TournamentPlayer will already have been created when creating a player.
+  // The TournamentPlayer will already have been created when creating a player (in the enroll step).
   let tournamentID = event.params.tournamentID.toString();
   let userID = event.params.player.toHexString();
   let tournamentPlayerEntity = TournamentPlayer.load(
