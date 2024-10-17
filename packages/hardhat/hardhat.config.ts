@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import "@nomiclabs/hardhat-ethers"
+import "@nomiclabs/hardhat-ethers";
 import "hardhat-deploy";
 import "@matterlabs/hardhat-zksync-solc";
 import "@matterlabs/hardhat-zksync-verify";
@@ -26,6 +26,12 @@ const config: HardhatUserConfig = {
         runs: 200,
       },
     },
+  },
+  gasReporter: {
+    enabled: true, // Enable the gas reporter
+    currency: "USD", // Display gas costs in USD
+    coinmarketcap: "API_KEY", // Optional: Get live gas prices
+    gasPrice: 21, // Optional: Set a gas price in gwei
   },
   defaultNetwork: "localhost",
   namedAccounts: {
