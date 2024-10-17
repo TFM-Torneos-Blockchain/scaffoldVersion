@@ -1,12 +1,11 @@
 import { keccak256 } from "@ethersproject/keccak256";
+import "dotenv/config";
 import { ethers } from "ethers";
-import {} from 'dotenv/config' 
-
 
 // Define a function to process the events and generate the leaderboard
 type PlayerData = {
-  player: string;
-  score_number: bigint;
+  address: string;
+  score: bigint;
 };
 
 // Define a type for the outer nested array
@@ -34,16 +33,13 @@ export function getLeaderboard(tournament_id: bigint, events: NestedPlayerData) 
   // Process events to generate the leaderboard and scores
   for (const event of events) {
     // Concatenate address and score bytes
-    console.log(event)
+    console.log(event);
     concatenatedStringBytes = ethers.utils.solidityPack(
       ["bytes", "address", "uint256"],
       [concatenatedStringBytes, event.address, event.score],
     );
     spongeHash = keccak256(
-      ethers.utils.solidityPack(
-        ["bytes32", "address", "uint256"],
-        [spongeHash, event.address, event.score],
-      ),
+      ethers.utils.solidityPack(["bytes32", "address", "uint256"], [spongeHash, event.address, event.score]),
     );
     scores.push(Number(event.score));
   }
@@ -55,5 +51,5 @@ export function getLeaderboard(tournament_id: bigint, events: NestedPlayerData) 
   positions.sort((a, b) => scores[b] - scores[a]);
 
   // Return both arrays
-  return { concatenatedStringBytes, positions , spongeHash};
+  return { concatenatedStringBytes, positions, spongeHash };
 }

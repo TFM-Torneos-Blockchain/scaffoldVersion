@@ -119,8 +119,14 @@ describe("tournamentManager and MerkleTree", function () {
 
     const newTournament1 = await tournamentManager.tournaments(greatestTournamentID);
 
-
-    console.log("SPONGE", newTournament1.resultsSpongeHash, "players",  (newTournament1.initDate).toBigInt(),newTournament1.deFiBridgeAddress,newTournament1.enrollmentAmount);
+    console.log(
+      "SPONGE",
+      newTournament1.resultsSpongeHash,
+      "players",
+      newTournament1.initDate.toBigInt(),
+      newTournament1.deFiBridgeAddress,
+      newTournament1.enrollmentAmount,
+    );
 
     // filterResults = tournamentManager.filters.ResultCreated();
     // mintResultCreated = await tournamentManager.queryFilter(filterResults);
@@ -150,7 +156,7 @@ describe("tournamentManager and MerkleTree", function () {
     //   backendLeaderBoard.concatenatedStringBytes,
     //   backendLeaderBoard.positions,
     // );
-    // await new Promise(end => setTimeout(end, 5000));
+    // await new Promise(end => setTimeout(end, 5000));getLeaderboard
     // console.log("tournament finished");
   });
 });

@@ -19,8 +19,8 @@ describe("LeaderBoard and MerkleTree", function () {
   let owner: Signer, participant1: Signer, participant2: Signer;
 
   type EventsResultCreated = {
-    player: string;
-    score_number: bigint;
+    address: string;
+    score: bigint;
   };
 
   let filter;
@@ -108,7 +108,7 @@ describe("LeaderBoard and MerkleTree", function () {
       const player = mintResultCreated[i].args.player;
       const scoreNumber = mintResultCreated[i].args.scoreNumber.toBigInt();
 
-      eventsResultCreated.push({ player, score_number: scoreNumber });
+      eventsResultCreated.push({ address: player, score: scoreNumber });
     }
 
     badEventsResultCreated = [];
@@ -117,7 +117,7 @@ describe("LeaderBoard and MerkleTree", function () {
       const player = mintResultCreated[i].args.player;
       const scoreNumber = mintResultCreated[i].args.scoreNumber.toBigInt();
 
-      badEventsResultCreated.push({ player, score_number: scoreNumber });
+      badEventsResultCreated.push({ address: player, score: scoreNumber });
     }
   });
 
