@@ -7,25 +7,25 @@ import "./interfaces/IDeFiBridge.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract TournamentManager is Ownable(msg.sender) {
+contract TournamentManagerOpt is Ownable(msg.sender) {
 	//------------------------------------------Storage-------------------------------------------------------------
 	// Struct TournamentData
 	struct TournamentData {
-		uint16 ID;
-		uint8 minParticipants;
-		uint16 maxParticipants;
-		mapping(address => bool) isParticipant;
-		uint16 numParticipants;
-		uint256 enrollmentAmount; // in Wei
-		address[] acceptedTokens;
-		uint256[] totalRewardAmount; // Only rewards
-		uint64 initDate;
-		uint64 endDate;
-		address deFiBridgeAddress;
-		address[] deFiProtocolAddresses;
-		bytes32 resultsSpongeHash;
-		bytes32 merkleRoot;
-		bool aborted;
+		uint16 ID; // 2 bytes
+		uint16 maxParticipants; // 2 bytes
+		uint16 numParticipants; // 2 bytes
+		uint8 minParticipants; // 1 byte
+		bool aborted; // 1 byte (total: 8 bytes so far)
+		uint64 initDate; // 8 bytes
+		uint64 endDate; // 8 bytes (total: 24 bytes so far)
+		uint256 enrollmentAmount; // 32 bytes
+		address deFiBridgeAddress; // 20 bytes
+		address[] acceptedTokens; // dynamic array (stores pointer in one slot)
+		uint256[] totalRewardAmount; // dynamic array
+		address[] deFiProtocolAddresses; // dynamic array
+		bytes32 resultsSpongeHash; // 32 bytes
+		bytes32 merkleRoot; // 32 bytes
+		mapping(address => bool) isParticipant; // mapping (stored separately)
 	}
 
 	// Tournament tournament;
