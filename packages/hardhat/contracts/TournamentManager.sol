@@ -97,6 +97,7 @@ contract TournamentManager is Ownable(msg.sender) {
 		);
 	}
 
+	// MISSING CHECKS!!! Implement a check to see if tournament is ERC20 or ETH based, prevent to use function.
 	function enrollWithERC20(uint16 idTournament) external {
 		TournamentData storage selectedTournament = tournaments[idTournament];
 
@@ -166,10 +167,10 @@ contract TournamentManager is Ownable(msg.sender) {
 
 		// Assign the enrollment amount to the participant.
 		selectedTournament.isParticipant[msg.sender] = true;
+		selectedTournament.numParticipants++;
 
 		uint256 totalCollectedAmount = selectedTournament.numParticipants *
 			selectedTournament.enrollmentAmount;
-		selectedTournament.numParticipants++;
 
 		emit Enroll(
 			selectedTournament.ID,

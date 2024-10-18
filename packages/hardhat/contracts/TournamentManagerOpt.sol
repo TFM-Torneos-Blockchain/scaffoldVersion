@@ -166,10 +166,10 @@ contract TournamentManagerOpt is Ownable(msg.sender) {
 
 		// Assign the enrollment amount to the participant.
 		selectedTournament.isParticipant[msg.sender] = true;
+		selectedTournament.numParticipants++;
 
 		uint256 totalCollectedAmount = selectedTournament.numParticipants *
 			selectedTournament.enrollmentAmount;
-		selectedTournament.numParticipants++;
 
 		emit Enroll(
 			selectedTournament.ID,

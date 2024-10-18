@@ -46,7 +46,7 @@ describe("TournamentManager - createTournament", function () {
         endDate = currentTime + 7200; // 2 hours from now
       });
 
-      // Test 1: Valid tournament creation
+      // Test: Valid tournament creation
       it("Should allow the owner to create a tournament with valid inputs", async function () {
         await tournamentManager.createTournament(
           100, // maxParticipants
@@ -71,7 +71,7 @@ describe("TournamentManager - createTournament", function () {
         expect(await tournamentManager.getDeFiProtocolAddresses(0)).to.deep.equal([compoundProtocol.address]);
       });
 
-      // Test 2: Should revert if called by a non-owner
+      // Test: Should revert if called by a non-owner
       it("Should revert if called by non-owner", async function () {
         await expect(
           tournamentManager.connect(nonOwner).createTournament(
@@ -89,72 +89,7 @@ describe("TournamentManager - createTournament", function () {
           .withArgs(nonOwner.address);
       });
 
-      // MISSING CHECKS !!!
-      // Test 3: Should revert if _maxParticipants is 0
-      //   it("Should revert if _maxParticipants is 0", async function () {
-      //     await expect(
-      //       tournamentManager.createTournament(
-      //         0, // Invalid maxParticipants
-      //         1,
-      //         enrollmentAmount,
-      //         [funToken.address],
-      //         initDate,
-      //         endDate,
-      //         compoundProtocol.address,
-      //         [compoundProtocol.address],
-      //       ),
-      //     ).to.be.revertedWith("Invalid maxParticipants");
-      //   });
-
-      //   // Test 4: Should revert if _minParticipants is greater than _maxParticipants
-      //   it("Should revert if _minParticipants is greater than _maxParticipants", async function () {
-      //     await expect(
-      //       tournamentManager.createTournament(
-      //         10, // maxParticipants
-      //         20, // minParticipants is greater
-      //         enrollmentAmount,
-      //         [funToken.address],
-      //         initDate,
-      //         endDate,
-      //         compoundProtocol.address,
-      //         [compoundProtocol.address],
-      //       ),
-      //     ).to.be.revertedWith("minParticipants cannot exceed maxParticipants");
-      //   });
-
-      //   // Test 5: Should revert if _enrollmentAmount is 0
-      //   it("Should revert if _enrollmentAmount is 0", async function () {
-      //     await expect(
-      //       tournamentManager.createTournament(
-      //         100,
-      //         1,
-      //         0, // Invalid enrollmentAmount
-      //         [funToken.address],
-      //         initDate,
-      //         endDate,
-      //         compoundProtocol.address,
-      //         [compoundProtocol.address],
-      //       ),
-      //     ).to.be.revertedWith("Invalid enrollment amount");
-      //   });
-
-      //   // Test 6: Should revert if _initDate is greater than _endDate
-      //   it("Should revert if _initDate is greater than _endDate", async function () {
-      //     await expect(
-      //       tournamentManager.createTournament(
-      //         100,
-      //         1,
-      //         enrollmentAmount,
-      //         [funToken.address],
-      //         endDate, // Init date is later than end date
-      //         initDate,
-      //         compoundProtocol.address,
-      //         [compoundProtocol.address],
-      //       ),
-      //     ).to.be.revertedWith("Invalid date range");
-      //   });
-
-      // Test 7: Should allow creating a tournament with an empty acceptedTokens array
+      // Test: Should allow creating a tournament with an empty acceptedTokens arrayTournamentData
       it("Should allow creating a tournament with an empty acceptedTokens array", async function () {
         await tournamentManager.createTournament(
           100, // maxParticipants
@@ -198,7 +133,7 @@ describe("TournamentManager - createTournament", function () {
         expect(storedDeFiProtocolAddresses).to.deep.equal(deFiProtocolAddresses);
       });
 
-      // Test 8: Should allow creating a tournament with an empty deFiProtocolAddresses array
+      // Test: Should allow creating a tournament with an empty deFiProtocolAddresses array
       it("Should allow creating a tournament with an empty deFiProtocolAddresses array", async function () {
         await tournamentManager.createTournament(
           100, // maxParticipants
@@ -216,7 +151,7 @@ describe("TournamentManager - createTournament", function () {
         expect(deFiProtocols.length).to.equal(0);
       });
 
-      // Test 9: Ensure each tournament gets a new clone
+      // Test: Ensure each tournament gets a new clone
       it("Should create a new clone for each tournament", async function () {
         // Create the first tournament
         await tournamentManager.createTournament(
@@ -252,7 +187,39 @@ describe("TournamentManager - createTournament", function () {
         expect(firstCloneAddress).to.not.equal(secondCloneAddress);
       });
 
-      // Test that the "TournamentCreated" event is emitted correctly
+      it("Should clone and initialize DeFiBridge properly (owner is TournamentManager)", async function () {
+        const DeFiBridgeFactory = await ethers.getContractFactory("CompoundProtocol"); // Example DeFi bridge contract
+        const deFiBridge = await DeFiBridgeFactory.deploy();
+        await deFiBridge.deployed();
+
+        // Create a tournament and clone the DeFiBridge
+        await tournamentManager.createTournament(
+          100, // maxParticipants
+          1, // minParticipants
+          enrollmentAmount,
+          [funToken.address], // acceptedTokens array
+          initDate,
+          endDate,
+          deFiBridge.address, // DeFi bridge to clone
+          [], // deFiProtocolAddresses array
+        );
+
+        // Get the cloned DeFiBridge address from the tournament
+        const tournament = await tournamentManager.tournaments(0);
+        const clonedDeFiBridgeAddress = tournament.deFiBridgeAddress;
+
+        // Connect to the cloned contract using the IDeFiBridge interface
+        const clonedDeFiBridge = (await ethers.getContractAt(
+          "CompoundProtocol",
+          clonedDeFiBridgeAddress,
+        )) as CompoundProtocol;
+
+        // Verify that the owner of the cloned contract is the tournamentManager (indicating proper initialization)
+        const clonedDeFiBridgeOwner = await clonedDeFiBridge.owner();
+        expect(clonedDeFiBridgeOwner).to.equal(tournamentManager.address); // The TournamentManager should be the owner
+      });
+
+      // Test: the "TournamentCreated" event is emitted correctly
       it("Should emit TournamentCreated event with correct data", async function () {
         await expect(
           tournamentManager.createTournament(
@@ -271,9 +238,74 @@ describe("TournamentManager - createTournament", function () {
             0, // Tournament ID
             initDate,
             endDate,
-            await tournamentManager.tournaments(0).then(t => t.deFiBridgeAddress), // Ensure correct clone address is passed
+            await tournamentManager.tournaments(0).then((t: any) => t.deFiBridgeAddress), // Ensure correct clone address is passed
           );
       });
     });
   });
 });
+
+// MISSING CHECKS !!!
+// Test: Should revert if _maxParticipants is 0
+//   it("Should revert if _maxParticipants is 0", async function () {
+//     await expect(
+//       tournamentManager.createTournament(
+//         0, // Invalid maxParticipants
+//         1,
+//         enrollmentAmount,
+//         [funToken.address],
+//         initDate,
+//         endDate,
+//         compoundProtocol.address,
+//         [compoundProtocol.address],
+//       ),
+//     ).to.be.revertedWith("Invalid maxParticipants");
+//   });
+
+//   // Test: Should revert if _minParticipants is greater than _maxParticipants
+//   it("Should revert if _minParticipants is greater than _maxParticipants", async function () {
+//     await expect(
+//       tournamentManager.createTournament(
+//         10, // maxParticipants
+//         20, // minParticipants is greater
+//         enrollmentAmount,
+//         [funToken.address],
+//         initDate,
+//         endDate,
+//         compoundProtocol.address,
+//         [compoundProtocol.address],
+//       ),
+//     ).to.be.revertedWith("minParticipants cannot exceed maxParticipants");
+//   });
+
+//   // Test: Should revert if _enrollmentAmount is 0
+//   it("Should revert if _enrollmentAmount is 0", async function () {
+//     await expect(
+//       tournamentManager.createTournament(
+//         100,
+//         1,
+//         0, // Invalid enrollmentAmount
+//         [funToken.address],
+//         initDate,
+//         endDate,
+//         compoundProtocol.address,
+//         [compoundProtocol.address],
+//       ),
+//     ).to.be.revertedWith("Invalid enrollment amount");
+//   });
+
+//   // Test: Should revert if _initDate is greater than _endDate
+//   it("Should revert if _initDate is greater than _endDate", async function () {
+//     await expect(
+//       tournamentManager.createTournament(
+//         100,
+//         1,
+//         enrollmentAmount,
+//         [funToken.address],
+//         endDate, // Init date is later than end date
+//         initDate,
+//         compoundProtocol.address,
+//         [compoundProtocol.address],
+//       ),
+//     ).to.be.revertedWith("Invalid date range");
+//   });
