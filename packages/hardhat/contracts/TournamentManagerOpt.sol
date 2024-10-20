@@ -82,7 +82,17 @@ contract TournamentManagerOpt is Ownable(msg.sender) {
 		newTournament.endDate = _endDate;
 
 		newTournament.deFiBridgeAddress = Clones.clone(_deFiBridgeToClone);
-		IDeFiBridge(newTournament.deFiBridgeAddress).initialize(address(this));
+		if (_acceptedTokens.length == 0) {
+			// Cast the address to IERCTournament for ERC20 tournaments
+			IETHTournament(newTournament.deFiBridgeAddress).initialize(
+				address(this)
+			);
+		} else {
+			// Cast the address to IETHTournament for ETH tournaments
+			IERCTournament(newTournament.deFiBridgeAddress).initialize(
+				address(this)
+			);
+		}
 
 		for (uint8 i = 0; i < _deFiProtocolAddresses.length; i++) {
 			newTournament.deFiProtocolAddresses.push(_deFiProtocolAddresses[i]);
@@ -97,6 +107,7 @@ contract TournamentManagerOpt is Ownable(msg.sender) {
 		);
 	}
 
+	// MISSING CHECKS!!! Implement a check to see if tournament is ERC20 or ETH based, prevent to use function.
 	function enrollWithERC20(uint16 idTournament) external {
 		TournamentData storage selectedTournament = tournaments[idTournament];
 
@@ -204,7 +215,7 @@ contract TournamentManagerOpt is Ownable(msg.sender) {
 			);
 		}
 
-		IDeFiBridge(selectedTournament.deFiBridgeAddress).startERC20(
+		IERCTournament(selectedTournament.deFiBridgeAddress).startERC20(
 			selectedTournament.enrollmentAmount *
 				selectedTournament.numParticipants,
 			selectedTournament.acceptedTokens,
@@ -229,18 +240,14 @@ contract TournamentManagerOpt is Ownable(msg.sender) {
 		) {
 			selectedTournament.aborted = true;
 		} else {
-			(bool success, ) = selectedTournament.deFiBridgeAddress.call{
+			IETHTournament(selectedTournament.deFiBridgeAddress).startETH{
 				value: selectedTournament.numParticipants *
 					selectedTournament.enrollmentAmount
 			}(
-				abi.encodeWithSignature(
-					"startETH(uint256,address[] calldata)",
-					selectedTournament.numParticipants *
-						selectedTournament.enrollmentAmount,
-					selectedTournament.deFiProtocolAddresses
-				)
+				selectedTournament.numParticipants *
+					selectedTournament.enrollmentAmount,
+				selectedTournament.deFiProtocolAddresses
 			);
-			require(success, "Call to DeFiBridge failed.");
 		}
 	}
 
@@ -286,7 +293,7 @@ contract TournamentManagerOpt is Ownable(msg.sender) {
 		createLeaderBoardMerkleTree(idTournament, resultsBytes, positions);
 
 		// End the tournament with the DeFi Bridge and get the rewards.
-		uint256[] memory deFiBridgeRewards = IDeFiBridge(
+		uint256[] memory deFiBridgeRewards = IERCTournament(
 			selectedTournament.deFiBridgeAddress
 		).endERC20(
 				selectedTournament.numParticipants *
@@ -322,7 +329,7 @@ contract TournamentManagerOpt is Ownable(msg.sender) {
 
 		createLeaderBoardMerkleTree(idTournament, resultsBytes, positions);
 
-		uint256 deFiBridgeReward = IDeFiBridge(
+		uint256 deFiBridgeReward = IETHTournament(
 			selectedTournament.deFiBridgeAddress
 		).endETH(
 				selectedTournament.numParticipants *

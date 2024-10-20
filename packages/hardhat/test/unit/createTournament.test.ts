@@ -1,12 +1,19 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { TournamentManager, TournamentManagerOpt, FunToken, CompoundProtocol } from "../../typechain-types";
+import {
+  TournamentManager,
+  TournamentManagerOpt,
+  FunToken,
+  CompoundProtocol,
+  MockERC20Protocol,
+} from "../../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("TournamentManager - createTournament", function () {
   let tournamentManager: TournamentManager | TournamentManagerOpt;
   let funToken: FunToken;
   let compoundProtocol: CompoundProtocol;
+  let mockERC20Protocol: MockERC20Protocol;
   let owner: SignerWithAddress,
     nonOwner: SignerWithAddress,
     participant1: SignerWithAddress,
@@ -29,6 +36,11 @@ describe("TournamentManager - createTournament", function () {
         const TournamentManagerFactory = await ethers.getContractFactory(contractFactory);
         tournamentManager = (await TournamentManagerFactory.deploy()) as TournamentManager;
         await tournamentManager.deployed();
+
+        // Deploy ERC20Protocol
+        const MockERC20ProtocolFactory = await ethers.getContractFactory("MockERC20Protocol");
+        mockERC20Protocol = (await MockERC20ProtocolFactory.deploy()) as MockERC20Protocol;
+        await mockERC20Protocol.deployed();
 
         // Deploy a mock token for testing
         const FunTokenFactory = await ethers.getContractFactory("FunToken");
@@ -55,7 +67,7 @@ describe("TournamentManager - createTournament", function () {
           [funToken.address], // acceptedTokens
           initDate,
           endDate,
-          compoundProtocol.address, // DeFi bridge to clone
+          mockERC20Protocol.address, // DeFi bridge to clone
           [compoundProtocol.address], // DeFi protocols
         );
 
@@ -161,7 +173,7 @@ describe("TournamentManager - createTournament", function () {
           [], // Empty acceptedTokens array
           initDate,
           endDate,
-          compoundProtocol.address, // DeFi bridge to clone
+          mockERC20Protocol.address, // DeFi bridge to clone
           [], // Empty deFiProtocolAddresses array
         );
 
@@ -176,7 +188,7 @@ describe("TournamentManager - createTournament", function () {
           [], // Empty acceptedTokens array
           initDate + 3600, // 1 hour later
           endDate + 3600,
-          compoundProtocol.address, // DeFi bridge to clone
+          mockERC20Protocol.address, // DeFi bridge to clone
           [], // Empty deFiProtocolAddresses array
         );
 

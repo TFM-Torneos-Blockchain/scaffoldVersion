@@ -64,26 +64,64 @@ describe("TournamentManager - Enrollment", function () {
       });
 
       // Test: Valid enrollment with ERC20
-      it("Should allow valid enrollment with ERC20", async function () {
+      it("Should allow valid enrollment with ERC20 and update balances", async function () {
         // Approve the tokens for enrollment
         await funToken.connect(participant1).approve(tournamentManager.address, enrollmentAmount);
+
+        // Get participant and contract balances before enrollment
+        const participantBalanceBefore = await funToken.balanceOf(participant1.address);
+        const contractBalanceBefore = await funToken.balanceOf(tournamentManager.address);
+        const allowanceBefore = await funToken.allowance(participant1.address, tournamentManager.address);
 
         // Enroll with ERC20
         await expect(tournamentManager.connect(participant1).enrollWithERC20(0))
           .to.emit(tournamentManager, "Enroll")
           .withArgs(0, participant1.address, 1, enrollmentAmount);
 
+        // Get participant and contract balances after enrollment
+        const participantBalanceAfter = await funToken.balanceOf(participant1.address);
+        const contractBalanceAfter = await funToken.balanceOf(tournamentManager.address);
+        const allowanceAfter = await funToken.allowance(participant1.address, tournamentManager.address);
+
+        // Check if the participant's balance decreased by the enrollment amount
+        expect(participantBalanceBefore.sub(participantBalanceAfter)).to.equal(enrollmentAmount);
+
+        // Check if the TournamentManager's contract balance increased by the enrollment amount
+        expect(contractBalanceAfter.sub(contractBalanceBefore)).to.equal(enrollmentAmount);
+
+        // Check if the allowance was reduced appropriately
+        expect(allowanceBefore.sub(allowanceAfter)).to.equal(enrollmentAmount);
+
+        // Check tournament data
         const tournament = await tournamentManager.tournaments(0);
         expect(tournament.numParticipants).to.equal(1);
         expect(await tournamentManager.getParticipants(0, participant1.address)).to.be.true;
       });
 
       // Test: Valid enrollment with ETH
-      it("Should allow valid enrollment with ETH", async function () {
-        await expect(tournamentManager.connect(participant1).enrollWithETH(0, { value: enrollmentAmount }))
-          .to.emit(tournamentManager, "Enroll")
-          .withArgs(0, participant1.address, 1, enrollmentAmount);
+      it("Should allow valid enrollment with ETH and update balances", async function () {
+        // Get participant and contract balances before enrollment
+        const participantBalanceBefore = await participant1.getBalance();
+        const contractBalanceBefore = await ethers.provider.getBalance(tournamentManager.address);
 
+        // Enroll with ETH
+        const tx = await tournamentManager.connect(participant1).enrollWithETH(0, { value: enrollmentAmount });
+        const receipt = await tx.wait();
+
+        // Get gas used to compute participant's balance change
+        const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+
+        // Get participant and contract balances after enrollment
+        const participantBalanceAfter = await participant1.getBalance();
+        const contractBalanceAfter = await ethers.provider.getBalance(tournamentManager.address);
+
+        // Check if the participant's balance decreased by the enrollment amount + gas fees
+        expect(participantBalanceBefore.sub(participantBalanceAfter)).to.equal(enrollmentAmount.add(gasUsed));
+
+        // Check if the TournamentManager's contract balance increased by the enrollment amount
+        expect(contractBalanceAfter.sub(contractBalanceBefore)).to.equal(enrollmentAmount);
+
+        // Check tournament data
         const tournament = await tournamentManager.tournaments(0);
         expect(tournament.numParticipants).to.equal(1);
         expect(await tournamentManager.getParticipants(0, participant1.address)).to.be.true;
