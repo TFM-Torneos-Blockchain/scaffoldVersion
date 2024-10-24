@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./interfaces/Erc20.sol";
+
 contract MockERC20Protocol {
 	event Approval(
 		address indexed token,
@@ -17,7 +19,6 @@ contract MockERC20Protocol {
 	uint256 public amountWithdrawn;
 	address public lastErc20Address;
 	address public lastDeFiProtocolAddress;
-	uint256[] public deFiBridgeRewards;
 
 	function initialize(address tournamentManagerAddress) public {}
 	// Simulate starting the ERC20 interaction with the protocol
@@ -42,22 +43,25 @@ contract MockERC20Protocol {
 		address[] calldata defiProtocolAddresses
 	) external returns (uint256[] memory) {
 		ended = true;
-		amountWithdrawn = amountOfTokens;
-		lastErc20Address = erc20Addresses[0];
-		lastDeFiProtocolAddress = defiProtocolAddresses[0];
+		uint256 totalCollected = transferERC20Token(
+			erc20Addresses[0],
+			msg.sender
+		);
 
-		emit RewardClaimed(defiProtocolAddresses[0], defiProtocolAddresses[1]);
+		uint256[] memory deFiBridgeRewards = new uint256[](1);
+		deFiBridgeRewards[0] = totalCollected - amountOfTokens;
 
-		uint256[] memory rewards;
-		rewards[0] = amountOfTokens + 1000;
-
-		return rewards;
+		return deFiBridgeRewards;
 	}
 
-	function claimReward(
-		address cometAddress,
-		address rewardsAddress
-	) external {
-		emit RewardClaimed(cometAddress, rewardsAddress);
+	function transferERC20Token(
+		address tokenAddress,
+		address to
+	) private returns (uint256) {
+		ERC20 token = ERC20(tokenAddress);
+		uint256 amount = token.balanceOf(address(this));
+		bool succeed = token.transfer(to, amount);
+		require(succeed, "Transfer failed.");
+		return amount;
 	}
 }

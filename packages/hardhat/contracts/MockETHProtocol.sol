@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+import "hardhat/console.sol";
 
 contract MockETHProtocol {
 	event Approval(
@@ -21,35 +22,34 @@ contract MockETHProtocol {
 	function initialize(address tournamentManagerAddress) public {}
 	// Simulate starting the ETH interaction with the protocol
 	function startETH(
-		uint256 amountOfTokens,
+		uint256 amountOfETH,
 		address[] calldata defiProtocolAddresses
 	) external payable {
 		started = true;
-		amountSupplied = amountOfTokens;
+		amountSupplied = amountOfETH;
 		lastDeFiProtocolAddress = defiProtocolAddresses[0];
 	}
 
 	// Simulate ending the ETH interaction and returning rewards
 	function endETH(
-		uint256 amountOfTokens,
+		uint256 amountOfETH,
 		address[] calldata defiProtocolAddresses
-	) external payable returns (uint256[] memory) {
+	) external payable returns (uint256) {
+		uint256 balance = address(this).balance;
 		ended = true;
-		amountWithdrawn = amountOfTokens;
+		amountWithdrawn = amountOfETH;
 		lastDeFiProtocolAddress = defiProtocolAddresses[0];
 
 		emit RewardClaimed(defiProtocolAddresses[0], defiProtocolAddresses[1]);
+		uint256 rewardETH = balance - amountOfETH;
 
-		uint256[] memory rewards;
-		rewards[0] = amountOfTokens + 1000;
+		// Transfer ETH to the sender
+		(bool success, ) = msg.sender.call{ value: balance }("");
+		require(success, "Failed to send ETH to TM.");
 
-		return rewards;
+		return rewardETH;
 	}
 
-	function claimReward(
-		address cometAddress,
-		address rewardsAddress
-	) external {
-		emit RewardClaimed(cometAddress, rewardsAddress);
-	}
+	// Add a receive function to allow the contract to accept plain ETH transfers
+	receive() external payable {}
 }

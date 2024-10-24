@@ -11,7 +11,7 @@ type PlayerData = {
 // Define a type for the outer nested array
 type NestedPlayerData = PlayerData[];
 export function getLeaderboard(tournament_id: bigint, events: NestedPlayerData) {
-  console.log("ELS events", events);
+  // console.log("ELS events", events);
   // Usage
   // const {
   //   data: events,
@@ -33,7 +33,7 @@ export function getLeaderboard(tournament_id: bigint, events: NestedPlayerData) 
   // Process events to generate the leaderboard and scores
   for (const event of events) {
     // Concatenate address and score bytes
-    console.log(event);
+    // console.log(event);
     concatenatedStringBytes = ethers.utils.solidityPack(
       ["bytes", "address", "uint256"],
       [concatenatedStringBytes, event.address, event.score],

@@ -303,11 +303,11 @@ contract TournamentManager is Ownable(msg.sender) {
 			);
 
 		for (uint8 i = 0; i < selectedTournament.acceptedTokens.length; i++) {
-			// Calculate and set the player's rewards.
+			// Calculate and set the player's rewards. (tournament total Reward)
 			uint256 tournamentReward = (deFiBridgeRewards[i] * 8) / 10;
 			selectedTournament.totalRewardAmount.push(tournamentReward);
 
-			// Transfer the remaining rewards to the owner.
+			// Transfer the remaining rewards to the owner. (share of the company)
 			ERC20(selectedTournament.acceptedTokens[i]).transfer(
 				msg.sender,
 				(deFiBridgeRewards[i] * 2) / 10
@@ -468,7 +468,7 @@ contract TournamentManager is Ownable(msg.sender) {
 	function setResult(
 		uint16 idTournament,
 		address player,
-		uint256 newScore
+		uint256 scoreNumber
 	) external {
 		// Sponge Hash with previous resultsSpongeHash and new result (bytes(addressPlayer, scorePlayer)) -> hash(historic_results,new_results)
 		// TODO require accepted source
@@ -480,11 +480,11 @@ contract TournamentManager is Ownable(msg.sender) {
 			abi.encodePacked(
 				tournaments[idTournament].resultsSpongeHash,
 				player,
-				newScore
+				scoreNumber
 			)
 		);
 
-		emit ResultCreated(idTournament, player, newScore);
+		emit ResultCreated(idTournament, player, scoreNumber);
 	}
 
 	function createLeaderBoardMerkleTree(
@@ -580,6 +580,14 @@ contract TournamentManager is Ownable(msg.sender) {
 		return tournaments[_tournamentID].deFiProtocolAddresses;
 	}
 
+	// Getter function for rewards
+	function getTotalRewardAmount(
+		uint16 _tournamentID
+	) external view returns (uint256[] memory) {
+		require(_tournamentID < tournaments.length, "Invalid tournament ID");
+		return tournaments[_tournamentID].totalRewardAmount;
+	}
+
 	// Getter function for retrieve the Positions of the structs for ERC20 and ETH tournaments
 	function getTournamentIds()
 		public
@@ -627,4 +635,7 @@ contract TournamentManager is Ownable(msg.sender) {
 	function getSpongeHash(uint16 idTournament) public view returns (bytes32) {
 		return tournaments[idTournament].resultsSpongeHash;
 	}
+
+	// Fallback receive function to accept ETH transfers
+	receive() external payable {}
 }

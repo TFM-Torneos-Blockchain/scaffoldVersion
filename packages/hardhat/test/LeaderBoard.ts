@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
-import { TournamentManager, FunToken, FunToken2, CompoundProtocol, MajorHashGame } from "../typechain-types";
+import { TournamentManager, FunToken, CompoundProtocol, MajorHashGame } from "../typechain-types";
 import { getLeaderboard } from "../../nextjs/utils/leader-board/leaderboard";
 import { getMerkleRoot } from "../../nextjs/utils/leader-board/merkle_tree_proof";
 import type { Signer } from "ethers";
@@ -13,7 +13,6 @@ describe("LeaderBoard and MerkleTree", function () {
 
   let leaderBoard: TournamentManager;
   let funToken: FunToken;
-  let funToken2: FunToken2;
   let compoundProtocol: CompoundProtocol;
   let majorHashGame: MajorHashGame;
   let owner: Signer, participant1: Signer, participant2: Signer;
@@ -48,10 +47,6 @@ describe("LeaderBoard and MerkleTree", function () {
     const FunTokenFactory = await ethers.getContractFactory("FunToken");
     funToken = (await FunTokenFactory.deploy(owner.getAddress())) as FunToken;
     await funToken.deployed();
-    // FunToken2 contract
-    const FunToken2Factory = await ethers.getContractFactory("FunToken2");
-    funToken2 = (await FunToken2Factory.deploy(owner.getAddress())) as FunToken2;
-    await funToken2.deployed();
 
     const currentDate = new Date();
     const tomorrow = new Date(currentDate.getTime() + 2 * 24 * 60 * 60 * 1000); // Add 24 hours
@@ -74,9 +69,7 @@ describe("LeaderBoard and MerkleTree", function () {
       );
 
     await funToken.transfer(participant1.getAddress(), ethers.utils.parseEther("15"));
-    await funToken2.transfer(participant1.getAddress(), ethers.utils.parseEther("15"));
     await funToken.transfer(participant2.getAddress(), ethers.utils.parseEther("15"));
-    await funToken2.transfer(participant2.getAddress(), ethers.utils.parseEther("15"));
 
     await funToken.connect(owner).approve(leaderBoard.address, enrollmentAmount);
     await leaderBoard.enrollWithERC20(0);

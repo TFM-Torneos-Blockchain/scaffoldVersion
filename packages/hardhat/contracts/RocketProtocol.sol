@@ -38,7 +38,6 @@ contract RocketProtocol is OwnableUpgradeable {
 		// Transfer ETH to the sender
 		(bool success, ) = msg.sender.call{ value: balance }("");
 		require(success, "Failed to send ETH to TM.");
-		payable(msg.sender).transfer(balance);
 		uint256 rewardETH = balance - amountOfETH;
 		return rewardETH;
 	}
